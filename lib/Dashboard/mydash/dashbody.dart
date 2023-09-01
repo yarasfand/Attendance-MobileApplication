@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
+
+Future<String?> _loadUserData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? corporateID = prefs.getString('corporateID');
+  String? username = prefs.getString('username');
+  String? password = prefs.getString('password');
+  return 'Corporate ID: $corporateID, Username: $username, Password: $password';
+}
+
 
 class myDashBody extends StatelessWidget {
   const myDashBody({Key? key});
@@ -61,6 +73,47 @@ class myDashBody extends StatelessWidget {
                 ),
               ],
             ),
+            FutureBuilder<String?>(
+              future: _loadUserData(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Data is still being loaded
+                  return CircularProgressIndicator(); // You can use a loading indicator here
+                } else if (snapshot.hasError) {
+                  // Error occurred while loading data
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  // Data loaded successfully
+                  String? userData = snapshot.data;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                    // ... Rest of your widget's content
+
+                    // Display the retrieved data
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'User Data:',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          userData ?? 'Data not available', // Display the user data here
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        // ... Rest of your widget's content
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+
+
           ],
         ),
       ),

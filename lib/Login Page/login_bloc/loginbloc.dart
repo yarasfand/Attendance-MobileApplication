@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:project/login_bloc/loginEvents.dart';
-import 'package:project/login_bloc/loginStates.dart';
+import 'loginEvents.dart';
+import 'loginStates.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   SignInBloc() : super(SignInInitialState()) {

@@ -2,44 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project/login_bloc/loginEvents.dart';
-import 'package:project/login_bloc/loginStates.dart';
-import 'package:project/login_bloc/loginbloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'Dashboard/homepage.dart';
-import 'Dashboard/mydrawerbuilding/mainpageintegeration.dart';
+import '../Dashboard/mydrawerbuilding/mainpageintegeration.dart';
+import 'half_circle_clipper.dart';
+import 'login_bloc/loginEvents.dart';
+import 'login_bloc/loginStates.dart';
+import 'login_bloc/loginbloc.dart';
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _passwordController = TextEditingController();
+enum UserType { employee, admin }
 
+class _LoginPageState extends State<LoginPage> {
+  UserType? _selectedUserType = UserType.employee; // Default selection
+
+  final _passwordController = TextEditingController();
+  final _CoorporateIdController = TextEditingController();
+  final _UserController = TextEditingController();
   bool _obsecureText = true;
+  late bool _isButtonPressed = false;
   static const String KEY_LOGIN = "Login";
 
-  late bool _isButtonPressed = false;
+  Future<void> saveUserData(
+      String corporateID, String username, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('corporateID', corporateID);
+    await prefs.setString('username', username);
+    await prefs.setString('password', password);
+  }
 
   Future<void> _onLoginButtonPressed() async {
     setState(() {
       _isButtonPressed = true;
     });
-
     // Simulate some delay for demonstration purposes
     await Future.delayed(const Duration(seconds: 1));
-
     var sharedPref = await SharedPreferences.getInstance();
     sharedPref.setBool(KEY_LOGIN, true); // User is logged in now
 
+    saveUserData(
+      _CoorporateIdController.text,
+      _UserController.text,
+      _passwordController.text,
+    );
     Navigator.pushReplacement(
       context,
       PageTransition(
-          child: const MainPage(),
-          duration: const Duration(seconds: 1),
-          type: PageTransitionType.fade),
+        child: const MainPage(),
+        duration: const Duration(seconds: 1),
+        type: PageTransitionType.fade,
+      ),
     );
   }
 
@@ -53,46 +68,47 @@ class _LoginPageState extends State<LoginPage> {
             ClipPath(
               clipper: HalfCircleClipper(),
               child: Container(
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  width: MediaQuery.of(context).size.width,
-                  color: Colors.orange,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 20,
+                height: MediaQuery.of(context).size.height * 0.5,
+                width: MediaQuery.of(context).size.width,
+                color: Colors.orange,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white, // Shadow color
-                                  blurRadius: 4, // Spread of the shadow
-                                  offset: Offset(0, 8), // Offset from the card
-                                ),
-                              ],
-                            ),
-                            child: Image.asset(
-                              'assets/images/pioneer_logo_app1.png',
-                              fit: BoxFit.cover,
-                              height: 150,
-                              width: 300,
-                            ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white, // Shadow color
+                                blurRadius: 4, // Spread of the shadow
+                                offset: Offset(0, 8), // Offset from the card
+                              ),
+                            ],
+                          ),
+                          child: Image.asset(
+                            'assets/images/pioneer_logo_app1.png',
+                            fit: BoxFit.cover,
+                            height: 150,
+                            width: 300,
                           ),
                         ),
-                      )
-                    ],
-                  )),
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -100,10 +116,9 @@ class _LoginPageState extends State<LoginPage> {
                 duration: const Duration(seconds: 2),
                 margin: const EdgeInsets.all(20),
                 height:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? MediaQuery.of(context).size.height * 0.65
-                        : MediaQuery.of(context).size.width *
-                            0.55, // Adjust the dimensions as needed
+                MediaQuery.of(context).orientation == Orientation.portrait
+                    ? MediaQuery.of(context).size.height * 0.65
+                    : MediaQuery.of(context).size.width * 0.55,
                 width: MediaQuery.of(context).size.width,
                 padding: const EdgeInsets.all(20),
                 decoration: const BoxDecoration(
@@ -127,13 +142,16 @@ class _LoginPageState extends State<LoginPage> {
                       BlocBuilder<SignInBloc, SignInState>(
                         builder: (BuildContext context, state) {
                           if (state is SignInNotValidState) {
-                            return Text(state.message,
-                                style: GoogleFonts.montserrat(
-                                    textStyle: const TextStyle(
+                            return Text(
+                              state.message,
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
                                   letterSpacing: 0,
                                   fontSize: 15,
                                   color: Colors.red,
-                                )));
+                                ),
+                              ),
+                            );
                           } else {
                             return Container();
                           }
@@ -149,6 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       TextFormField(
+                        controller: _CoorporateIdController,
                         decoration: InputDecoration(
                           labelText: 'Coorporate ID',
                           suffixIcon: Image.asset(
@@ -157,6 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       TextFormField(
+                        controller: _UserController,
                         decoration: InputDecoration(
                           labelText: 'User Name',
                           suffixIcon: Image.asset('assets/icons/profile.png'),
@@ -196,13 +216,38 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ],
                       ),
+                      ListTile(
+                        title: Text('Employee'),
+                        leading: Radio<UserType>(
+                          value: UserType.employee,
+                          groupValue: _selectedUserType,
+                          onChanged: (UserType? value) {
+                            setState(() {
+                              _selectedUserType = value!;
+                            });
+                          },
+                        ),
+                      ),
+                      ListTile(
+                        title: Text('Admin'),
+                        leading: Radio<UserType>(
+                          value: UserType.admin,
+                          groupValue: _selectedUserType,
+                          onChanged: (UserType? value) {
+                            setState(() {
+                              _selectedUserType = value!;
+                            });
+                          },
+                        ),
+                      ),
                       const SizedBox(height: 20),
                       BlocBuilder<SignInBloc, SignInState>(
                         builder: (BuildContext context, state) {
                           return ElevatedButton(
                             style: ButtonStyle(
                               fixedSize: MaterialStateProperty.all(
-                                  const Size(250, 50)), // Set your desired size
+                                const Size(250, 50),
+                              ),
                               shape: MaterialStateProperty.all(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50),
@@ -210,12 +255,10 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               backgroundColor: (state is SigninValidState)
                                   ? MaterialStateProperty.all(Colors.orange)
-                                  : MaterialStateProperty.all(Colors
-                                      .grey), // Set your desired background color
-                              elevation:
-                                  MaterialStateProperty.all(3), // Set elevation
-                              shadowColor: MaterialStateProperty.all(
-                                  Colors.grey), // Set shadow color
+                                  : MaterialStateProperty.all(Colors.grey),
+                              elevation: MaterialStateProperty.all(3),
+                              shadowColor:
+                              MaterialStateProperty.all(Colors.grey),
                             ),
                             onPressed: () {
                               _onLoginButtonPressed();
@@ -243,20 +286,4 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class HalfCircleClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.lineTo(0, size.height * 0.5);
-    path.quadraticBezierTo(
-        size.width * 0.5, size.height, size.width, size.height * 0.5);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
 
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return true;
-  }
-}

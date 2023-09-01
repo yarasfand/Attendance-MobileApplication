@@ -1,12 +1,10 @@
-import 'package:bloc/bloc.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:project/bloc_internet/internet_state.dart';
-import 'package:project/Dashboard/homepage.dart';
-import 'package:project/login_page.dart';
-
-import '../login_bloc/loginbloc.dart';
+import 'package:project/Login%20Page/login_page.dart';
+import '../Login Page/login_bloc/loginbloc.dart';
 import 'internet_bloc.dart';
 
 class AfterIntro extends StatelessWidget {

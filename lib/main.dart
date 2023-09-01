@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/app_startUp.dart';
-import 'package:project/bloc_internet/internet_checking.dart';
-import 'package:project/login_page.dart';
-import 'package:project/profile_page/profilepage.dart';
-
 import 'Dashboard/drawerpages/drawerroutes.dart';
 import 'bloc_internet/internet_bloc.dart';
 

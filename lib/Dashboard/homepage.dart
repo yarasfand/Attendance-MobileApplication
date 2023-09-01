@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:project/login_page.dart';
+import 'package:project/Login%20Page/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../login_bloc/loginbloc.dart';
+import '../Login Page/login_bloc/loginbloc.dart';
 // Import your LoginPage
 
 class HomePage extends StatelessWidget {

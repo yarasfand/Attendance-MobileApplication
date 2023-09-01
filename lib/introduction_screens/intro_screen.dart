@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/bloc_internet/internet_checking.dart';
 import 'package:project/introduction_screens/screen1.dart';
 import 'package:project/introduction_screens/screen2.dart';
 import 'package:project/introduction_screens/screen3.dart';
-import 'package:project/login_bloc/loginbloc.dart';
-
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
-import '../login_page.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
