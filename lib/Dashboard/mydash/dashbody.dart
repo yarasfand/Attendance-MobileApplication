@@ -3,31 +3,45 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 
-Future<String?> _loadUserData() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? corporateID = prefs.getString('corporateID');
-  String? username = prefs.getString('username');
-  String? password = prefs.getString('password');
-  return 'Corporate ID: $corporateID, Username: $username, Password: $password';
+class MyDashBody extends StatefulWidget {
+  const MyDashBody({Key? key});
+
+  @override
+  State<MyDashBody> createState() => _MyDashBodyState();
 }
 
+class _MyDashBodyState extends State<MyDashBody> {
 
-class myDashBody extends StatelessWidget {
-  const myDashBody({Key? key});
+  String? userData = 'Data not available'; // Initialize with a default value
 
+  @override
+  void initState() {
+    super.initState();
+     _loadUserDataFromPrefs(); // Load user data when the widget is initialized
+  }
+  Future<String?> _loadUserDataFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? corporateID = prefs.getString('corporateID');
+    String? username = prefs.getString('username');
+    String? password = prefs.getString('password');
+    String loadedUserData = 'Corporate ID: $corporateID, Username: $username, Password: $password';
+    return loadedUserData;
+
+    setState(() {
+      userData = loadedUserData; // Update the state with the loaded data
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: const BorderRadius.only(
-          ),
+          borderRadius: const BorderRadius.only(),
           boxShadow: [
             BoxShadow(
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
               color: Colors.grey.withOpacity(0.3),
               spreadRadius: 2,
               blurRadius: 5,
@@ -74,19 +88,19 @@ class myDashBody extends StatelessWidget {
               ],
             ),
             FutureBuilder<String?>(
-              future: _loadUserData(),
+              future: _loadUserDataFromPrefs(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Data is still being loaded
-                  return CircularProgressIndicator(); // You can use a loading indicator here
+                  return CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   // Error occurred while loading data
                   return Text('Error: ${snapshot.error}');
                 } else {
                   // Data loaded successfully
-                  String? userData = snapshot.data;
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 20),
                     // ... Rest of your widget's content
 
                     // Display the retrieved data
@@ -102,9 +116,11 @@ class myDashBody extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          userData ?? 'Data not available', // Display the user data here
+                          snapshot.data ??
+                              'Data not available',
                           style: TextStyle(fontSize: 18),
                         ),
+
                         // ... Rest of your widget's content
                       ],
                     ),
@@ -112,12 +128,9 @@ class myDashBody extends StatelessWidget {
                 }
               },
             ),
-
-
           ],
         ),
       ),
-
     );
   }
 }

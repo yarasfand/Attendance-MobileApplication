@@ -34,10 +34,15 @@ class _ProfilePageState extends State<ProfilePage> {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: const Color(0xFFE26142),
-            foregroundColor: const Color(0xFFFDf7f5),
-            title: const Text(
-              "PROFILE",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            elevation: 0,
+            title: const Center(
+              child: Padding(
+                padding: EdgeInsets.only(right: 55.0), // Add right padding
+                child: Text(
+                  "PROFILE",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           ),
           body: SingleChildScrollView(
@@ -96,7 +101,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                   // Menu
                   const tileWidget(title: 'Settings', icon: Icons.settings),
-                  const tileWidget(title: 'Billing Details', icon: Icons.payment),
+                  const tileWidget(
+                      title: 'Billing Details', icon: Icons.payment),
                   const tileWidget(
                       title: 'User Management',
                       icon: Icons.supervised_user_circle_sharp),
@@ -105,7 +111,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: 30,
                     thickness: 1,
                   ),
-                  const tileWidget(title: 'Information', icon: Icons.info_outline),
+                  const tileWidget(
+                      title: 'Information', icon: Icons.info_outline),
                   const tileWidget(title: 'Logout', icon: Icons.logout),
                 ],
               ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/app_startUp.dart';
-import 'Dashboard/drawerpages/drawerroutes.dart';
 import 'bloc_internet/internet_bloc.dart';
 
 
@@ -29,8 +28,6 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         home:  AppStartup(),
-
-        routes: appRoutes,// Use a wrapper widget to handle startup logic
       ),
     );
   }

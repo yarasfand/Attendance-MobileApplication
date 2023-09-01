@@ -21,7 +21,7 @@ class MyDashboard extends StatelessWidget {
           openDrawer: openDrawer,
         ),
       ),
-      body: myDashBody(),
+      body: MyDashBody(),
     );
   }
 }

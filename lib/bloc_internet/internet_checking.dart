@@ -8,7 +8,7 @@ import '../Login Page/login_bloc/loginbloc.dart';
 import 'internet_bloc.dart';
 
 class AfterIntro extends StatelessWidget {
-  const AfterIntro({super.key});
+  const AfterIntro({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,20 @@ class AfterIntro extends StatelessWidget {
             );
           }
           else {
-            return Text("Loading...");
+            return Expanded(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("No Internet Connection!"),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
+                ),
+              ),
+            );
           }
         },
         listener: (context, state) async {
