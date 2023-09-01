@@ -1,0 +1,22 @@
+import 'dart:async';
+
+import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
+import 'package:project/profile_page/view_profile/viewProfile.dart';
+
+part 'profile_event.dart';
+part 'profile_state.dart';
+
+class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
+  ProfileBloc() : super(ProfileInitial()) {
+   on<NavigateToViewPageEvent>(navigateToViewPageEvent);
+  }
+
+
+  FutureOr<void> navigateToViewPageEvent(NavigateToViewPageEvent event, Emitter<ProfileState> emit) {
+
+    emit(NavigateToViewPageState());
+  }
+}
