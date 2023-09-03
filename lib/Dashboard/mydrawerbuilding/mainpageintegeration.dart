@@ -52,60 +52,59 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0x80E26142),
-    body: Stack(
-      children: [
-        buildDrawer(),
-        buildPage(),
-      ],
-    ),
-  );
+        backgroundColor: const Color(0x80E26142),
+        body: Stack(
+          children: [
+            buildDrawer(),
+            buildPage(),
+          ],
+        ),
+      );
 
   Widget buildDrawer() => SafeArea(
-    child: AnimatedOpacity(
-      opacity: isDrawerOpen ? 1.0 : 0.0,
-      duration: Duration(milliseconds: 300),
-      child: Container(
-        width: xoffset,
-        child: MyDrawer(
-          onSelectedItems: (selectedItem) {
-            setState(() {
-              item = selectedItem;
-              closeDrawer();
-            });
+        child: AnimatedOpacity(
+          opacity: isDrawerOpen ? 1.0 : 0.0,
+          duration: Duration(milliseconds: 300),
+          child: Container(
+            width: xoffset,
+            child: MyDrawer(
+              onSelectedItems: (selectedItem) {
+                setState(() {
+                  item = selectedItem;
+                  closeDrawer();
+                });
 
-            // Trigger events based on the selected item
-            switch (item) {
+                // Trigger events based on the selected item
+                switch (item) {
+                  case DrawerItems.home:
+                    dashBloc.add(NavigateToHomeEvent());
+                    break;
 
-              case DrawerItems.home:
-                dashBloc.add(NavigateToHomeEvent());
-                break;
+                  case DrawerItems.attendance:
+                    dashBloc.add(NavigateToAttendanceEvent());
+                    break;
 
-              case DrawerItems.attendance:
-                dashBloc.add(NavigateToAttendanceEvent());
-                break;
+                  case DrawerItems.reports:
+                    dashBloc.add(NavigateToReportsEvent());
+                    break;
 
-              case DrawerItems.reports:
-                dashBloc.add(NavigateToReportsEvent());
-                break;
+                  case DrawerItems.profile:
+                    dashBloc.add(NavigateToProfileEvent());
+                    break;
 
-              case DrawerItems.profile:
-                dashBloc.add(NavigateToProfileEvent());
-                break;
+                  case DrawerItems.logout:
+                    dashBloc.add(NavigateToLogoutEvent());
+                    break;
 
-              case DrawerItems.logout:
-                dashBloc.add(NavigateToLogoutEvent());
-                break;
-
-              default:
-                dashBloc.add(NavigateToLogoutEvent());
-                break;
-            }
-          },
+                  default:
+                    dashBloc.add(NavigateToLogoutEvent());
+                    break;
+                }
+              },
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget buildPage() {
     return WillPopScope(
@@ -159,16 +158,21 @@ class _MainPageState extends State<MainPage> {
       builder: (context, state) {
         if (state is NavigateToProfileState) {
           return ProfilePage();
-        } else if (state is NavigateToAttendanceState) {
-          return attendance(openDrawer: openDrawer,); // Assuming Attendance() is a widget.
-        }else if (state is NavigateToHomeState) {
-          return MyDashboard(openDrawer: openDrawer); // Assuming Report() is a widget.
-        } else if (state is NavigateToReportsState) {
-          return reports(openDrawer: openDrawer,); // Assuming Report() is a widget.
-        } else if (state is NavigateToLogoutState) {
+        }
+        else if (state is NavigateToAttendanceState) {
+          return attendance();
+        }
+        else if (state is NavigateToHomeState) {
+          return MyDashboard();
+        }
+        else if (state is NavigateToReportsState) {
+          return reports();
+        }
+        else if (state is NavigateToLogoutState) {
           return HomePage();
-        } else {
-          return MyDashboard(openDrawer: openDrawer);
+        }
+        else {
+          return MyDashboard();
         }
       },
     );

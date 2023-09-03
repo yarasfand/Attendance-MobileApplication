@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/profile_page/profile_bloc.dart';
 import 'package:project/profile_page/view_profile/viewProfile.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -33,13 +34,20 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+              icon: const FaIcon(FontAwesomeIcons.bars),
+              color: Colors.white,
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
             backgroundColor: const Color(0xFFE26142),
             elevation: 0,
             title: const Center(
               child: Padding(
                 padding: EdgeInsets.only(right: 55.0), // Add right padding
                 child: Text(
-                  "PROFILE",
+                  "PIONEER",
                   style: TextStyle(color: Colors.white),
                 ),
               ),

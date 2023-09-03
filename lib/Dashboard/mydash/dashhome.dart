@@ -5,11 +5,9 @@ import '../mydrawerbuilding/myappbar.dart';
 import 'dashbody.dart';
 
 class MyDashboard extends StatelessWidget {
-  final VoidCallback openDrawer;
 
   const MyDashboard({
-    super.key, required this.openDrawer
-  });
+    super.key,});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +15,7 @@ class MyDashboard extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: AppBar().preferredSize,
-        child: MyAppBar(
-          openDrawer: openDrawer,
-        ),
+        child: MyAppBar(),
       ),
       body: MyDashBody(),
     );
