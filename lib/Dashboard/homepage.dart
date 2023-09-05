@@ -17,10 +17,11 @@ class HomePage extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) {
           return Builder(
-              builder: (context) => BlocProvider(
-            create: (context) => SignInBloc(),
-            child: LoginPage(),
-          ),); // Navigate back to LoginPage
+            builder: (context) => BlocProvider(
+              create: (context) => SignInBloc(),
+              child: LoginPage(),
+            ),
+          ); // Navigate back to LoginPage
         },
       ),
     );

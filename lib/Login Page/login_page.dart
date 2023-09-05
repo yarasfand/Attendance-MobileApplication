@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pushReplacement(
       context,
       PageTransition(
-        child: const MainPage(),
+        child:  MainPage(),
         duration: const Duration(seconds: 1),
         type: PageTransitionType.fade,
       ),

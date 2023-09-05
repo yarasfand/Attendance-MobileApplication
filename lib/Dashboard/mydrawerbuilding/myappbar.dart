@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyAppBar extends StatelessWidget {
+  final VoidCallback openDrawer;
+
   const MyAppBar({
     Key? key,
+    required this.openDrawer,
   }) : super(key: key);
 
   @override
@@ -12,18 +15,18 @@ class MyAppBar extends StatelessWidget {
       leading: IconButton(
         icon: const FaIcon(FontAwesomeIcons.bars),
         color: Colors.white,
-        onPressed: () {
-          Scaffold.of(context).openDrawer();
-        },
+        onPressed: openDrawer,
       ),
       backgroundColor: const Color(0xFFE26142),
       elevation: 0,
       title: const Center(
         child: Padding(
-          padding: EdgeInsets.only(right: 55.0), // Add right padding
+          padding:  EdgeInsets.only(right: 55.0), // Add right padding
           child: Text(
             "PIONEER",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: Colors.white
+            ),
           ),
         ),
       ),

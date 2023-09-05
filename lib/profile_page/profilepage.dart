@@ -6,13 +6,15 @@ import 'package:project/profile_page/view_profile/viewProfile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final VoidCallback openDrawer;
+  ProfilePage({super.key, required this.openDrawer,});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+
   final ProfileBloc homeBloc = ProfileBloc();
   @override
   Widget build(BuildContext context) {
@@ -37,9 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
             leading: IconButton(
               icon: const FaIcon(FontAwesomeIcons.bars),
               color: Colors.white,
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
+              onPressed: widget.openDrawer,
             ),
             backgroundColor: const Color(0xFFE26142),
             elevation: 0,
@@ -47,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Padding(
                 padding: EdgeInsets.only(right: 55.0), // Add right padding
                 child: Text(
-                  "PIONEER",
+                  "ATTENDANCE",
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -88,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ElevatedButton(
                     style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all(Colors.amberAccent),
+                      MaterialStateProperty.all(Colors.amberAccent),
                     ),
                     onPressed: () {
                       homeBloc.add(NavigateToViewPageEvent());

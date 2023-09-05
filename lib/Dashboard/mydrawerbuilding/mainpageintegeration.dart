@@ -157,22 +157,24 @@ class _MainPageState extends State<MainPage> {
       bloc: dashBloc,
       builder: (context, state) {
         if (state is NavigateToProfileState) {
-          return ProfilePage();
-        }
-        else if (state is NavigateToAttendanceState) {
-          return attendance();
-        }
-        else if (state is NavigateToHomeState) {
-          return MyDashboard();
+          return ProfilePage(openDrawer: openDrawer);
+        } else if (state is NavigateToAttendanceState) {
+          return attendance(
+            openDrawer: openDrawer,
+          );
+        } else if (state is NavigateToHomeState) {
+          return MyDashboard(openDrawer: openDrawer);
         }
         else if (state is NavigateToReportsState) {
-          return reports();
+          return reports(
+            openDrawer: openDrawer,
+          );
         }
         else if (state is NavigateToLogoutState) {
           return HomePage();
         }
         else {
-          return MyDashboard();
+          return MyDashboard(openDrawer: openDrawer);
         }
       },
     );
