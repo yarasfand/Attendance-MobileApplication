@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project/profile_page/profile_bloc.dart';
-import 'package:project/profile_page/view_profile/viewProfile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../drawerPages/profile_page/profileBloc/profile_bloc.dart';
+import '../drawerPages/profile_page/viewProfile/viewProfile.dart';
 
 class ProfilePage extends StatefulWidget {
   final VoidCallback openDrawer;

@@ -38,7 +38,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   lottie: ^2.6.0
   shared_preferences: ^2.2.0
-  google_fonts: ^5.1.0
+  google_fonts: ^4.0.0
   bloc: ^8.1.2
   connectivity_plus: ^3.0.0
   flutter_bloc: ^8.1.3
@@ -46,6 +46,9 @@ dependencies:
   line_icons: ^2.0.3
   percent_indicator: ^4.2.3
   font_awesome_flutter: ^10.5.0
+  open_street_map_search_and_pick: ^0.1.0
+  geolocator: ^10.0.1
+  geocoding: ^2.1.0
 
 
 dev_dependencies:

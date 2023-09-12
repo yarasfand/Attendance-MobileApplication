@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/adminData/adminDash/mydrawerbuilding/adminMain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Dashboard/mydrawerbuilding/mainpageintegeration.dart';
+import '../employeeData/employeeDash/mydrawerbuilding/employeeMain.dart';
 import 'half_circle_clipper.dart';
 import 'login_bloc/loginEvents.dart';
 import 'login_bloc/loginStates.dart';
@@ -43,19 +44,36 @@ class _LoginPageState extends State<LoginPage> {
     var sharedPref = await SharedPreferences.getInstance();
     sharedPref.setBool(KEY_LOGIN, true); // User is logged in now
 
-    saveUserData(
-      _CoorporateIdController.text,
-      _UserController.text,
-      _passwordController.text,
-    );
-    Navigator.pushReplacement(
-      context,
-      PageTransition(
-        child:  MainPage(),
-        duration: const Duration(seconds: 1),
-        type: PageTransitionType.fade,
-      ),
-    );
+    if(_selectedUserType == UserType.employee){
+      saveUserData(
+        _CoorporateIdController.text,
+        _UserController.text,
+        _passwordController.text,
+      );
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          child:  MainPage(),
+          duration: const Duration(seconds: 1),
+          type: PageTransitionType.fade,
+        ),
+      );
+    }
+    else if(_selectedUserType == UserType.admin){
+      saveUserData(
+        _CoorporateIdController.text,
+        _UserController.text,
+        _passwordController.text,
+      );
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          child:  AdminMainPage(),
+          duration: const Duration(seconds: 1),
+          type: PageTransitionType.fade,
+        ),
+      );
+    }
   }
 
   @override
