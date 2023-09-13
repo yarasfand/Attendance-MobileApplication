@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:project/adminData/adminDash/drawerPages/reports_page/screens/reports_page.dart';
 import '../adminDashBloc/admin_dash_bloc.dart';
 import '../drawerPages/attendance.dart';
 import '../drawerPages/homepage.dart';
 import '../drawerPages/profile_page/profilePage/profilepage.dart';
-import '../drawerPages/report.dart';
 import '../mydash/dashhome.dart';
 import 'mydrawer.dart';
 import 'mydraweritems.dart';
@@ -165,7 +165,7 @@ class _MainPageState extends State<AdminMainPage> {
           return MyDashboard(openDrawer: openDrawer);
         }
         else if (state is NavigateToReportsState) {
-          return reports(
+          return ReportsPage(
             openDrawer: openDrawer,
           );
         }

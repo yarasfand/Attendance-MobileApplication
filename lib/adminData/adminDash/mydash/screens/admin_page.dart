@@ -3,7 +3,7 @@ import '../components/options_detail.dart';
 import '../constants/constants.dart';
 import '../responsive.dart';
 import 'admin_data.dart';
-import 'header.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key});
@@ -13,11 +13,32 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  // Change this to the actual notification count
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> saveToSharedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('longitude', '74.2811991');
+    await prefs.setString('latitude', ' 31.5108353');
+    await prefs.setString('radius', '250.0');
+    _showSnackBar('Data saved successfully'); // Show SnackBar
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.green,
+        content: Text(message),
+        duration: Duration(seconds: 2), // Adjust the duration as needed
+      ),
+    );
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: SingleChildScrollView(
         primary: false,
         padding: const EdgeInsets.all(defaultPadding),
@@ -72,23 +93,24 @@ class _AdminPageState extends State<AdminPage> {
                               children: [
                                 Text(
                                   "Contact Details",
-                                  style: TextStyle(color: Colors.black,fontSize: 10),
+                                  style: TextStyle(color: Colors.black, fontSize: 10),
                                 ),
                                 Text(
                                   "FOR SUPPORT: 123456789",
-                                  style: TextStyle(color: Colors.black,fontSize: 10),
+                                  style: TextStyle(color: Colors.black, fontSize: 10),
                                 ),
                                 Text(
                                   "POWERED BY: PIONEER 2023",
-                                  style: TextStyle(color: Colors.black,fontSize: 10),
+                                  style: TextStyle(color: Colors.black, fontSize: 10),
                                 ),
                               ],
                             ),
                             FloatingActionButton.extended(
-                              onPressed: () {},
+                              onPressed: () async {
+                                await saveToSharedPreferences(); // Save data
+                              },
                               label: Icon(Icons.message_outlined),
                             ),
-
                           ],
                         ),
                       SizedBox(height: 20,),

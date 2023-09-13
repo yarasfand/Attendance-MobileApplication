@@ -3,16 +3,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
 import '../employeeMap/employeemap.dart';
+
 class DashHome extends StatefulWidget {
   const DashHome({Key? key}) : super(key: key);
+
   @override
   State<DashHome> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<DashHome> {
-  late bool locationError = true;
+  bool locationError = true;
   double? lat;
   double? long;
+  bool _isDisposed =
+      false; // Add a flag to track whether the widget is disposed
 
   @override
   void initState() {
@@ -21,16 +25,31 @@ class _HomePageState extends State<DashHome> {
     checkLocationPermissionAndFetchLocation();
   }
 
+  // Add this function to check if the widget is still mounted
+  bool get isMounted => !_isDisposed;
+
+  @override
+  void dispose() {
+    _isDisposed = true; // Set the flag to true when disposing
+    super.dispose();
+  }
+
   Future<void> checkLocationPermission() async {
     Geolocator.getServiceStatusStream().listen((status) {
-      if (status == ServiceStatus.enabled) {
-        setState(() {
-          locationError = false;
-        });
-      } else {
-        setState(() {
-          locationError = true;
-        });
+      if (isMounted) {
+        if (status == ServiceStatus.enabled) {
+          try {
+            setState(() {
+              locationError = false;
+            });
+          } catch (e) {
+            print(e);
+          }
+        } else {
+          setState(() {
+            locationError = true;
+          });
+        }
       }
     });
   }
@@ -39,22 +58,29 @@ class _HomePageState extends State<DashHome> {
     final permission = await Geolocator.checkPermission();
     final serviceStatus = await Geolocator.isLocationServiceEnabled();
 
-    if (permission != LocationPermission.denied || serviceStatus) {
-      try {
-        setState(() {
-          locationError = false;
-        });
-      } catch (e) {
-        print('Error getting location: $e');
-        setState(() {
-          locationError = true;
-        });
+    if (isMounted) {
+      if (permission != LocationPermission.denied || serviceStatus) {
+        try {
+          setState(() {
+            locationError = false;
+          });
+        } catch (e) {
+          print('Error getting location: $e');
+          if (isMounted) {
+            setState(() {
+              locationError = true;
+            });
+          }
+        }
+      } else {
+        if (isMounted) {
+          setState(() {
+            locationError = true;
+          });
+        }
       }
-    } else {
-      locationError = true;
     }
   }
-
 
   void onTapMaps() {
     if (locationError) {
@@ -88,223 +114,217 @@ class _HomePageState extends State<DashHome> {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
+    String formattedDate =
+        DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
 
     //FIRST APPROACH
-    return  SingleChildScrollView(
+    return SingleChildScrollView(
+        child: Column(children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
         child: Column(
-            children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 2,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
               children: [
-                const SizedBox(height: 20),
-                GridView.count(
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          "assets/icons/man.png",
-                          width: 120,
-                          height: 80,
-                        ),
-                      ),
+                Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      "assets/icons/man.png",
+                      width: 120,
+                      height: 80,
                     ),
-                    GestureDetector(
-                      onTap: onTapMaps,
-                      child: ItemDashboard(
-                        showShadow: false,
-                        title: 'Mark Attendance',
-                        customIcon: Image.asset(
-                          "assets/icons/locate.png",
-                          width: 120,
-                          height: 80,
-                        ),
-                        background: Color(0xFFE26142),
-                      ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: onTapMaps,
+                  child: ItemDashboard(
+                    showShadow: false,
+                    title: 'Mark Attendance',
+                    customIcon: Image.asset(
+                      "assets/icons/locate.png",
+                      width: 120,
+                      height: 80,
                     ),
-                  ],
+                    background: Color(0xFFE26142),
+                  ),
                 ),
               ],
             ),
-          ),
-          Container(
-            height: 80,
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                SizedBox(
-                  width: 5,
-                ),
-                ProfileInfoCard(firstText: "IN", secondText: "00:00"),
-                SizedBox(
-                  width: 10,
-                ),
-                ProfileInfoCard(firstText: "Status", secondText: "A"),
-                SizedBox(
-                  width: 10,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                ProfileInfoCard(firstText: "OUT", secondText: "00:00"),
-                SizedBox(
-                  width: 5,
-                ),
-              ],
+          ],
+        ),
+      ),
+      Container(
+        height: 80,
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            SizedBox(
+              width: 5,
             ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            "Welcome Asfand!",
-            style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            formattedDate,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
+            ProfileInfoCard(firstText: "IN", secondText: "00:00"),
+            SizedBox(
+              width: 10,
             ),
-          ),
-          Table(
+            ProfileInfoCard(firstText: "Status", secondText: "A"),
+            SizedBox(
+              width: 10,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            ProfileInfoCard(firstText: "OUT", secondText: "00:00"),
+            SizedBox(
+              width: 5,
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 20),
+      const Text(
+        "Welcome Asfand!",
+        style: TextStyle(
+            fontSize: 28, fontWeight: FontWeight.w500, color: Colors.black87),
+      ),
+      const SizedBox(height: 10),
+      Text(
+        formattedDate,
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+        ),
+      ),
+      Table(
+        children: [
+          TableRow(
             children: [
-              TableRow(
-                children: [
-                  ProfileInfoBigCard(
-                    firstText: "20",
-                    secondText: "Total Present",
-                    icon: Image.asset(
-                      "assets/icons/Attend.png",
-                      width: 35,
-                    ),
-                  ),
-                  ProfileInfoBigCard(
-                    firstText: "8",
-                    secondText: "Total Absent",
-                    icon: Image.asset(
-                      "assets/icons/absence.png",
-                      width: 35,
-                    ),
-                  ),
-                ],
+              ProfileInfoBigCard(
+                firstText: "20",
+                secondText: "Total Present",
+                icon: Image.asset(
+                  "assets/icons/Attend.png",
+                  width: 35,
+                ),
               ),
-              TableRow(
-                children: [
-                  ProfileInfoBigCard(
-                    firstText: "0 - 4 ",
-                    secondText: "Leaves/Holiday",
-                    icon: Image.asset(
-                      "assets/icons/holiday.png",
-                      width: 35,
-                    ),
-                  ),
-                  ProfileInfoBigCard(
-                    firstText: "7",
-                    secondText: "Working Days",
-                    icon: Image.asset(
-                      "assets/icons/business.png",
-                      width: 35,
-                    ),
-                  ),
-                ],
+              ProfileInfoBigCard(
+                firstText: "8",
+                secondText: "Total Absent",
+                icon: Image.asset(
+                  "assets/icons/absence.png",
+                  width: 35,
+                ),
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                GridView.count(
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  children: [
-                    GestureDetector(
-                      child: ItemDashboard(
-                        showShadow: false,
-                        title: 'Leave Request',
-                        customIcon: Image.asset(
-                          "assets/icons/leave.png",
-                          width: 120,
-                          height: 80,
-                        ),
-                        background: const Color(0xFFE26142),
-                      ),
-                    ),
-                    GestureDetector(
-                      child: ItemDashboard(
-                        showShadow: false,
-                        title: 'Reports',
-                        customIcon: Image.asset(
-                          "assets/icons/report.png",
-                          width: 120,
-                          height: 80,
-                        ),
-                        background: const Color(0xFFE26142),
-                      ),
-                    ),
-                  ],
+          TableRow(
+            children: [
+              ProfileInfoBigCard(
+                firstText: "0 - 4 ",
+                secondText: "Leaves/Holiday",
+                icon: Image.asset(
+                  "assets/icons/holiday.png",
+                  width: 35,
                 ),
-              ],
-            ),
+              ),
+              ProfileInfoBigCard(
+                firstText: "7",
+                secondText: "Working Days",
+                icon: Image.asset(
+                  "assets/icons/business.png",
+                  width: 35,
+                ),
+              ),
+            ],
           ),
-          const Divider(
-            height: 1,
-            color: Colors.grey,
-            thickness: 1,
-            indent: 60,
-            endIndent: 60,
-          ),
-
-          const SizedBox(
-            height: 20,
-          ),
-          const Center(
-            child: Column(
+        ],
+      ),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 2,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
               children: [
-                Text(
-                  'Contact Us',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                GestureDetector(
+                  child: ItemDashboard(
+                    showShadow: false,
+                    title: 'Leave Request',
+                    customIcon: Image.asset(
+                      "assets/icons/leave.png",
+                      width: 120,
+                      height: 80,
+                    ),
+                    background: const Color(0xFFE26142),
                   ),
                 ),
-                SizedBox(height: 8), // Adjust the spacing between the lines
-                Text(
-                  'Powered by Pioneer',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w300,
+                GestureDetector(
+                  child: ItemDashboard(
+                    showShadow: false,
+                    title: 'Reports',
+                    customIcon: Image.asset(
+                      "assets/icons/report.png",
+                      width: 120,
+                      height: 80,
+                    ),
+                    background: const Color(0xFFE26142),
                   ),
                 ),
               ],
             ),
-          ),
-
-          const SizedBox(
-            height: 10,
-          ),
-        ])
-    );
-
+          ],
+        ),
+      ),
+      const Divider(
+        height: 1,
+        color: Colors.grey,
+        thickness: 1,
+        indent: 60,
+        endIndent: 60,
+      ),
+      const SizedBox(
+        height: 20,
+      ),
+      const Center(
+        child: Column(
+          children: [
+            Text(
+              'Contact Us',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8), // Adjust the spacing between the lines
+            Text(
+              'Powered by Pioneer',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(
+        height: 10,
+      ),
+    ]));
 
     //SECOND APPROACH ***************************
     /*
@@ -630,12 +650,12 @@ class ItemDashboard extends StatelessWidget {
 class ProfileInfoCard extends StatelessWidget {
   final firstText, secondText, hasImage, imagePath;
 
-  const ProfileInfoCard({
-        super.key,
-        this.firstText,
-        this.secondText,
-        this.hasImage = false,
-        this.imagePath});
+  const ProfileInfoCard(
+      {super.key,
+      this.firstText,
+      this.secondText,
+      this.hasImage = false,
+      this.imagePath});
 
   @override
   Widget build(BuildContext context) {
@@ -663,7 +683,8 @@ class ProfileInfoCard extends StatelessWidget {
 class TwoLineItem extends StatelessWidget {
   final String firstText, secondText;
 
-  const TwoLineItem({super.key, required this.firstText, required this.secondText});
+  const TwoLineItem(
+      {super.key, required this.firstText, required this.secondText});
 
   @override
   Widget build(BuildContext context) {
@@ -696,7 +717,10 @@ class ProfileInfoBigCard extends StatelessWidget {
   final Widget icon;
 
   const ProfileInfoBigCard(
-      {super.key, required this.firstText, required this.secondText, required this.icon});
+      {super.key,
+      required this.firstText,
+      required this.secondText,
+      required this.icon});
 
   @override
   Widget build(BuildContext context) {

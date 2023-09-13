@@ -49,6 +49,8 @@ dependencies:
   open_street_map_search_and_pick: ^0.1.0
   geolocator: ^10.0.1
   geocoding: ^2.1.0
+  table_calendar: ^3.0.9
+  image_picker: ^1.0.4
 
 
 dev_dependencies:
