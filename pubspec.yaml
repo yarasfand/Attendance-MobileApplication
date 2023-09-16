@@ -51,6 +51,9 @@ dependencies:
   geocoding: ^2.1.0
   table_calendar: ^3.0.9
   image_picker: ^1.0.4
+  open_file: ^3.3.2
+  syncfusion_flutter_pdf: ^23.1.36
+  syncfusion_flutter_xlsio: ^23.1.36
 
 
 dev_dependencies:

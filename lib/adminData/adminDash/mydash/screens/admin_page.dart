@@ -16,24 +16,7 @@ class _AdminPageState extends State<AdminPage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Future<void> saveToSharedPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('longitude', '74.2811991');
-    await prefs.setString('latitude', ' 31.5108353');
-    await prefs.setString('radius', '250.0');
-    _showSnackBar('Data saved successfully'); // Show SnackBar
-  }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.green,
-        content: Text(message),
-        duration: Duration(seconds: 2), // Adjust the duration as needed
-      ),
-    );
-
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +89,8 @@ class _AdminPageState extends State<AdminPage> {
                               ],
                             ),
                             FloatingActionButton.extended(
-                              onPressed: () async {
-                                await saveToSharedPreferences(); // Save data
+                              onPressed: ()  {
+                                 // Save data
                               },
                               label: Icon(Icons.message_outlined),
                             ),

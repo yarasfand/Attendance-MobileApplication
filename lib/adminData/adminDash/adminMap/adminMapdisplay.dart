@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminMapDisplay extends StatefulWidget {
   const AdminMapDisplay({Key? key}) : super(key: key);
@@ -25,27 +25,49 @@ class _MapDisplayState extends State<AdminMapDisplay> {
     fetchLocation();
   }
 
+  Future<void> saveLocationToSharedPreferences(double lat, double long) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('latitude', lat);
+    await prefs.setDouble('longitude', long);
+  }
+
   Future<void> fetchLocation() async {
     final permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-      try {
-        final data = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
-        setState(() {
-          currentLat = data.latitude;
-          currentLong = data.longitude;
-        });
-        getAddress(currentLat, currentLong);
-      } catch (e) {
-        print('Error getting location: $e');
+
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      bool isLocationServiceEnabled =
+          await Geolocator.isLocationServiceEnabled();
+
+      if (isLocationServiceEnabled) {
+        try {
+          final data = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+          );
+          if (mounted) {
+            currentLat = data.latitude;
+            currentLong = data.longitude;
+            address = getAddress(currentLat, currentLong);
+          }
+        } catch (e) {
+          print('Error getting location: $e');
+        }
+      } else {
+        print('Location services are disabled.');
       }
     } else {
-      // Handle the case when the user denies location permission.
-      // You might want to show a message or provide a way for the user to grant permission.
+      print('Error getting location:');
     }
   }
 
+  Future<void> checkSharedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final latitude = prefs.getDouble('latitude');
+    final longitude = prefs.getDouble('longitude');
+
+    print('Latitude: $latitude');
+    print('Longitude: $longitude');
+  }
 
   getAddress(lat, long) async {
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
@@ -74,7 +96,8 @@ class _MapDisplayState extends State<AdminMapDisplay> {
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () {
+              onTap: () async {
+                await checkSharedPreferences();
               },
               child: const Icon(Icons.check, color: Colors.teal),
             ),
@@ -91,9 +114,11 @@ class _MapDisplayState extends State<AdminMapDisplay> {
                   onPicked: (pickedData) {
                     getAddress(pickedData.latLong.latitude,
                         pickedData.latLong.longitude);
+
                     setState(() {
                       sendLat = pickedData.latLong.latitude;
                       sendLong = pickedData.latLong.longitude;
+                      saveLocationToSharedPreferences(sendLat!, sendLong!);
                     });
                   },
                   locationPinIconColor: const Color(0xFFE26142),

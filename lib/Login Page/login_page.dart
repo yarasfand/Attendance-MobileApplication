@@ -23,7 +23,8 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _CoorporateIdController = TextEditingController();
   final _UserController = TextEditingController();
-  bool _obsecureText = true;
+  bool _obscureText = true;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late bool _isButtonPressed = false;
   static const String KEY_LOGIN = "Login";
 
@@ -35,42 +36,53 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('password', password);
   }
 
-  Future<void> _onLoginButtonPressed() async {
-    setState(() {
-      _isButtonPressed = true;
-    });
-    // Simulate some delay for demonstration purposes
-    await Future.delayed(const Duration(seconds: 1));
-    var sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setBool(KEY_LOGIN, true); // User is logged in now
+  void _onLoginButtonPressed() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isButtonPressed = true;
+      });
 
-    if(_selectedUserType == UserType.employee){
-      saveUserData(
-        _CoorporateIdController.text,
-        _UserController.text,
-        _passwordController.text,
-      );
-      Navigator.pushReplacement(
-        context,
-        PageTransition(
-          child:  MainPage(),
-          duration: const Duration(seconds: 1),
-          type: PageTransitionType.fade,
-        ),
-      );
-    }
-    else if(_selectedUserType == UserType.admin){
-      saveUserData(
-        _CoorporateIdController.text,
-        _UserController.text,
-        _passwordController.text,
-      );
-      Navigator.pushReplacement(
-        context,
-        PageTransition(
-          child:  AdminMainPage(),
-          duration: const Duration(seconds: 1),
-          type: PageTransitionType.fade,
+      await Future.delayed(const Duration(seconds: 1));
+      var sharedPref = await SharedPreferences.getInstance();
+      sharedPref.setBool(KEY_LOGIN, true);
+
+      if (_selectedUserType == UserType.employee) {
+        saveUserData(
+          _CoorporateIdController.text,
+          _UserController.text,
+          _passwordController.text,
+        );
+        setState(() {});
+
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            child: MainPage(),
+            duration: const Duration(seconds: 1),
+            type: PageTransitionType.fade,
+          ),
+        );
+      } else if (_selectedUserType == UserType.admin) {
+        saveUserData(
+          _CoorporateIdController.text,
+          _UserController.text,
+          _passwordController.text,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            child: AdminMainPage(),
+            duration: const Duration(seconds: 1),
+            type: PageTransitionType.fade,
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please fill out all required fields.'),
+          duration: Duration(seconds: 3),
         ),
       );
     }
@@ -88,14 +100,14 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.5,
                 width: MediaQuery.of(context).size.width,
-                color: Colors.orange,
+                color: const Color(0xFFE26142),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(
+                  children:  [
+                    SizedBox(
                       height: 20,
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 20,
                     ),
                     Card(
@@ -106,12 +118,12 @@ class _LoginPageState extends State<LoginPage> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.white, // Shadow color
-                                blurRadius: 4, // Spread of the shadow
-                                offset: Offset(0, 8), // Offset from the card
+                                color: Colors.white,
+                                blurRadius: 4,
+                                offset: Offset(0, 8),
                               ),
                             ],
                           ),
@@ -133,8 +145,7 @@ class _LoginPageState extends State<LoginPage> {
               child: AnimatedContainer(
                 duration: const Duration(seconds: 2),
                 margin: const EdgeInsets.all(20),
-                height:
-                MediaQuery.of(context).orientation == Orientation.portrait
+                height: MediaQuery.of(context).orientation == Orientation.portrait
                     ? MediaQuery.of(context).size.height * 0.65
                     : MediaQuery.of(context).size.width * 0.55,
                 width: MediaQuery.of(context).size.width,
@@ -153,146 +164,169 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      BlocBuilder<SignInBloc, SignInState>(
-                        builder: (BuildContext context, state) {
-                          if (state is SignInNotValidState) {
-                            return Text(
-                              state.message,
-                              style: GoogleFonts.montserrat(
-                                textStyle: const TextStyle(
-                                  letterSpacing: 0,
-                                  fontSize: 15,
-                                  color: Colors.red,
+                child: Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        BlocBuilder<SignInBloc, SignInState>(
+                          builder: (BuildContext context, state) {
+                            if (state is SignInNotValidState) {
+                              return Text(
+                                state.message,
+                                style: GoogleFonts.montserrat(
+                                  textStyle: const TextStyle(
+                                    letterSpacing: 0,
+                                    fontSize: 15,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return Container();
+                            }
+                          },
+                        ),
+                        Text(
+                          "LOG IN",
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        TextFormField(
+                          controller: _CoorporateIdController,
+                          decoration: InputDecoration(
+                            labelText: 'Coorporate ID',
+                            suffixIcon: Image.asset(
+                              'assets/icons/username.png',
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter Coorporate ID';
+                            }
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          controller: _UserController,
+                          decoration: InputDecoration(
+                            labelText: 'User Name',
+                            suffixIcon: Image.asset('assets/icons/profile.png'),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter UserName';
+                            }
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          controller: _passwordController,
+                          onChanged: (value) {
+                            BlocProvider.of<SignInBloc>(context).add(
+                              SignInTextChangedEvent(
+                                password: _passwordController.text,
+                              ),
+                            );
+                          },
+                          obscureText: _obscureText,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            suffixIcon: Image.asset('assets/icons/password.png'),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter at least 8 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children:  [
+                            Text("Show Password"),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              },
+                              child: Checkbox(
+                                value: !_obscureText,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _obscureText = !value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        ListTile(
+                          title: const Text('Employee'),
+                          leading: Radio<UserType>(
+                            value: UserType.employee,
+                            groupValue: _selectedUserType,
+                            onChanged: (UserType? value) {
+                              setState(() {
+                                _selectedUserType = value!;
+                              });
+                            },
+                          ),
+                        ),
+                        ListTile(
+                          title: const Text('Admin'),
+                          leading: Radio<UserType>(
+                            value: UserType.admin,
+                            groupValue: _selectedUserType,
+                            onChanged: (UserType? value) {
+                              setState(() {
+                                _selectedUserType = value!;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        BlocBuilder<SignInBloc, SignInState>(
+                          builder: (BuildContext context, state) {
+                            return ElevatedButton(
+                              style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(
+                                  const Size(250, 50),
+                                ),
+                                shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                ),
+                                backgroundColor: (state is SigninValidState)
+                                    ? MaterialStateProperty.all(Colors.orange)
+                                    : MaterialStateProperty.all(Colors.grey),
+                                elevation: MaterialStateProperty.all(3),
+                                shadowColor:
+                                MaterialStateProperty.all(Colors.grey),
+                              ),
+                              onPressed: () {
+                                _onLoginButtonPressed();
+                              },
+                              child: const Text(
+                                'Login',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             );
-                          } else {
-                            return Container();
-                          }
-                        },
-                      ),
-                      Text(
-                        "LOG IN",
-                        style: GoogleFonts.montserrat(
-                          textStyle: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _CoorporateIdController,
-                        decoration: InputDecoration(
-                          labelText: 'Coorporate ID',
-                          suffixIcon: Image.asset(
-                            'assets/icons/username.png',
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _UserController,
-                        decoration: InputDecoration(
-                          labelText: 'User Name',
-                          suffixIcon: Image.asset('assets/icons/profile.png'),
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _passwordController,
-                        onChanged: (value) {
-                          BlocProvider.of<SignInBloc>(context).add(
-                              SignInTextChangedEvent(
-                                  password: _passwordController.text));
-                        },
-                        obscureText: _obsecureText,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          suffixIcon: Image.asset('assets/icons/password.png'),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text("Show Password"),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _obsecureText = !_obsecureText;
-                              });
-                            },
-                            child: Checkbox(
-                              value: !_obsecureText,
-                              onChanged: (value) {
-                                setState(() {
-                                  _obsecureText = !value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      ListTile(
-                        title: Text('Employee'),
-                        leading: Radio<UserType>(
-                          value: UserType.employee,
-                          groupValue: _selectedUserType,
-                          onChanged: (UserType? value) {
-                            setState(() {
-                              _selectedUserType = value!;
-                            });
                           },
-                        ),
-                      ),
-                      ListTile(
-                        title: Text('Admin'),
-                        leading: Radio<UserType>(
-                          value: UserType.admin,
-                          groupValue: _selectedUserType,
-                          onChanged: (UserType? value) {
-                            setState(() {
-                              _selectedUserType = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      BlocBuilder<SignInBloc, SignInState>(
-                        builder: (BuildContext context, state) {
-                          return ElevatedButton(
-                            style: ButtonStyle(
-                              fixedSize: MaterialStateProperty.all(
-                                const Size(250, 50),
-                              ),
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                              backgroundColor: (state is SigninValidState)
-                                  ? MaterialStateProperty.all(Colors.orange)
-                                  : MaterialStateProperty.all(Colors.grey),
-                              elevation: MaterialStateProperty.all(3),
-                              shadowColor:
-                              MaterialStateProperty.all(Colors.grey),
-                            ),
-                            onPressed: () {
-                              _onLoginButtonPressed();
-                            },
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        },
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -303,5 +337,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-

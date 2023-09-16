@@ -34,19 +34,23 @@ class _EmployeeMapState extends State<EmployeeMap> {
   void initState() {
     super.initState();
     checkLocationPermission();
-    checkLocationPermissionAndFetchLocation();
     loadCoordinatesFromSharedPreferences();
     display();
+    checkLocationPermissionAndFetchLocation();
   }
 
   Future<void> loadCoordinatesFromSharedPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    getLat = double.parse(prefs.getString('latitude') ?? '');
-    getLong = double.parse(prefs.getString('longitude') ?? '');
-    getRadius = double.parse(prefs.getString('radius') ?? '');
-    print("${getLong}");
-    print("${getLong}");
-    print("${getRadius}");
+    final latitude = prefs.getDouble('latitude');
+    final longitude = prefs.getDouble('longitude');
+
+    if (latitude != null && longitude != null) {
+      getLat = latitude;
+      getLong = longitude;
+
+      print("Latitude: $getLat");
+      print("Longitude: $getLong");
+    } else {}
   }
 
   Future<void> checkLocationPermission() async {
@@ -62,13 +66,12 @@ class _EmployeeMapState extends State<EmployeeMap> {
   void _startGeoFencingUpdate() {
     final double? geofenceLatitude = getLat;
     final double? geofenceLongitude = getLong;
-    final double? geofenceRadius = getRadius;
+    const double geofenceRadius = 250;
 
     if (geofenceLatitude != null &&
         geofenceLongitude != null &&
         currentLat != null &&
-        currentLong != null &&
-        geofenceRadius != null) {
+        currentLong != null) {
       double distance = Geolocator.distanceBetween(
         geofenceLatitude,
         geofenceLongitude,
@@ -84,8 +87,11 @@ class _EmployeeMapState extends State<EmployeeMap> {
     }
   }
 
-  void display() {
+  Future<void> display() async {
+    await loadCoordinatesFromSharedPreferences();
     print("${getLat} ${getLong}");
+    await checkLocationPermissionAndFetchLocation();
+    print("${currentLat} ${currentLong}");
   }
 
   Future<void> checkLocationPermissionAndFetchLocation() async {
@@ -98,21 +104,17 @@ class _EmployeeMapState extends State<EmployeeMap> {
           desiredAccuracy: LocationAccuracy.high,
         );
         if (mounted) {
-          setState(() {
-            currentLat = data.latitude;
-            currentLong = data.longitude;
-            address = getAddress(currentLat, currentLong);
-            locationError = false;
-          });
+          currentLat = data.latitude;
+          currentLong = data.longitude;
+          address = getAddress(currentLat, currentLong);
+          locationError = false;
         }
       } catch (e) {
         print('Error getting location: $e');
       }
     } else {
       if (mounted) {
-        setState(() {
-          locationError = true;
-        });
+        locationError = true;
       }
     }
   }

@@ -1,9 +1,8 @@
 import 'dart:async';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:project/adminData/adminDash/drawerPages/reports_page/screens/resports_seprate_files/daily_reports_pages/present_report.dart';
 import '../../constants/constants.dart';
-
 
 class DailyReportsPage extends StatefulWidget {
   const DailyReportsPage({Key? key});
@@ -17,7 +16,6 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -31,6 +29,7 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kbackgrounColorAppBar,
+        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           'Daily Reports',
           style: kAppBarTextTheme,
@@ -68,6 +67,10 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
               Icons.check_circle_outline,
               "Total Present: 30",
               "Late Entries: 2",
+                  () {
+                // Navigate to the Present Reports page
+                Navigator.push(context, CupertinoPageRoute(builder: (context) => PresentReport(),));
+              },
             ),
             buildReportCard(
               context,
@@ -75,6 +78,10 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
               Icons.cancel,
               "Total Absent: 10",
               "Unexcused Absences: 3",
+                  () {
+                // Navigate to the Absent Reports page
+                Navigator.pushNamed(context, '/absent_reports');
+              },
             ),
             buildReportCard(
               context,
@@ -82,6 +89,10 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
               Icons.bar_chart,
               "Total Attendance: 90%",
               "Average Attendance: 95%",
+                  () {
+                // Navigate to the Attendance Report page
+                Navigator.pushNamed(context, '/attendance_report');
+              },
             ),
           ],
         ),
@@ -90,12 +101,13 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
   }
 
   Widget buildReportCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    String mainInfo,
-    String secondaryInfo,
-  ) {
+      BuildContext context,
+      String title,
+      IconData icon,
+      String mainInfo,
+      String secondaryInfo,
+      VoidCallback onTap,
+      ) {
     return Card(
       elevation: 4,
       color: const Color(0xFFE26142),
@@ -104,9 +116,7 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: () {
-          // Add your onTap action here
-        },
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
