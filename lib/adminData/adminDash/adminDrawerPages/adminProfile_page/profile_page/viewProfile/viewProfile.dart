@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:project/bloc_internet/internet_state.dart';
+import '../../../../../../bloc_internet/internet_bloc.dart';
 
 
 class ViewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<InternetBloc, InternetStates>(
+  listener: (context, state) {
+    // TODO: implement listener
+  },
+  builder: (context, state) {
+    if(state is InternetGainedState)
+    {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded),
+          icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text(
+        title: const Text(
           "My Profile",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
         ),
@@ -25,29 +36,29 @@ class ViewPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
-            Center(
+            const SizedBox(height: 20),
+            const Center(
               child: CircleAvatar(
                 radius: 80,
                 backgroundImage: AssetImage('assets/icons/man.png'),
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               "M. Affan Saleem",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               decoration: BoxDecoration(
                 color: Colors.blue,
                 borderRadius: BorderRadius.circular(50),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Text(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: const Text(
                 "Software Engineer",
                 style: TextStyle(
                   fontSize: 16,
@@ -55,19 +66,19 @@ class ViewPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               "Joined: August 21, 2023",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
               width: 300,
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              padding: EdgeInsets.all(10), // Reduced padding
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(10), // Reduced padding
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(50), // Larger radius for the card
@@ -79,7 +90,7 @@ class ViewPage extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   CircleAvatar(
@@ -100,35 +111,35 @@ class ViewPage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               "Company Name",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Card(
               elevation: 2,
-              margin: EdgeInsets.symmetric(horizontal: 20),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "Attendance Status",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Divider(),
-                    Row(
+                    const Divider(),
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                       children: [
@@ -137,8 +148,8 @@ class ViewPage extends StatelessWidget {
                         Text("Absent"),
                       ],
                     ),
-                    Divider(),
-                    Row(
+                    const Divider(),
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("1"),
@@ -146,8 +157,8 @@ class ViewPage extends StatelessWidget {
                         Text("2"),
                       ],
                     ),
-                    Divider(),
-                    Row(
+                    const Divider(),
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text("2"),
@@ -156,19 +167,19 @@ class ViewPage extends StatelessWidget {
                       ],
                     ),
                     // Add more rows with attendance details here
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     CircularPercentIndicator(
                       radius: 70,
                       lineWidth: 8,
                       percent: 0.85, // Example value, replace with actual attendance percentage
-                      center: Text(
+                      center: const Text(
                         "85%", // Example value, replace with actual attendance percentage
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       progressColor: Colors.blue,
                     ),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       "Attendance Percentage",
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
@@ -180,5 +191,63 @@ class ViewPage extends StatelessWidget {
         ),
       ),
     );
+  }
+    else if(state is InternetLostState)
+      {
+        return Expanded(
+          child: Scaffold(
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    else {
+      return Expanded(
+        child: Scaffold(
+          body: Container(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "No Internet Connection!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Lottie.asset('assets/no_wifi.json'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+);
   }
 }

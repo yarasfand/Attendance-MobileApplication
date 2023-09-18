@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:project/Login%20Page/login_page.dart';
+import 'package:project/bloc_internet/internet_bloc.dart';
+import 'package:project/bloc_internet/internet_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../Login Page/login_bloc/loginbloc.dart';
 import '../adminDashBloc/admin_dash_bloc.dart';
 import '../adminDrawerPages/AdminReports_page/adminScreens/adminReports_page.dart';
-import '../adminDrawerPages/adminLogout/adminHomepage.dart';
 import '../adminDrawerPages/adminMap/adminMapdisplay.dart';
 import '../adminDrawerPages/adminProfile_page/adminProfilePage.dart';
 import 'admindDrawer.dart';
@@ -18,6 +23,25 @@ class AdminMainPage extends StatefulWidget {
 
 class _MainPageState extends State<AdminMainPage> {
   final AdminDashBloc dashBloc = AdminDashBloc();
+
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('Login', false); // Set the login status to false
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return Builder(
+            builder: (context) => BlocProvider(
+              create: (context) => SignInBloc(),
+              child: LoginPage(),
+            ),
+          ); // Navigate back to LoginPage
+        },
+      ),
+    );
+  }
 
   late double xoffset;
   late double yoffset;
@@ -51,59 +75,183 @@ class _MainPageState extends State<AdminMainPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0x80E26142),
-    body: Stack(
-      children: [
-        buildDrawer(),
-        buildPage(),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) =>
+      BlocConsumer<InternetBloc, InternetStates>(listener: (context, state) {
+        // TODO: implement listener
+      }, builder: (context, state) {
+        if (state is InternetGainedState) {
+          return Scaffold(
+            // setting background color of drawer
+            backgroundColor: const Color(0xFFFAF9F6),
+            body: Stack(
+              children: [
+                buildDrawer(),
+                buildPage(),
+              ],
+            ),
+          );
+        } else if (state is InternetLostState) {
+          return Expanded(
+            child: Scaffold(
+              body: Container(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "No Internet Connection!",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Lottie.asset('assets/no_wifi.json'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else {
+          return Expanded(
+            child: Scaffold(
+              body: Container(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "No Internet Connection!",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Lottie.asset('assets/no_wifi.json'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      });
 
-  Widget buildDrawer() => SafeArea(
-    child: AnimatedOpacity(
-      opacity: isDrawerOpen ? 1.0 : 0.0,
-      duration: Duration(milliseconds: 300),
-      child: Container(
-        width: xoffset,
-        child: MyDrawer(
-          onSelectedItems: (selectedItem) {
-            setState(() {
-              item = selectedItem;
-              closeDrawer();
-            });
+  Widget buildDrawer() =>
+      BlocConsumer<InternetBloc, InternetStates>(listener: (context, state) {
+        // TODO: implement listener
+      }, builder: (context, state) {
+        if (state is InternetGainedState) {
+          return SafeArea(
+            child: AnimatedOpacity(
+              opacity: isDrawerOpen ? 1.0 : 0.0,
+              duration: Duration(milliseconds: 300),
+              child: Padding(
+                padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height / 10),
+                child: Container(
+                  height: MediaQuery.of(context).size.height/1.5,
+                  width: xoffset,
+                  child: MyDrawer(
+                    onSelectedItems: (selectedItem) {
+                      setState(() {
+                        item = selectedItem;
+                        closeDrawer();
+                      });
 
-            switch (item) {
-              case DrawerItems.home:
-                dashBloc.add(NavigateToHomeEvent());
-                break;
+                      switch (item) {
+                        case DrawerItems.home:
+                          dashBloc.add(NavigateToHomeEvent());
+                          break;
 
-              case DrawerItems.geofence:
-                dashBloc.add(NavigateToGeofenceEvent());
-                break;
+                        case DrawerItems.geofence:
+                          dashBloc.add(NavigateToGeofenceEvent());
+                          break;
 
-              case DrawerItems.reports:
-                dashBloc.add(NavigateToReportsEvent());
-                break;
+                        case DrawerItems.reports:
+                          dashBloc.add(NavigateToReportsEvent());
+                          break;
 
-              case DrawerItems.profile:
-                dashBloc.add(NavigateToProfileEvent());
-                break;
+                        case DrawerItems.profile:
+                          dashBloc.add(NavigateToProfileEvent());
+                          break;
 
-              case DrawerItems.logout:
-                dashBloc.add(NavigateToLogoutEvent());
-                break;
+                        case DrawerItems.logout:
+                          dashBloc.add(NavigateToLogoutEvent());
+                          break;
 
-              default:
-                dashBloc.add(NavigateToHomeEvent());
-                break;
-            }
-          },
-        ),
-      ),
-    ),
-  );
+                        default:
+                          dashBloc.add(NavigateToHomeEvent());
+                          break;
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else if (state is InternetLostState) {
+          return Expanded(
+            child: Scaffold(
+              body: Container(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "No Internet Connection!",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Lottie.asset('assets/no_wifi.json'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else {
+          return Expanded(
+            child: Scaffold(
+              body: Container(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "No Internet Connection!",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Lottie.asset('assets/no_wifi.json'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      });
 
   Widget buildPage() {
     return WillPopScope(
@@ -163,16 +311,37 @@ class _MainPageState extends State<AdminMainPage> {
           );
         } else if (state is NavigateToHomeState) {
           return AdminDashboard(openDrawer: openDrawer);
-        }
-        else if (state is NavigateToReportsState) {
+        } else if (state is NavigateToReportsState) {
           return AdminReportsPage(
             openDrawer: openDrawer,
           );
-        }
-        else if (state is NavigateToLogoutState) {
-          return AdminHomePage();
-        }
-        else {
+        } else if (state is NavigateToLogoutState) {
+          return AlertDialog(
+            title: const Text("Confirm Logout"),
+            content: const Text("Are you sure?"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdminMainPage(),
+                    ),
+                  ); // Close the dialog
+                  // Close the dialog
+                },
+              ),
+              TextButton(
+                child: const Text('Logout'),
+                onPressed: () {
+                  // Add the logic to perform logout here
+                  _logout(context); // Close the dialog
+                },
+              ),
+            ],
+          );
+        } else {
           return AdminDashboard(openDrawer: openDrawer);
         }
       },

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project/bloc_internet/internet_checking.dart';
 import 'package:project/introduction_screens/screen1.dart';
 
 class IntroScreen extends StatefulWidget {
@@ -28,24 +27,7 @@ class _IntroScreenState extends State<IntroScreen> {
               Screen1(),
             ],
           ),
-          Container(
-            alignment: const Alignment(0, 0.75),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                      builder: (context) {
-                        return const AfterIntro();
-                      },
-                    ));
-                  },
-                  child: const Text("Done"),
-                ),
-              ],
-            ),
-          ),
+
         ],
       ),
     );

@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:project/adminData/adminDash/adminDrawerPages/AdminReports_page/adminScreens/AdminReports_seprate_files/adminDaily_reports_pages/present_report.dart';
+import 'package:project/bloc_internet/internet_bloc.dart';
+import 'package:project/bloc_internet/internet_state.dart';
 import '../../../constants/constants.dart';
 import 'adminAbsent_reports_pdf_excel_pages/adminAbsent_report_page.dart';
 import 'adminAttendance_report/adminAttendance_report_page.dart';
@@ -28,102 +32,161 @@ class _AdminDailyReportsPageState extends State<AdminDailyReportsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: kbackgrounColorAppBar,
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          'Daily Reports',
-          style: kAppBarTextTheme,
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_month,
-                    size: 32,
-                    color: Colors.green,
+    return BlocBuilder<InternetBloc, InternetStates>(
+      builder: (context, state) {
+        if(state is InternetGainedState)
+          {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: kbackgrounColorAppBar,
+            iconTheme: IconThemeData(color: Colors.white),
+            title: Text(
+              'Daily Reports',
+              style: kAppBarTextTheme,
+            ),
+            centerTitle: true,
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_month,
+                        size: 32,
+                        color: Colors.green,
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        '${currentDate.day}/${currentDate.month}/${currentDate
+                            .year} ${currentDate.hour}:${currentDate.minute}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Text(
-                    '${currentDate.day}/${currentDate.month}/${currentDate.year} ${currentDate.hour}:${currentDate.minute}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                ),
+                buildReportCard(
+                  context,
+                  "Present Reports",
+                  Icons.check_circle_outline,
+                  "Total Present: 30",
+                  "Late Entries: 2",
+                      () {
+                    // Navigate to the Present Reports page
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => AdminPresentReport(),
+                        ));
+                  },
+                ),
+                buildReportCard(
+                  context,
+                  "Absent Reports",
+                  Icons.cancel,
+                  "Total Absent: 10",
+                  "Unexcused Absences: 3",
+                      () {
+                    // Navigate to the Absent Reports page
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => AdminAbsentReports(),
+                      ),
+                    );
+                  },
+                ),
+                buildReportCard(
+                  context,
+                  "Attendance Report",
+                  Icons.bar_chart,
+                  "Total Attendance: 90%",
+                  "Average Attendance: 95%",
+                      () {
+                    // Navigate to the Attendance Report page
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => const AdminAttendanceReport(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+        else if(state is InternetLostState)
+          {
+            return Expanded(
+              child: Scaffold(
+                body: Container(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "No Internet Connection!",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Lottie.asset('assets/no_wifi.json'),
+                      ],
                     ),
                   ),
-                ],
+                ),
+              ),
+            );
+          }
+        else{ return Expanded(
+          child: Scaffold(
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
+                ),
               ),
             ),
-            buildReportCard(
-              context,
-              "Present Reports",
-              Icons.check_circle_outline,
-              "Total Present: 30",
-              "Late Entries: 2",
-              () {
-                // Navigate to the Present Reports page
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => AdminPresentReport(),
-                    ));
-              },
-            ),
-            buildReportCard(
-              context,
-              "Absent Reports",
-              Icons.cancel,
-              "Total Absent: 10",
-              "Unexcused Absences: 3",
-              () {
-                // Navigate to the Absent Reports page
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => AdminAbsentReports(),
-                  ),
-                );
-              },
-            ),
-            buildReportCard(
-              context,
-              "Attendance Report",
-              Icons.bar_chart,
-              "Total Attendance: 90%",
-              "Average Attendance: 95%",
-              () {
-                // Navigate to the Attendance Report page
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => const AdminAttendanceReport(),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );}
+      }
     );
   }
 
-  Widget buildReportCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    String mainInfo,
-    String secondaryInfo,
-    VoidCallback onTap,
-  ) {
+  Widget buildReportCard(BuildContext context,
+      String title,
+      IconData icon,
+      String mainInfo,
+      String secondaryInfo,
+      VoidCallback onTap,) {
     return Card(
       elevation: 4,
       color: const Color(0xFFE26142),

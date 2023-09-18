@@ -8,7 +8,7 @@ import 'package:project/bloc_internet/internet_state.dart';
 
 class InternetBloc extends Bloc<InternetEvent,InternetStates>{
 
-  Connectivity _connectivity =Connectivity();
+  Connectivity _connectivity = Connectivity();
   StreamSubscription ? connectivitySubscription; // to stop the listener
 
 
@@ -17,11 +17,11 @@ class InternetBloc extends Bloc<InternetEvent,InternetStates>{
     on<InternetGainedEvent>((event, emit) => emit(InternetGainedState()));
    connectivitySubscription= _connectivity.onConnectivityChanged.listen((result) {
 
-      if(result==ConnectivityResult.mobile || result== ConnectivityResult.wifi)
+      if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
         {
           add(InternetGainedEvent());
         }
-      else
+      else if(result != ConnectivityResult.mobile || result != ConnectivityResult.wifi)
         {
           add(InternetLostEvent());
         }
@@ -33,7 +33,7 @@ class InternetBloc extends Bloc<InternetEvent,InternetStates>{
 // this is predefined but i am adding slight alteration
 @override
   Future<void> close() {
-    // TODO: implement close
+
   connectivitySubscription?.cancel();
     return super.close();
   }

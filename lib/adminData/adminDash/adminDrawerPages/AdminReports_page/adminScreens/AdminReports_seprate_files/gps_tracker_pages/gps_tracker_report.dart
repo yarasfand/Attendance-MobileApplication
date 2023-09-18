@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:lottie/lottie.dart';
+import 'package:project/bloc_internet/internet_bloc.dart';
+import 'package:project/bloc_internet/internet_state.dart';
 
 class AdminGpsTrackerReport extends StatefulWidget {
   const AdminGpsTrackerReport({Key? key}) : super(key: key);
@@ -50,7 +54,6 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
   }
 
   Future<void> _currentLocation(BuildContext context) async {
-
     if (currentLat != null && currentLong != null) {
       _buildLocationPopup(context);
     } else {
@@ -58,7 +61,7 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
     }
   }
 
-  void _buildLocationErrorDialog (BuildContext context) {
+  void _buildLocationErrorDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -79,14 +82,13 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
   }
 
   Future<void> _buildLocationPopup(BuildContext context) async {
-    address =  await getAddress(currentLat, currentLong);
+    address = await getAddress(currentLat, currentLong);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Your Current Location Is'),
           content: Text('$address'),
-
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -112,55 +114,114 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('GPS Tracker Report'),
-        backgroundColor: Color(0xFFE26142),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFE26142)],
+    return BlocConsumer<InternetBloc, InternetStates>(
+        listener: (context, state) {
+      // TODO: implement listener
+    }, builder: (context, state) {
+      if (state is InternetGainedState) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('GPS Tracker Report'),
+            backgroundColor: Color(0xFFE26142),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Card(
-            color: Colors.white,
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.white, Color(0xFFE26142)],
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildInfoRow('Employee:', employeeName),
-                  _buildInfoRow('Current Date:', currentDate),
-                  const SizedBox(height: 16),
-                  _buildElevatedButton(
-                    text: 'Get Current Location',
-                    icon: Icons.location_on,
-                    onPressed: () {
-                      _currentLocation(context); // Call the method here
-                    },
+              child: Card(
+                color: Colors.white,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildInfoRow('Employee:', employeeName),
+                      _buildInfoRow('Current Date:', currentDate),
+                      const SizedBox(height: 16),
+                      _buildElevatedButton(
+                        text: 'Get Current Location',
+                        icon: Icons.location_on,
+                        onPressed: () {
+                          _currentLocation(context); // Call the method here
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildElevatedButton(
+                        text: 'Get Route Direction',
+                        icon: Icons.directions,
+                        onPressed: _handleRouteDirection,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  _buildElevatedButton(
-                    text: 'Get Route Direction',
-                    icon: Icons.directions,
-                    onPressed: _handleRouteDirection,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
+      } else if (state is InternetLostState) {
+        return Expanded(
+          child: Scaffold(
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      } else {
+        return Expanded(
+          child: Scaffold(
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    });
   }
 
   Widget _buildInfoRow(String label, String info) {

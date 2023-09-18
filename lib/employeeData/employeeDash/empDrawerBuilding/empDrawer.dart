@@ -15,20 +15,15 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.fromLTRB(16, 32, 16, 0),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(
-                height: 35,
-              ),
               Image.asset(
                 "assets/images/pioneer_logo_app1.png",
-                height: 150,
+                height: 180,
               ),
-              const SizedBox(
-                height: 20,
-              ),
+
               buildDrawerItems(context),
             ],
           ),
@@ -40,16 +35,25 @@ class MyDrawer extends StatelessWidget {
             .map(
               (item) => ListTile(
                 contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                     EdgeInsets.fromLTRB( MediaQuery.of(context).size.height/30 ,MediaQuery.of(context).size.height/20.5,0,0),
                 leading: Icon(item.icon, color: Colors.black87),
-                title: (Text(
+                title: Text(
                   item.title,
                   style: const TextStyle(
                     color: Colors.black,
-                    fontSize: 18,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        color: Colors.grey, // Color of the shadow
+                        offset:
+                            Offset(2, 2), // Offset of the shadow from the text
+                        blurRadius: 3, // Blur radius of the shadow
+                      ),
+                      // You can add more Shadow objects for multiple shadows
+                    ],
                   ),
-                )),
+                ),
                 onTap: () => onSelectedItems(item),
               ),
             )
