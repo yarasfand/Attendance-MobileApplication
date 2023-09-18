@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'EmpDaily_Reports_Pages/daily_report.dart';
-import 'EmpGps_Tracker_Pages/gps_tracker_report.dart';
+import 'EmpGps_Tracker_Pages/empGps_tracker_report.dart';
 import 'EmpMonthly_Report_Pages/monthly_report_page.dart';
 import 'EmpSalary_pages/salary_report_page.dart';
 import 'empconstants/empConstants.dart';

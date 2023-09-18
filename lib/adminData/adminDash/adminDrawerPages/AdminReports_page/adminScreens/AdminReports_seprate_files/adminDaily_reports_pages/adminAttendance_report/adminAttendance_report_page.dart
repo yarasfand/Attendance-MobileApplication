@@ -260,10 +260,10 @@ class _AdminAttendanceReportState extends State<AdminAttendanceReport> {
       {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: kbackgrounColorAppBar,
+        backgroundColor: AdminkbackgrounColorAppBar,
         title: Text(
           'Attendance Report',
-          style: kAppBarTextTheme,
+          style: AdminkAppBarTextTheme,
         ),
         centerTitle: true,
         actions: [

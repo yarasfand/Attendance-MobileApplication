@@ -55,7 +55,9 @@ class _EmployeeMapState extends State<EmployeeMap> {
   Future<void> checkLocationPermission() async {
     Geolocator.getServiceStatusStream().listen((status) {
       if (mounted) {
+        setState(() {
           locationError = status != ServiceStatus.enabled;
+        });
       }
     });
   }

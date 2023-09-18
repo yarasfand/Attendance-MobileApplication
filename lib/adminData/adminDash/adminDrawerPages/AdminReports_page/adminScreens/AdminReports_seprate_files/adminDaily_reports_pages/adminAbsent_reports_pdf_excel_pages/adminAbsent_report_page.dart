@@ -260,10 +260,10 @@ class _AdminAbsentReportsState extends State<AdminAbsentReports> {
       {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: kbackgrounColorAppBar,
+        backgroundColor: AdminkbackgrounColorAppBar,
         title: Text(
           'Absent Report',
-          style: kAppBarTextTheme,
+          style: AdminkAppBarTextTheme,
         ),
         centerTitle: true,
 

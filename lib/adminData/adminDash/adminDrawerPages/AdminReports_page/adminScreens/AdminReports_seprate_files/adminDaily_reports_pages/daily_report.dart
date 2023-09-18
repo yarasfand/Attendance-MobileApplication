@@ -38,11 +38,11 @@ class _AdminDailyReportsPageState extends State<AdminDailyReportsPage> {
           {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: kbackgrounColorAppBar,
+            backgroundColor: AdminkbackgrounColorAppBar,
             iconTheme: IconThemeData(color: Colors.white),
             title: Text(
               'Daily Reports',
-              style: kAppBarTextTheme,
+              style: AdminkAppBarTextTheme,
             ),
             centerTitle: true,
           ),

@@ -14,8 +14,8 @@ class DrawerItems{
   static final List <DrawerItem> all = [
     home,
     profile,
-    reports,
     geofence,
+    reports,
     logout,
   ];
 }

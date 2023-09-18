@@ -81,8 +81,7 @@ class _MainPageState extends State<AdminMainPage> {
       }, builder: (context, state) {
         if (state is InternetGainedState) {
           return Scaffold(
-            // setting background color of drawer
-            backgroundColor: const Color(0xFFFAF9F6),
+            backgroundColor: const Color(0xFFFDFCF9),
             body: Stack(
               children: [
                 buildDrawer(),

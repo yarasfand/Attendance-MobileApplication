@@ -8,10 +8,10 @@ class EmpDrawerItem {
   const EmpDrawerItem({required this.title, required this.icon});
 }
 
-class MyDrawer extends StatelessWidget {
+class EmpDrawer extends StatelessWidget {
   final ValueChanged<EmpDrawerItem> onSelectedItems;
 
-  const MyDrawer({super.key, required this.onSelectedItems});
+  const EmpDrawer({super.key, required this.onSelectedItems});
 
   @override
   Widget build(BuildContext context) => Container(
@@ -23,7 +23,6 @@ class MyDrawer extends StatelessWidget {
                 "assets/images/pioneer_logo_app1.png",
                 height: 180,
               ),
-
               buildDrawerItems(context),
             ],
           ),
@@ -34,9 +33,12 @@ class MyDrawer extends StatelessWidget {
         children: EmpDrawerItems.all
             .map(
               (item) => ListTile(
-                contentPadding:
-                     EdgeInsets.fromLTRB( MediaQuery.of(context).size.height/30 ,MediaQuery.of(context).size.height/20.5,0,0),
-                leading: Icon(item.icon, color: Colors.black87),
+                contentPadding: EdgeInsets.fromLTRB(
+                    MediaQuery.of(context).size.height / 30,
+                    MediaQuery.of(context).size.height / 20.5,
+                    0,
+                    0),
+                leading: Icon(item.icon, color: Colors.black),
                 title: Text(
                   item.title,
                   style: const TextStyle(

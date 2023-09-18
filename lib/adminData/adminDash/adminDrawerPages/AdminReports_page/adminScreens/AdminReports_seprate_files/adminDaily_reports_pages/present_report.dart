@@ -259,10 +259,10 @@ class _AdminPresentReportState extends State<AdminPresentReport> {
       {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: kbackgrounColorAppBar,
+        backgroundColor: AdminkbackgrounColorAppBar,
         title: Text(
           'Present Report',
-          style: kAppBarTextTheme,
+          style: AdminkAppBarTextTheme,
         ),
         centerTitle: true,
         actions: [

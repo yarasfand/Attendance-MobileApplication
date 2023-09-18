@@ -43,7 +43,7 @@ class MyDrawer extends StatelessWidget {
                   item.title,
                   style: const TextStyle(
                     color: Colors.black,
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(

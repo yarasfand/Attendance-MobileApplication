@@ -81,7 +81,7 @@ class _EmpMainPageState extends State<EmpMainPage> {
       }, builder: (context, state) {
         if (state is InternetGainedState) {
           return Scaffold(
-            // backgroundColor: const Color(0xFF454545),
+            backgroundColor: const Color(0xFFFDFCF9),
             body: Stack(
               children: [
                 buildDrawer(),
@@ -131,13 +131,12 @@ class _EmpMainPageState extends State<EmpMainPage> {
             child: Container(
               height: MediaQuery.of(context).size.height/1.5,
               width: xoffset,
-              child: MyDrawer(
+              child: EmpDrawer(
                 onSelectedItems: (selectedItem) {
                   setState(() {
                     item = selectedItem;
                     closeDrawer();
                   });
-
                   switch (item) {
                     case EmpDrawerItems.home:
                       dashBloc.add(NavigateToHomeEvent());
@@ -238,7 +237,6 @@ class _EmpMainPageState extends State<EmpMainPage> {
               TextButton(
                 child: const Text('Logout'),
                 onPressed: () {
-                  // Add the logic to perform logout here
                   _logout(context); // Close the dialog
                 },
               ),

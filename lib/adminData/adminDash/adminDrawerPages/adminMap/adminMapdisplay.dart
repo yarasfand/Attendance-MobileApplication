@@ -151,7 +151,7 @@ class _MapDisplayState extends State<AdminMapDisplay> {
                           10, // Adjust position as needed
                       left: (MediaQuery.of(context).size.width / 2) -
                           30 -
-                          20, // Adjust position as needed
+                          20,
                       child: Container(
                         width: 100, // Adjust the radius as needed
                         height: 100, // Adjust the radius as needed

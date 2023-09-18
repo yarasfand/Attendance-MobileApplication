@@ -7,8 +7,8 @@ import 'package:project/bloc_internet/internet_bloc.dart';
 import 'package:project/bloc_internet/internet_state.dart';
 import '../constants/constants.dart';
 import 'AdminReports_seprate_files/adminDaily_reports_pages/daily_report.dart';
+import 'AdminReports_seprate_files/adminGps_tracker_pages/adminGps_tracker_report.dart';
 import 'AdminReports_seprate_files/adminMonthly_report_pages/AdminMonthly_report_page.dart';
-import 'AdminReports_seprate_files/gps_tracker_pages/gps_tracker_report.dart';
 import 'AdminReports_seprate_files/salary_report_pages/AdminSalary_report_page.dart';
 
 class AdminReportsPage extends StatelessWidget {
@@ -29,7 +29,7 @@ class AdminReportsPage extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: const Color(0xFFE26142),
-            title: Text("Reports Page", style: kAppBarTextTheme),
+            title: Text("Reports Page", style: AdminkAppBarTextTheme),
             leading: IconButton(
               icon: const FaIcon(FontAwesomeIcons.bars),
               color: Colors.white,
