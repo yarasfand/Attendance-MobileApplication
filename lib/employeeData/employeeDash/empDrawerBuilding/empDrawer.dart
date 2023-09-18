@@ -43,7 +43,7 @@ class EmpDrawer extends StatelessWidget {
                   item.title,
                   style: const TextStyle(
                     color: Colors.black,
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(

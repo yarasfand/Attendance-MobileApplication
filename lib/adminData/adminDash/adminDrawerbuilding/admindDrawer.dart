@@ -37,13 +37,13 @@ class MyDrawer extends StatelessWidget {
               (item) => ListTile(
                 contentPadding: EdgeInsets.fromLTRB(
                     MediaQuery.of(context).size.height/30 ,
-                    MediaQuery.of(context).size.height/30,0,0),
+                    MediaQuery.of(context).size.height/43,0,0),
                 leading: Icon(item.icon, color: Colors.black),
                 title: Text(
                   item.title,
                   style: const TextStyle(
                     color: Colors.black,
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(

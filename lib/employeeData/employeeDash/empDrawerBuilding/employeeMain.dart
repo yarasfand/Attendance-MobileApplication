@@ -129,7 +129,7 @@ class _EmpMainPageState extends State<EmpMainPage> {
           child: Padding(
             padding: EdgeInsets.only(top:  MediaQuery.of(context).size.height/10),
             child: Container(
-              height: MediaQuery.of(context).size.height/1.5,
+              height: MediaQuery.of(context).size.height/1,
               width: xoffset,
               child: EmpDrawer(
                 onSelectedItems: (selectedItem) {

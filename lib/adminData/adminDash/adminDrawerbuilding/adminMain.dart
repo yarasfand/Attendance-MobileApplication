@@ -157,7 +157,7 @@ class _MainPageState extends State<AdminMainPage> {
                 padding: EdgeInsets.only(
                     top: MediaQuery.of(context).size.height / 10),
                 child: Container(
-                  height: MediaQuery.of(context).size.height/1.5,
+                  height: MediaQuery.of(context).size.height/1,
                   width: xoffset,
                   child: MyDrawer(
                     onSelectedItems: (selectedItem) {
