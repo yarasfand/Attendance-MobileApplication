@@ -138,18 +138,30 @@ class FadingCircle extends StatefulWidget {
   _FadingCircleState createState() => _FadingCircleState();
 }
 
-class _FadingCircleState extends State<FadingCircle> {
+class _FadingCircleState extends State<FadingCircle> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
   double _opacity = 0.0; // Initial opacity
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this, // Use the ticker provided by SingleTickerProviderStateMixin
+      duration: const Duration(seconds: 1), // Adjust the duration as needed
+    );
+
     // Add a delay before starting the fade animation
     Future.delayed(Duration(seconds: widget.delay), () {
-      setState(() {
-        _opacity = 1.0; // Set opacity to 1 to fade in
-      });
+      if (mounted) {
+        _controller.forward(from: 0.0); // Start the animation from the beginning
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose(); // Dispose of the animation controller when the widget is removed
+    super.dispose();
   }
 
   @override
@@ -178,4 +190,5 @@ class _FadingCircleState extends State<FadingCircle> {
     );
   }
 }
+
 

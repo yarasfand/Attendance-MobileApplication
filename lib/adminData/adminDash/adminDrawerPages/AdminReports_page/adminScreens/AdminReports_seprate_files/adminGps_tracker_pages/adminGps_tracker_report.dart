@@ -115,6 +115,9 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
         appBar: AppBar(
           title: Text("Reports Page", style: AdminkAppBarTextTheme),
           backgroundColor: Color(0xFFE26142),
+          iconTheme: const IconThemeData(
+            color: Colors.white, // Set the icon color to white
+          ),
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -164,6 +167,9 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
         appBar: AppBar(
           title: Text(
             'GPS Tracker Report',
+          style: AdminkAppBarTextTheme,),
+          iconTheme: const IconThemeData(
+            color: Colors.white, // Set the icon color to white
           ),
           backgroundColor: Color(0xFFE26142),
         ),
@@ -184,8 +190,12 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
       checkLocationPermissionAndFetchLocation();
       return  Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title:  Text(
             'GPS Tracker Report',
+            style: AdminkAppBarTextTheme,
+          ),
+          iconTheme: const IconThemeData(
+            color: Colors.white, // Set the icon color to white
           ),
           backgroundColor: const Color(0xFFE26142),
         ),

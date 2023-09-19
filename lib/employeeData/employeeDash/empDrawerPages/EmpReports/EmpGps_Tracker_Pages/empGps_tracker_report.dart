@@ -113,8 +113,14 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
     if (currentLat != null && currentLong != null && !locationError) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(
-            'GPS Tracker Report',
+          title: Center(
+            child: Text(
+              'GPS Tracker Report',
+              style: EmpkAppBarTextTheme,
+            ),
+          ),
+          iconTheme: const IconThemeData(
+            color: Colors.white, // Set the icon color to white
           ),
           backgroundColor: Color(0xFFE26142),
         ),
@@ -164,8 +170,9 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
       checkLocationPermissionAndFetchLocation();
       return  Scaffold(
         appBar: AppBar(
-          title: Text(
+          title:Text(
             'GPS Tracker Report',
+            style: EmpkAppBarTextTheme,
           ),
           backgroundColor: Color(0xFFE26142),
         ),

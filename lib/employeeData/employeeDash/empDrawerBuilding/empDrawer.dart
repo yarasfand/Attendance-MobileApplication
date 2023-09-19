@@ -35,7 +35,7 @@ class EmpDrawer extends StatelessWidget {
               (item) => ListTile(
                 contentPadding: EdgeInsets.fromLTRB(
                     MediaQuery.of(context).size.height / 30,
-                    MediaQuery.of(context).size.height / 20.5,
+                    MediaQuery.of(context).size.height / 25.5,
                     0,
                     0),
                 leading: Icon(item.icon, color: Colors.black),
