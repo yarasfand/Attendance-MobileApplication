@@ -53,7 +53,7 @@ class _AdminAppBarState extends State<AdminAppBar> {
         child: Padding(
           padding: EdgeInsets.only(right: 55.0), // Add right padding
           child: Text(
-            "       ADMIN",
+            "ADMIN",
             style: TextStyle(color: Colors.white),
           ),
         ),

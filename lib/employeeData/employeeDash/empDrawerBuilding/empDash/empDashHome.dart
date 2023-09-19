@@ -5,6 +5,7 @@ import 'empHomePage.dart';
 import 'empAppbar.dart';
 
 class EmpDashboard extends StatelessWidget {
+
   final VoidCallback openDrawer;
 
   const EmpDashboard({

@@ -3,6 +3,7 @@ import 'package:flutter/Material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:project/adminData/adminDash/adminDrawerPages/AdminReports_page/constants/constants.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xls;
 import '../../empconstants/empConstants.dart';
@@ -250,6 +251,7 @@ class _EmpAttendanceReportState extends State<EmpAttendanceReport> {
 
     return Scaffold(
       appBar: AppBar(
+        iconTheme: kIconThemeData,
         backgroundColor: EmpkbackgrounColorAppBar,
         title: Text(
           'Attendance Report',

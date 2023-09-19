@@ -260,6 +260,7 @@ class _AdminAttendanceReportState extends State<AdminAttendanceReport> {
       {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: kIconThemeData,
         backgroundColor: AdminkbackgrounColorAppBar,
         title: Text(
           'Attendance Report',

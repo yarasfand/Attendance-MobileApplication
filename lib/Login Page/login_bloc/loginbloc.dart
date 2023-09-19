@@ -12,7 +12,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         }
       else if(event.password.length<8)
         {
-          emit( SignInNotValidState(message: "Atleast 7 characters required"));
+          // emit( SignInNotValidState(message: "Atleast 7 characters required"));
         }
 
     });

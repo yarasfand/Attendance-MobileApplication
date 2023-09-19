@@ -7,6 +7,8 @@ import 'package:project/bloc_internet/internet_bloc.dart';
 import 'package:project/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../adminData/adminDash/adminDrawerbuilding/adminMain.dart';
+import '../api_intigration_files/api_integration_files/admin_getraw_request.dart';
+import '../api_intigration_files/api_integration_files/employee_getraw_request.dart';
 import '../employeeData/employeeDash/empDrawerBuilding/employeeMain.dart';
 import 'half_circle_clipper.dart';
 import 'login_bloc/loginEvents.dart';
@@ -22,7 +24,8 @@ enum UserType { employee, admin }
 
 class _LoginPageState extends State<LoginPage> {
   UserType? _selectedUserType = UserType.employee; // Default selection
-
+  AdminApi admin = AdminApi();
+  EmployeeApi employee = EmployeeApi();
   final _passwordController = TextEditingController();
   final _CoorporateIdController = TextEditingController();
   final _UserController = TextEditingController();
@@ -31,12 +34,43 @@ class _LoginPageState extends State<LoginPage> {
   late bool _isButtonPressed = false;
   static const String KEY_LOGIN = "Login";
 
-  Future<void> saveUserData(
-      String corporateID, String username, String password) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('corporateID', corporateID);
-    await prefs.setString('username', username);
-    await prefs.setString('password', password);
+  void _showErrorSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Center(child: Text(message)),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+  Future<void> _successScaffoldMessage(BuildContext context, String message) async {
+    await ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Center(child: Text(message)),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _loginAsEmployee() async {
+    await employee.getData();
+    await _successScaffoldMessage(context,"Login Successful");
+    await Future.delayed(Duration(seconds: 2));
+
+    Navigator.pushReplacement(
+        context,
+        PageTransition(
+            child: const EmpMainPage(), type: PageTransitionType.rightToLeft));
+  }
+
+  void _loginAsAdmin() async {
+    await admin.getData();
+    await _successScaffoldMessage(context,"Login Successful");
+    await Future.delayed(Duration(seconds: 2));
+    Navigator.pushReplacement(
+        context,
+        PageTransition(
+            child: const AdminMainPage(),
+            type: PageTransitionType.rightToLeft));
   }
 
   void _onLoginButtonPressed() async {
@@ -49,38 +83,54 @@ class _LoginPageState extends State<LoginPage> {
       var sharedPref = await SharedPreferences.getInstance();
       sharedPref.setBool(KEY_LOGIN, true);
 
+      final enteredCorporateID = _CoorporateIdController.text;
+      final enteredUsername = _UserController.text;
+      final enteredPassword = _passwordController.text;
+
+      // saving corporateId
+      final sharedPrefEmp = await SharedPreferences.getInstance();
+      sharedPref.setString('corporate_id', enteredCorporateID);
+
+      // Hardcoded values for corporate ID, username, and password for Admin
+      final hardcodedCorporateIDAdmin = "ptsoffice";
+      final hardcodedUsernameAdmin = "ptsadmin";
+      final hardcodedPasswordAdmin = "Reenoip@1234";
+
+      // Hardcoded values for corporate ID, username, and password for Employee
+
+      final hardcodedCorporateIDEmployee = "ptsoffice";
+      final hardcodedUsernameEmployee = "1999";
+      final hardcodedPasswordEmployee = "1999";
+
       if (_selectedUserType == UserType.employee) {
-        saveUserData(
-          _CoorporateIdController.text,
-          _UserController.text,
-          _passwordController.text,
-        );
-        setState(() {});
-
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            child: const EmpMainPage(),
-            duration: const Duration(seconds: 1),
-            type: PageTransitionType.fade,
-          ),
-        );
+        // Execute employee-related functions
+        _handleEmployeeLogin(
+            enteredCorporateID,
+            hardcodedCorporateIDEmployee,
+            enteredUsername,
+            hardcodedUsernameEmployee,
+            enteredPassword,
+            hardcodedPasswordEmployee);
       } else if (_selectedUserType == UserType.admin) {
-        saveUserData(
-          _CoorporateIdController.text,
-          _UserController.text,
-          _passwordController.text,
-        );
-
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            child: const AdminMainPage(),
-            duration: const Duration(seconds: 1),
-            type: PageTransitionType.fade,
+        // Execute admin-related functions
+        _handleAdminLogin(
+            enteredCorporateID,
+            hardcodedCorporateIDAdmin,
+            enteredUsername,
+            hardcodedUsernameAdmin,
+            enteredPassword,
+            hardcodedPasswordAdmin);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invalid corporate ID, username, or password.'),
+            duration: Duration(seconds: 3),
           ),
         );
       }
+      setState(() {
+        _isButtonPressed = false;
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -88,6 +138,38 @@ class _LoginPageState extends State<LoginPage> {
           duration: Duration(seconds: 3),
         ),
       );
+    }
+  }
+
+  void _handleAdminLogin(
+      String enteredCorporateID,
+      String hardcodedCorporateIDAdmin,
+      String enteredUsername,
+      String hardcodedUsernameAdmin,
+      String enteredPassword,
+      String hardcodedPasswordAdmin) {
+    if (enteredCorporateID == hardcodedCorporateIDAdmin &&
+        enteredUsername == hardcodedUsernameAdmin &&
+        enteredPassword == hardcodedPasswordAdmin) {
+      _loginAsAdmin();
+    } else {
+      _showErrorSnackbar(context, "User not found!");
+    }
+  }
+
+  void _handleEmployeeLogin(
+      String enteredCorporateID,
+      String hardcodedCorporateIDEmployee,
+      String enteredUsername,
+      String hardcodedUsernameEmployee,
+      String enteredPassword,
+      String hardcodedPasswordEmployee) {
+    if (enteredCorporateID == hardcodedCorporateIDEmployee &&
+        enteredUsername == hardcodedUsernameEmployee &&
+        enteredPassword == hardcodedPasswordEmployee) {
+      _loginAsEmployee();
+    } else {
+      _showErrorSnackbar(context, "User not found!");
     }
   }
 
@@ -155,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
                       duration: const Duration(seconds: 2),
                       margin: const EdgeInsets.all(20),
                       height: MediaQuery.of(context).orientation ==
-                          Orientation.portrait
+                              Orientation.portrait
                           ? MediaQuery.of(context).size.height * 0.65
                           : MediaQuery.of(context).size.width * 0.55,
                       width: MediaQuery.of(context).size.width,
@@ -227,7 +309,7 @@ class _LoginPageState extends State<LoginPage> {
                                 decoration: InputDecoration(
                                   labelText: 'User Name',
                                   suffixIcon:
-                                  Image.asset('assets/icons/profile.png'),
+                                      Image.asset('assets/icons/profile.png'),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -249,11 +331,11 @@ class _LoginPageState extends State<LoginPage> {
                                 decoration: InputDecoration(
                                   labelText: 'Password',
                                   suffixIcon:
-                                  Image.asset('assets/icons/password.png'),
+                                      Image.asset('assets/icons/password.png'),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter at least 8 characters';
+                                    return 'Please enter password';
                                   }
                                   return null;
                                 },
@@ -314,15 +396,12 @@ class _LoginPageState extends State<LoginPage> {
                                       shape: MaterialStateProperty.all(
                                         RoundedRectangleBorder(
                                           borderRadius:
-                                          BorderRadius.circular(50),
+                                              BorderRadius.circular(50),
                                         ),
                                       ),
                                       backgroundColor:
-                                      (state is SigninValidState)
-                                          ? MaterialStateProperty.all(
-                                          Colors.orange)
-                                          : MaterialStateProperty.all(
-                                          Colors.grey),
+                                          MaterialStateProperty.all(
+                                              const Color(0xFFE26142)),
                                       elevation: MaterialStateProperty.all(3),
                                       shadowColor: MaterialStateProperty.all(
                                           Colors.grey),
@@ -330,14 +409,22 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: () {
                                       _onLoginButtonPressed();
                                     },
-                                    child: const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    child: _isButtonPressed
+                                        ? const SizedBox(
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.0,
+                                            ),
+                                            width: 15.0,
+                                            height: 15.0,
+                                          )
+                                        : const Text(
+                                            'Login',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                   );
                                 },
                               )
@@ -351,8 +438,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           );
-        }
-        else if (state is InternetLostState) {
+        } else if (state is InternetLostState) {
           return Expanded(
             child: Scaffold(
               body: Container(
@@ -363,7 +449,7 @@ class _LoginPageState extends State<LoginPage> {
                       const Text(
                         "No Internet Connection!",
                         style: TextStyle(
-                          color: Colors.red,
+                          color: Color(0xFFE26142),
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
@@ -378,8 +464,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           );
-        }
-        else {
+        } else {
           return Expanded(
             child: Scaffold(
               body: Container(
@@ -390,7 +475,7 @@ class _LoginPageState extends State<LoginPage> {
                       const Text(
                         "No Internet Connection!",
                         style: TextStyle(
-                          color: Colors.red,
+                          color: Color(0xFFE26142),
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),

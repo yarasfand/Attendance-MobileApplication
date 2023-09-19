@@ -42,7 +42,7 @@ class AdminDashboard extends StatelessWidget {
                         Text(
                           "No Internet Connection!",
                           style: TextStyle(
-                            color: Colors.red,
+                            color: Color(0xFFE26142),
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
                           ),

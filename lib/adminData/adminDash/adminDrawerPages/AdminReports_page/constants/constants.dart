@@ -10,3 +10,7 @@ final AdminkAppBarTextTheme = TextStyle(
   color: Color(0xFFFDF7F5),
   fontWeight: FontWeight.bold,
 );
+
+final kIconThemeData= IconThemeData(
+color: Colors.white,
+);

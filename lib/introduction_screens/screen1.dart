@@ -3,7 +3,6 @@ import 'package:lottie/lottie.dart';
 
 import '../bloc_internet/internet_checking.dart';
 
-
 class Screen1 extends StatefulWidget {
   const Screen1({super.key});
 
@@ -11,12 +10,13 @@ class Screen1 extends StatefulWidget {
   State<Screen1> createState() => _Screen1State();
 }
 
-class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin{
+class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   bool allPointsDisplayed = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -25,22 +25,25 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin{
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Your company logo
-              Image.asset('assets/images/pioneer_logo_app.png',
-                  height: 150, width: 150),
-              const SizedBox(height: 20),
+              Expanded(
+                child: Image.asset(
+                  'assets/images/pioneer_logo_app.png',
+                ),
+              ),
+
               // Lottie animation with a fixed size
-              Container(
-                height: 200,
-                width: 200,
-                child: Lottie.asset(
-                  "assets/images/security.json",
-                  repeat: false,
-                  onLoaded: (_) {
-                    // Animation has loaded, set the flag to true
-                    setState(() {
-                      allPointsDisplayed = true;
-                    });
-                  },
+              Expanded(
+                child: Container(
+                  child: Lottie.asset(
+                    "assets/animations/clock3.json",
+                    repeat: true,
+                    onLoaded: (_) {
+                      // Animation has loaded, set the flag to true
+                      setState(() {
+                        allPointsDisplayed = true;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -110,7 +113,10 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin{
               if (allPointsDisplayed)
                 ElevatedButton(
                   style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.orange)),
+                    backgroundColor: MaterialStatePropertyAll(
+                      Color(0xFFE26142),
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
@@ -138,30 +144,18 @@ class FadingCircle extends StatefulWidget {
   _FadingCircleState createState() => _FadingCircleState();
 }
 
-class _FadingCircleState extends State<FadingCircle> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class _FadingCircleState extends State<FadingCircle> {
   double _opacity = 0.0; // Initial opacity
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this, // Use the ticker provided by SingleTickerProviderStateMixin
-      duration: const Duration(seconds: 1), // Adjust the duration as needed
-    );
-
     // Add a delay before starting the fade animation
     Future.delayed(Duration(seconds: widget.delay), () {
-      if (mounted) {
-        _controller.forward(from: 0.0); // Start the animation from the beginning
-      }
+      setState(() {
+        _opacity = 1.0; // Set opacity to 1 to fade in
+      });
     });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose(); // Dispose of the animation controller when the widget is removed
-    super.dispose();
   }
 
   @override
@@ -180,7 +174,8 @@ class _FadingCircleState extends State<FadingCircle> with SingleTickerProviderSt
             ),
           ),
         ),
-        const SizedBox(width: 10.0), // Adjust the spacing between the circle and text
+        const SizedBox(
+            width: 10.0), // Adjust the spacing between the circle and text
         AnimatedOpacity(
           opacity: _opacity,
           duration: const Duration(seconds: 1), // Adjust the duration as needed
@@ -190,5 +185,3 @@ class _FadingCircleState extends State<FadingCircle> with SingleTickerProviderSt
     );
   }
 }
-
-

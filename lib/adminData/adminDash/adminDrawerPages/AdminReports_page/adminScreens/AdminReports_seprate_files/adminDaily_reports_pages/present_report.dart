@@ -306,6 +306,7 @@ class _AdminPresentReportState extends State<AdminPresentReport> {
             ),
           ),
         ],
+        iconTheme:kIconThemeData,
       ),
       body: ListView(
         padding: EdgeInsets.all(screenSize.width * 0.04),

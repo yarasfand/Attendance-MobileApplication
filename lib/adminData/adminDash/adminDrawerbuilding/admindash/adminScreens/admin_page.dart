@@ -79,7 +79,7 @@ class _AdminPageState extends State<AdminPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Column(
+                                const Column(
                                   children: [
                                     Text(
                                       "Contact Details",
@@ -102,11 +102,11 @@ class _AdminPageState extends State<AdminPage> {
                                   onPressed: () {
                                     // Save data
                                   },
-                                  label: Icon(Icons.message_outlined),
+                                  label: const Icon(Icons.message_outlined),
                                 ),
                               ],
                             ),
-                          SizedBox(height: 20,),
+                          const SizedBox(height: 20,),
                         ],
                       ),
                     ),
@@ -126,7 +126,7 @@ class _AdminPageState extends State<AdminPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           "No Internet Connection!",
                           style: TextStyle(
                             color: Colors.red,
@@ -134,7 +134,7 @@ class _AdminPageState extends State<AdminPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         Lottie.asset('assets/no_wifi.json'),
@@ -153,7 +153,7 @@ class _AdminPageState extends State<AdminPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         "No Internet Connection!",
                         style: TextStyle(
                           color: Colors.red,
@@ -161,7 +161,7 @@ class _AdminPageState extends State<AdminPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Lottie.asset('assets/no_wifi.json'),

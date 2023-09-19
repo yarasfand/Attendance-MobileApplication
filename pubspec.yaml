@@ -38,6 +38,13 @@ dependencies:
   open_file: ^3.3.2
   syncfusion_flutter_xlsio: ^22.2.12
   intl: ^0.18.1
+  flutter_native_splash: ^2.3.2
+  equatable: ^2.0.5
+
+flutter_native_splash:
+  color: "#FFD580"
+  image: "assets/images/pioneer_logo_app1.png"
+  branding: assets/images/pioneer_logo_app.png
 
 
 dev_dependencies:
@@ -60,6 +67,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/icons/
+    - assets/animations/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
