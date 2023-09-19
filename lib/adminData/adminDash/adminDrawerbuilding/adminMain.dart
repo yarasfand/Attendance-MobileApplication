@@ -76,181 +76,100 @@ class _MainPageState extends State<AdminMainPage> {
 
   @override
   Widget build(BuildContext context) =>
-      BlocConsumer<InternetBloc, InternetStates>(listener: (context, state) {
-        // TODO: implement listener
-      }, builder: (context, state) {
-        if (state is InternetGainedState) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFFDFCF9),
-            body: Stack(
-              children: [
-                buildDrawer(),
-                buildPage(),
-              ],
-            ),
-          );
-        } else if (state is InternetLostState) {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
+      BlocConsumer<InternetBloc, InternetStates>(
+          listener: (context, state) {},
+          builder: (context, state) {
+            if (state is InternetGainedState) {
+              return Scaffold(
+                backgroundColor: const Color(0xFFFDFCF9),
+                body: Stack(
+                  children: [
+                    buildDrawer(),
+                    buildPage(),
+                  ],
+                ),
+              );
+            } else if (state is InternetLostState) {
+              return Expanded(
+                child: Scaffold(
+                  body: Container(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "No Internet Connection!",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Lottie.asset('assets/no_wifi.json'),
+                        ],
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
+                    ),
                   ),
                 ),
+              );
+            } else {
+              return Scaffold(
+                body: Container(),
+              );
+            }
+          });
+
+  Widget buildDrawer() => SafeArea(
+        child: AnimatedOpacity(
+          opacity: isDrawerOpen ? 1.0 : 0.0,
+          duration: Duration(milliseconds: 300),
+          child: Padding(
+            padding:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height / 10),
+            child: Container(
+              height: MediaQuery.of(context).size.height / 1,
+              width: xoffset,
+              child: MyDrawer(
+                onSelectedItems: (selectedItem) {
+                  setState(() {
+                    item = selectedItem;
+                    closeDrawer();
+                  });
+
+                  switch (item) {
+                    case DrawerItems.home:
+                      dashBloc.add(NavigateToHomeEvent());
+                      break;
+
+                    case DrawerItems.geofence:
+                      dashBloc.add(NavigateToGeofenceEvent());
+                      break;
+
+                    case DrawerItems.reports:
+                      dashBloc.add(NavigateToReportsEvent());
+                      break;
+
+                    case DrawerItems.profile:
+                      dashBloc.add(NavigateToProfileEvent());
+                      break;
+
+                    case DrawerItems.logout:
+                      dashBloc.add(NavigateToLogoutEvent());
+                      break;
+
+                    default:
+                      dashBloc.add(NavigateToHomeEvent());
+                      break;
+                  }
+                },
               ),
             ),
-          );
-        } else {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-      });
-
-  Widget buildDrawer() =>
-      BlocConsumer<InternetBloc, InternetStates>(listener: (context, state) {
-        // TODO: implement listener
-      }, builder: (context, state) {
-        if (state is InternetGainedState) {
-          return SafeArea(
-            child: AnimatedOpacity(
-              opacity: isDrawerOpen ? 1.0 : 0.0,
-              duration: Duration(milliseconds: 300),
-              child: Padding(
-                padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 10),
-                child: Container(
-                  height: MediaQuery.of(context).size.height/1,
-                  width: xoffset,
-                  child: MyDrawer(
-                    onSelectedItems: (selectedItem) {
-                      setState(() {
-                        item = selectedItem;
-                        closeDrawer();
-                      });
-
-                      switch (item) {
-                        case DrawerItems.home:
-                          dashBloc.add(NavigateToHomeEvent());
-                          break;
-
-                        case DrawerItems.geofence:
-                          dashBloc.add(NavigateToGeofenceEvent());
-                          break;
-
-                        case DrawerItems.reports:
-                          dashBloc.add(NavigateToReportsEvent());
-                          break;
-
-                        case DrawerItems.profile:
-                          dashBloc.add(NavigateToProfileEvent());
-                          break;
-
-                        case DrawerItems.logout:
-                          dashBloc.add(NavigateToLogoutEvent());
-                          break;
-
-                        default:
-                          dashBloc.add(NavigateToHomeEvent());
-                          break;
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else if (state is InternetLostState) {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-      });
+          ),
+        ),
+      );
 
   Widget buildPage() {
     return WillPopScope(

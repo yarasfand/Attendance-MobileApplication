@@ -17,6 +17,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -25,22 +26,25 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin{
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Your company logo
-              Image.asset('assets/images/pioneer_logo_app.png',
-                  height: 150, width: 150),
-              const SizedBox(height: 20),
+              Expanded(
+                child: Image.asset('assets/images/pioneer_logo_app.png',
+                    ),
+              ),
+              
               // Lottie animation with a fixed size
-              Container(
-                height: 200,
-                width: 200,
-                child: Lottie.asset(
-                  "assets/images/security.json",
-                  repeat: false,
-                  onLoaded: (_) {
-                    // Animation has loaded, set the flag to true
-                    setState(() {
-                      allPointsDisplayed = true;
-                    });
-                  },
+              Expanded(
+                child: Container(
+                  
+                  child: Lottie.asset(
+                    "assets/images/security.json",
+                    repeat: false,
+                    onLoaded: (_) {
+                      // Animation has loaded, set the flag to true
+                      setState(() {
+                        allPointsDisplayed = true;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
