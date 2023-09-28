@@ -223,6 +223,22 @@ class _HomePageState extends State<EmpDashHome> {
                   ),
                 ],
               ),
+              Table(
+                children: [
+                  TableRow(
+                    children: [
+                      ProfileInfoBigCard(
+                        firstText: "18",
+                        secondText: "Total Leaves",
+                        icon: Image.asset(
+                          "assets/icons/leave.png",
+                          width: 35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -339,7 +355,7 @@ class _HomePageState extends State<EmpDashHome> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       "No Internet Connection!",
                       style: TextStyle(
                         color: Colors.red,
