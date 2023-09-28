@@ -41,6 +41,7 @@ dependencies:
   flutter_native_splash: ^2.3.2
   equatable: ^2.0.5
 
+
 flutter_native_splash:
   color: "#FFD580"
   image: "assets/images/pioneer_logo_app1.png"
