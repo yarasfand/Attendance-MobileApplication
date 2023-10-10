@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:project/adminData/adminDash/adminDrawerPages/adminMap/adminMapdisplay.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,7 +51,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
   Future<void> _fetchDepartmentNames() async {
     try {
       final departments =
-          await DepartmentRepository().getAllActiveDepartments(corporateId);
+      await DepartmentRepository().getAllActiveDepartments(corporateId);
 
       // Extract department names from the departments list and filter out null values
       final departmentNames = departments
@@ -81,7 +82,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
   Future<void> _fetchBranchNames() async {
     try {
       final branches =
-          await BranchRepository().getAllActiveBranches(corporateId);
+      await BranchRepository().getAllActiveBranches(corporateId);
 
       // Extract branch names from the branches list and filter out null values
       final branchNames = branches
@@ -101,7 +102,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
   Future<void> _fetchCompanyNames() async {
     try {
       final companies =
-          await CompanyRepository().getAllActiveCompanies(corporateId);
+      await CompanyRepository().getAllActiveCompanies(corporateId);
 
       final companyNames = companies
           .map((company) => company.companyName)
@@ -230,6 +231,42 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
     return departmentMatch && branchMatch && companyMatch && searchMatch;
   }
 
+  List<GetActiveEmpModel> filterEmployees(
+      List<GetActiveEmpModel> employees, String query) {
+    return employees.where((employee) {
+      bool matchesFilter = true;
+
+      // Check if a department is selected and match it with the employee's department
+      if (departmentDropdownValue != null &&
+          departmentDropdownValue!.isNotEmpty) {
+        matchesFilter =
+            matchesFilter && employee.deptNames == departmentDropdownValue;
+      }
+
+      // Check if a branch is selected and match it with the employee's branch
+      if (branchDropdownValue != null && branchDropdownValue!.isNotEmpty) {
+        matchesFilter =
+            matchesFilter && employee.branchNames == branchDropdownValue;
+      }
+
+      // Check if a company is selected and match it with the employee's company
+      if (companyDropdownValue != null && companyDropdownValue!.isNotEmpty) {
+        matchesFilter =
+            matchesFilter && employee.companyNames == companyDropdownValue;
+      }
+
+      // Check if the search query matches employee's name, code, or EmpId
+      bool searchMatch = query.isEmpty ||
+          (employee.empName?.toLowerCase().contains(query.toLowerCase()) ??
+              false) ||
+          (employee.empCode?.toLowerCase().contains(query.toLowerCase()) ??
+              false) ||
+          (employee.empId.toString().contains(query)); // Check for EmpId match
+
+      // Return true if all conditions are met (selected department, branch, company, and search query), otherwise, return false
+      return matchesFilter && searchMatch;
+    }).toList();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,7 +288,8 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
           ),
         ),
       ),
-      body: Container(
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
           children: [
             Center(
@@ -274,241 +312,407 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                     style: TextStyle(
                       fontSize: 16, // Adjust the font size as needed
                       fontWeight:
-                          FontWeight.bold, // Adjust the font weight as needed
+                      FontWeight.bold, // Adjust the font weight as needed
                       color: Colors.white, // Change text color as needed
                     ),
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal, // Allow horizontal scrolling
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Department Dropdown
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Department',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          constraints: BoxConstraints(
-                            maxWidth: double.infinity,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
+            Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Card(
+                    color: const Color(0xFFE26142),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Text(
+                            "FILTERS",
+                            style: GoogleFonts.openSans(
+                              textStyle: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(4.0),
+                            textAlign: TextAlign.center,
                           ),
-                          child: DropdownButton<String>(
-                            value: departmentDropdownValue,
-                            onChanged: (newValue) {
-                              setState(() {
-                                departmentDropdownValue = newValue!;
-                              });
-                            },
-                            items: departmentNames.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(width: 20), // Add spacing between dropdowns
-
-                    // Branch Dropdown
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Branch',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: DropdownButton<String>(
-                            value: branchDropdownValue,
-                            onChanged: (newValue) {
-                              setState(() {
-                                branchDropdownValue = newValue!;
-                              });
-                            },
-                            items: branchNames.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(width: 20), // Add spacing between dropdowns
-
-                    // Company Dropdown
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Company',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: DropdownButton<String>(
-                            value: companyDropdownValue,
-                            onChanged: (newValue) {
-                              setState(() {
-                                companyDropdownValue = newValue!;
-                              });
-                            },
-                            items: companyNames.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10),
-              child: Center(
-                child: Container(
-                  child: Title(
-                    color: Colors.black,
-                    child: const Text(
-                      "Emmployee List",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const Divider(
-              color: Colors.grey,
-              thickness: 1.0,
-              height: 20,
-              indent: 20,
-              endIndent: 20,
-            ),
-            Expanded(
-              child: BlocBuilder<GetEmployeeBloc, GetActiveEmployeeState>(
-                builder: (context, state) {
-                  if (state is GetEmployeeInitial) {
-                    return const CircularProgressIndicator();
-                  } else if (state is GetEmployeeLoaded) {
-
-                    final employees = state.employees;
-
-                    return ListView.builder(
-                      itemCount: employees.length,
-                      itemBuilder: (context, index) {
-                        final employee = employees[index];
-
-                        if (_employeeMatchesFilter(employee)) {
-                          return Column(
+                          SizedBox(height: 10),
+                          // Department Dropdown
+                          Row(
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
+                              Expanded(
+                                flex: 1,
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ListTile(
-                                      title: Text(employee.empName ?? ''),
-                                      subtitle: Text(employee.empCode ?? ''),
-                                      trailing: Checkbox(
-                                        value: employee.isSelected,
-                                        onChanged: (_) {
-                                          _toggleEmployeeSelection(employee);
-                                        },
+                                    Text(
+                                      'Department:',
+                                      style: GoogleFonts.openSans(
+                                        textStyle: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                    const Divider(
-                                      color: Colors.grey,
-                                      thickness: 1.0,
-                                      height: 20,
-                                      indent: 10,
-                                      endIndent: 10,
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        value: departmentDropdownValue,
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            departmentDropdownValue = newValue!;
+                                          });
+                                        },
+                                        items: [
+                                          DropdownMenuItem<String>(
+                                            value: '',
+                                            child: Text(
+                                              'All',
+                                              style: GoogleFonts.openSans(
+                                                textStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          ...departmentNames.map((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                style: GoogleFonts.openSans(
+                                                  textStyle: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              // Branch Dropdown
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Branch:',
+                                      style: GoogleFonts.openSans(
+                                        textStyle: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        value: branchDropdownValue,
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            branchDropdownValue = newValue!;
+                                          });
+                                        },
+                                        items: [
+                                          DropdownMenuItem<String>(
+                                            value: '',
+                                            child: Text(
+                                              'All',
+                                              style: GoogleFonts.openSans(
+                                                textStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          ...branchNames.map((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                style: GoogleFonts.openSans(
+                                                  textStyle: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ],
-                          );
-                        } else {
-                          return const SizedBox
-                              .shrink(); // Hide if not matching
-                        }
-                      },
-                    );
-                  } else if (state is GetEmployeeError) {
-                    return Text('Error: ${state.errorMessage}');
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
+                          ),
+                          SizedBox(height: 10),
+                          // Company Dropdown
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Company:',
+                                      style: GoogleFonts.openSans(
+                                        textStyle: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        value: companyDropdownValue,
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            companyDropdownValue = newValue!;
+                                          });
+                                        },
+                                        items: [
+                                          DropdownMenuItem<String>(
+                                            value: '',
+                                            child: Text(
+                                              'All',
+                                              style: GoogleFonts.openSans(
+                                                textStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          ...companyNames.map((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                style: GoogleFonts.openSans(
+                                                  textStyle: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              // Search Bar
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors
+                                        .white, // Change background color to white
+                                    border: Border.all(
+                                      color: Colors.white,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                  child: TextField(
+                                    onChanged: (value) {
+                                      setState(() {
+                                        searchQuery = value;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'Search by name or code...',
+                                      icon: Icon(Icons.search,
+                                          color: Colors
+                                              .black), // Change icon color to black
+                                      hintStyle: GoogleFonts.openSans(
+                                        textStyle: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors
+                                              .black, // Change hint text color to black
+                                        ),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal:
+                                          12.0), // Adjust padding as needed
+                                      border: InputBorder
+                                          .none, // Remove the default border
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // "Select All" Button
+                ElevatedButton(
+                  onPressed: _toggleSelectAll,
+                  child: Text(
+                    selectAll ? 'Deselect All' : 'Select All',
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+
+                // Employee List in DataTable form
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+                  child: Container(
+                    margin: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black), // Add border styling
+                    ),
+                    child: DataTable(
+                      headingRowColor: const MaterialStatePropertyAll(
+                        Color(0xFFE26142),
+                      ),
+                      columnSpacing: 20.0,
+                      columns: const [
+                        DataColumn(
+                            label: Text(
+                              'EmpId',
+                              style: TextStyle(fontSize: 12, color: Colors.white),
+                            )),
+                        DataColumn(
+                            label: Text(
+                              'EmpName',
+                              style: TextStyle(fontSize: 12, color: Colors.white),
+                            )),
+                        DataColumn(
+                          label: Text(
+                            'DeptName',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'BranchName',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Add Remarks',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ), // Add Remarks column
+                        DataColumn(
+                          label: Text(
+                            'Select',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                      rows: filterEmployees(employees, searchQuery).map((employee) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(
+                              employee.empId.toString(),
+                              style: const TextStyle(fontSize: 12),
+                            )),
+                            DataCell(Text(
+                              employee.empName ?? '',
+                              style: const TextStyle(fontSize: 12),
+                            )),
+                            DataCell(Text(
+                              employee.deptNames ?? '',
+                              style: const TextStyle(fontSize: 12),
+                            )),
+                            DataCell(Text(
+                              employee.branchNames ?? '',
+                              style: const TextStyle(fontSize: 12),
+                            )), // Ensure BranchName data is available
+                            DataCell(
+                              SizedBox(
+                                width: 100, // Adjust the width as needed
+                                height: 30, // Adjust the height as needed
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _showRemarksDialog(employee);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets
+                                        .zero, // Remove padding around the button text
+                                  ),
+                                  child: const Text(
+                                    'Add Remarks',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            DataCell(
+                              Checkbox(
+                                value: employee.isSelected,
+                                onChanged: (_) {
+                                  _toggleEmployeeSelection(employee);
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

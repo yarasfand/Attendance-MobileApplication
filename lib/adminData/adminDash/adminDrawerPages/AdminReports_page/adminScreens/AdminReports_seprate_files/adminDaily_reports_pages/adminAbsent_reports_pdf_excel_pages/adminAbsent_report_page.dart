@@ -252,164 +252,143 @@ class _AdminAbsentReportsState extends State<AdminAbsentReports> {
     screenSize = MediaQuery.of(context).size;
 
     return BlocConsumer<InternetBloc, InternetStates>(
-        listener: (context, state) {
-      // TODO: implement listener
-    }, builder: (context, state) {
-      if (state is InternetGainedState) {
-        return Scaffold(
-          appBar: AppBar(
-            iconTheme: kIconThemeData,
-            backgroundColor: AdminkbackgrounColorAppBar,
-            title: Text(
-              'Absent Report',
-              style: AdminkAppBarTextTheme,
+  listener: (context, state) {
+    // TODO: implement listener
+  },
+  builder: (context, state) {
+    if(state is InternetGainedState)
+      {
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: kIconThemeData,
+        backgroundColor: AdminkbackgrounColorAppBar,
+        title: Text(
+          'Absent Report',
+          style: AdminkAppBarTextTheme,
+        ),
+        centerTitle: true,
+
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(screenSize.width * 0.04),
+        children: [
+          // Search Bar
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+              borderRadius: BorderRadius.circular(30),
             ),
-            centerTitle: true,
-          ),
-          body: ListView(
-            padding: EdgeInsets.all(screenSize.width * 0.04),
-            children: [
-              // Search Bar
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.circular(30),
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(screenSize.width * 0.02),
+                  child: const Icon(Icons.search, color: Colors.grey),
                 ),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(screenSize.width * 0.02),
-                      child: const Icon(Icons.search, color: Colors.grey),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (query) {
+                      filterData(query);
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Search',
+                      border: InputBorder.none,
                     ),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (query) {
-                          filterData(query);
-                        },
-                        decoration: const InputDecoration(
-                          hintText: 'Search',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: screenSize.height * 0.02,
-              ),
-              // Divider
-              const Divider(),
-              SizedBox(
-                height: screenSize.height * 0.02,
-              ),
-              // DataTable
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
                   ),
                 ),
-                child: DataTable(
-                  dividerThickness: 1.0,
-                  columnSpacing: screenSize.width * 0.02,
-                  headingRowColor:
-                      MaterialStateProperty.all<Color>(const Color(0xFFE26142)),
-                  columns: const [
-                    DataColumn(
-                      label: Text(
-                        'Name',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        '   Card No',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        '     Status',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Working Hours',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                  rows: filteredData.map((data) {
-                    return DataRow(cells: [
-                      DataCell(Text(data['Name'])),
-                      DataCell(Text(data['Card No'])),
-                      DataCell(Text(data['Status'])),
-                      DataCell(
-                        Text(
-                          data['Working Hours'],
-                        ),
-                      ),
-                    ]);
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
-      } else if (state is InternetLostState) {
-        return Expanded(
-          child: Scaffold(
-            body: Container(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "No Internet Connection!",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Lottie.asset('assets/no_wifi.json'),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
-        );
-      } else {
+          SizedBox(
+            height: screenSize.height * 0.02,
+          ),
+          // Divider
+          const Divider(),
+          SizedBox(
+            height: screenSize.height * 0.02,
+          ),
+          // DataTable
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+              ),
+            ),
+            child: DataTable(
+              dividerThickness: 1.0,
+              columnSpacing: screenSize.width * 0.02,
+              headingRowColor:
+                  MaterialStateProperty.all<Color>(const Color(0xFFE26142)),
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    'Name',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    '   Card No',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    '     Status',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Working Hours',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+              rows: filteredData.map((data) {
+                return DataRow(cells: [
+                  DataCell(Text(data['Name'])),
+                  DataCell(Text(data['Card No'])),
+                  DataCell(Text(data['Status'])),
+                  DataCell(
+                    Text(
+                      data['Working Hours'],
+                    ),
+                  ),
+                ]);
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+    else if(state is InternetLostState)
+      {
         return Expanded(
           child: Scaffold(
             body: Container(
@@ -436,6 +415,34 @@ class _AdminAbsentReportsState extends State<AdminAbsentReports> {
           ),
         );
       }
-    });
+    else {
+      return Expanded(
+        child: Scaffold(
+          body: Container(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "No Internet Connection!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Lottie.asset('assets/no_wifi.json'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+);
   }
 }

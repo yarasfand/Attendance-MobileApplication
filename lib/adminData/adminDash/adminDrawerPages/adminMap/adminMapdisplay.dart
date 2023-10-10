@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
@@ -25,6 +24,11 @@ class _MapDisplayState extends State<AdminMapDisplay> {
   double? sendLat;
   double? sendLong;
   String address = "";
+  double _minValue = 50.0; // Initialize with your desired minimum value
+  double _maxValue = 300.0; // Initialize with your desired maximum value
+
+  double _setValue = 50.0;
+  RangeValues _values = RangeValues(50.0, 300.0); // Start and end values within the specified range
 
   bool locationError = false;
 
@@ -142,9 +146,7 @@ class _MapDisplayState extends State<AdminMapDisplay> {
                       locationPinText: "${address}",
                     ),
                     Positioned(
-                      top: (MediaQuery.of(context).size.height / 2) -
-                          90 -
-                          10, // Adjust position as needed
+                      top: (MediaQuery.of(context).size.height / 2) - 90 - 10,
                       left: (MediaQuery.of(context).size.width / 2) - 30 - 20,
                       child: Container(
                         width: 100, // Adjust the radius as needed
@@ -156,6 +158,36 @@ class _MapDisplayState extends State<AdminMapDisplay> {
                             color: const Color(0xFFE26142),
                             width: 2,
                           ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: (MediaQuery.of(context).size.height / 9),
+                      right: (MediaQuery.of(context).size.height / 18),
+                      left: (MediaQuery.of(context).size.height / 18),
+                      child: Container(
+                        // Your Text and RangeSlider widgets go here
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                                'Range: ${_values.start.round()} - ${_values.end.round()}'),
+                            RangeSlider(
+                              values: _values,
+                              min:
+                                  _minValue,
+                              max:
+                                  _maxValue,
+                              onChanged: (RangeValues newValues) {
+                                setState(() {
+                                  _values = newValues;
+                                  _setValue = newValues.end;
+                                  print(_setValue);
+                                });
+                              },
+                              activeColor: Color(0xFFE26142), // Set your desired color for the active track
+                              inactiveColor: Colors.grey,
+                            ),
+                          ],
                         ),
                       ),
                     ),

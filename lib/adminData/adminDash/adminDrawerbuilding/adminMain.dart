@@ -123,53 +123,53 @@ class _MainPageState extends State<AdminMainPage> {
           });
 
   Widget buildDrawer() => SafeArea(
-        child: AnimatedOpacity(
-          opacity: isDrawerOpen ? 1.0 : 0.0,
-          duration: Duration(milliseconds: 300),
-          child: Padding(
-            padding:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height / 10),
-            child: Container(
-              height: MediaQuery.of(context).size.height / 1,
-              width: xoffset,
-              child: MyDrawer(
-                onSelectedItems: (selectedItem) {
-                  setState(() {
-                    item = selectedItem;
-                    closeDrawer();
-                  });
+    child: AnimatedOpacity(
+      opacity: isDrawerOpen ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 300),
+      child: Padding(
+        padding:
+        EdgeInsets.only(top: MediaQuery.of(context).size.height / 10),
+        child: Container(
+          height: MediaQuery.of(context).size.height / 1,
+          width: xoffset,
+          child: MyDrawer(
+            onSelectedItems: (selectedItem) {
+              setState(() {
+                item = selectedItem;
+                closeDrawer();
+              });
 
-                  switch (item) {
-                    case DrawerItems.home:
-                      dashBloc.add(NavigateToHomeEvent());
-                      break;
+              switch (item) {
+                case DrawerItems.home:
+                  dashBloc.add(NavigateToHomeEvent());
+                  break;
 
-                    case DrawerItems.geofence:
-                      dashBloc.add(NavigateToGeofenceEvent());
-                      break;
+                case DrawerItems.geofence:
+                  dashBloc.add(NavigateToGeofenceEvent());
+                  break;
 
-                    case DrawerItems.reports:
-                      dashBloc.add(NavigateToReportsEvent());
-                      break;
+                case DrawerItems.reports:
+                  dashBloc.add(NavigateToReportsEvent());
+                  break;
 
-                    case DrawerItems.profile:
-                      dashBloc.add(NavigateToProfileEvent());
-                      break;
+                case DrawerItems.profile:
+                  dashBloc.add(NavigateToProfileEvent());
+                  break;
 
-                    case DrawerItems.logout:
-                      dashBloc.add(NavigateToLogoutEvent());
-                      break;
+                case DrawerItems.logout:
+                  dashBloc.add(NavigateToLogoutEvent());
+                  break;
 
-                    default:
-                      dashBloc.add(NavigateToHomeEvent());
-                      break;
-                  }
-                },
-              ),
-            ),
+                default:
+                  dashBloc.add(NavigateToHomeEvent());
+                  break;
+              }
+            },
           ),
         ),
-      );
+      ),
+    ),
+  );
 
   Widget buildPage() {
     return WillPopScope(
