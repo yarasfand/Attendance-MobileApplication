@@ -20,11 +20,20 @@ class DailyReportsRepository {
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+      final dynamic data = json.decode(response.body);
 
-      List<DailyReportsModel> reports =
-          data.map((item) => DailyReportsModel.fromJson(item)).toList();
-      return reports;
+      if (data is Map<String, dynamic>) {
+        // Assuming that the API response is a single report object
+        final DailyReportsModel report =
+        DailyReportsModel.fromJson(data); // Adjust this to your model
+
+        // Create a List to hold the single report
+        final List<DailyReportsModel> reports = [report];
+
+        return reports;
+      } else {
+        throw Exception('API response does not contain the expected structure');
+      }
     } else {
       throw Exception('Failed to load daily reports');
     }

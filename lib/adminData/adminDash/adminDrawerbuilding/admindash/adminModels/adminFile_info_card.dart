@@ -3,12 +3,18 @@ import 'package:flutter/material.dart';
 import '../adminConstants/adminconstants.dart';
 import 'adminMyFiles.dart';
 class AdminFileInfoCard extends StatelessWidget {
+  final String imageSrc;
+  final String title;
+  final int numOfEmployees;
+  final Color color;
+
   const AdminFileInfoCard({
     Key? key,
-    required this.info,
+    required this.imageSrc,
+    required this.title,
+    required this.numOfEmployees,
+    required this.color,
   }) : super(key: key);
-
-  final AdminCloudStorageInfo info;
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +25,10 @@ class AdminFileInfoCard extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5), // Shadow color and opacity
-            spreadRadius: 3, // How far the shadow spreads
-            blurRadius: 7, // How blurry the shadow is
-            offset: const Offset(0, 3), // Offset of the shadow (horizontal, vertical)
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 3,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -38,36 +44,36 @@ class AdminFileInfoCard extends StatelessWidget {
                 height: 40,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: info.color!.withOpacity(0.1),
+                  color: color.withOpacity(0.1), // Use the provided color
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
-                child: Image.asset(info.imageSrc!),
+                child: Image.asset(imageSrc), // Use the provided image source
               ),
               Text(
-                "${info.numOfEmployees} ",
+                "$numOfEmployees ", // Use the provided number of employees
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: Colors.red,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
+                  color: Colors.red,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-
-              // Icon(Icons.more_vert, color: Colors.red)
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                info.title!,
+                title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                    color: Colors.blue,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
+                  color: Colors.blue,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

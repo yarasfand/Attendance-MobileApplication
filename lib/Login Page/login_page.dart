@@ -7,8 +7,6 @@ import 'package:project/bloc_internet/internet_bloc.dart';
 import 'package:project/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../adminData/adminDash/adminDrawerbuilding/adminMain.dart';
-import '../api_intigration_files/api_integration_files/admin_getraw_request.dart';
-import '../api_intigration_files/api_integration_files/employee_getraw_request.dart';
 import '../api_intigration_files/repository/user_repository.dart';
 import '../employeeData/employeeDash/empDrawerBuilding/employeeMain.dart';
 import 'half_circle_clipper.dart';
@@ -32,19 +30,22 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late bool _isButtonPressed = false;
   static const String KEY_LOGIN = "Login";
-  final UserRepository userRepository = UserRepository(); // Create an instance of UserRepository
-
+  final UserRepository userRepository =
+      UserRepository(); // Create an instance of UserRepository
 
   void _handleAdminLogin(
-      String enteredCorporateID,
-      String enteredUsername,
-      String enteredPassword,
-      ) async {
+    String enteredCorporateID,
+    String enteredUsername,
+    String enteredPassword,
+    String enteredRole,
+  ) async {
     try {
       final employeeData = await userRepository.getData(
         corporateId: enteredCorporateID,
         username: enteredUsername,
         password: enteredPassword,
+        role: enteredRole,
+
       );
 
       if (employeeData.isNotEmpty) {
@@ -58,19 +59,23 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleEmployeeLogin(
-      String enteredCorporateID,
-      String enteredUsername,
-      String enteredPassword,
-      ) async {
+    String enteredCorporateID,
+    String enteredUsername,
+    String enteredPassword,
+      String enteredRole,
+
+  ) async {
     try {
       final employeeData = await userRepository.getData(
         corporateId: enteredCorporateID,
         username: enteredUsername,
         password: enteredPassword,
+        role:enteredRole,
       );
 
       if (employeeData.isNotEmpty) {
-        final cardNo = employeeData[0].cardNo; // Fetch cardNo from Employee model
+        final cardNo =
+            employeeData[0].cardNo; // Fetch cardNo from Employee model
         _saveCardNoToSharedPreferences(cardNo);
         _loginAsEmployee();
       } else {
@@ -89,7 +94,9 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-  Future<void> _successScaffoldMessage(BuildContext context, String message) async {
+
+  Future<void> _successScaffoldMessage(
+      BuildContext context, String message) async {
     await ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Center(child: Text(message)),
@@ -99,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _loginAsEmployee() async {
-    await _successScaffoldMessage(context,"Login Successful");
+    await _successScaffoldMessage(context, "Login Successful");
     await Future.delayed(Duration(seconds: 2));
 
     Navigator.pushReplacement(
@@ -113,9 +120,9 @@ class _LoginPageState extends State<LoginPage> {
     final sharedPrefEmp = await SharedPreferences.getInstance();
     sharedPrefEmp.setString('cardNo', cardNo);
   }
-  void _loginAsAdmin() async {
 
-    await _successScaffoldMessage(context,"Login Successful");
+  void _loginAsAdmin() async {
+    await _successScaffoldMessage(context, "Login Successful");
     await Future.delayed(Duration(seconds: 2));
     Navigator.pushReplacement(
         context,
@@ -137,14 +144,20 @@ class _LoginPageState extends State<LoginPage> {
       final enteredCorporateID = _CoorporateIdController.text;
       final enteredUsername = _UserController.text;
       final enteredPassword = _passwordController.text;
+      String enteredRole = '';
 
+      // Set the role based on the selected user type
+      if (_selectedUserType == UserType.employee) {
+        enteredRole = 'employee';
+      } else if (_selectedUserType == UserType.admin) {
+        enteredRole = 'admin';
+      }
+      sharedPref.setString('role', enteredRole);
       // saving corporateId
       final sharedPrefEmp = await SharedPreferences.getInstance();
       sharedPrefEmp.setString('corporate_id', enteredCorporateID);
       sharedPrefEmp.setString('user_name', enteredUsername);
       sharedPrefEmp.setString('password', enteredPassword);
-
-
 
       if (_selectedUserType == UserType.employee) {
         // Execute employee-related functions
@@ -152,17 +165,20 @@ class _LoginPageState extends State<LoginPage> {
           enteredCorporateID,
           enteredUsername,
           enteredPassword,
+          enteredRole,
         );
-
-      } else if (_selectedUserType == UserType.admin) {
+      }
+      else if (_selectedUserType == UserType.admin) {
         // Execute admin-related functions
         _handleAdminLogin(
           enteredCorporateID,
           enteredUsername,
           enteredPassword,
+          enteredRole,
         );
 
-      } else {
+      }
+      else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Invalid corporate ID, username, or password.'),
@@ -173,7 +189,8 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isButtonPressed = false;
       });
-    } else {
+    }
+    else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please fill out all required fields.'),
@@ -182,8 +199,6 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {

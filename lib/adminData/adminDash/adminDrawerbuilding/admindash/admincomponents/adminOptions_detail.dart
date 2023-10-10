@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project/adminData/adminDash/AdminOptions_seprateFiles/ManualAttendance_files/ManualMarkAttendance.dart';
 import '../adminConstants/adminconstants.dart';
 import 'adminOptions_card.dart';
 
@@ -15,10 +17,10 @@ class AdminStorageDetails extends StatelessWidget {
         color: Color(0xFFE26142),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             "Options",
             style: TextStyle(
               color: Colors.white,
@@ -26,33 +28,45 @@ class AdminStorageDetails extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: defaultPadding),
-          AdminStorageInfoCard(
+          const SizedBox(height: defaultPadding),
+          const AdminStorageInfoCard(
             svgSrc: "assets/icons/master.png",
             title: "Master",
           ),
-          SizedBox(height: 5),
-          AdminStorageInfoCard(
-            svgSrc: "assets/icons/present.png",
-            title: "Mark Attendance",
+          const SizedBox(height: 5),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) {
+                    return  ManualMarkAttendance();
+                  },
+                ),
+              );
+            },
+            child: const AdminStorageInfoCard(
+              svgSrc: "assets/icons/present.png",
+              title: "Mark Attendance",
+            ),
           ),
-          SizedBox(height: 5),
-          AdminStorageInfoCard(
+          const SizedBox(height: 5),
+          const AdminStorageInfoCard(
             svgSrc: "assets/icons/leave.png",
             title: "Leaves",
           ),
-          SizedBox(height: 5),
-          AdminStorageInfoCard(
+          const SizedBox(height: 5),
+          const AdminStorageInfoCard(
             svgSrc: "assets/icons/report.png",
             title: "Report",
           ),
-          SizedBox(height: 5),
-          AdminStorageInfoCard(
+          const SizedBox(height: 5),
+          const AdminStorageInfoCard(
             svgSrc: "assets/icons/gps.png",
             title: "GPS Tracker",
           ),
-          SizedBox(height: 5),
-          AdminStorageInfoCard(
+          const SizedBox(height: 5),
+          const AdminStorageInfoCard(
             svgSrc: "assets/icons/lock.png",
             title: "Access Control",
           ),

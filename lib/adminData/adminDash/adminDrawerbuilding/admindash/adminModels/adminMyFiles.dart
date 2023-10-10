@@ -1,5 +1,6 @@
-
 import 'package:flutter/material.dart';
+
+import '../../../../../api_intigration_files/models/AdminDashBoard_model.dart';
 
 class AdminCloudStorageInfo {
   final String? imageSrc, title;
@@ -14,34 +15,61 @@ class AdminCloudStorageInfo {
   });
 }
 
-List demoMyFiles = [
-  AdminCloudStorageInfo(
-    title: "Total Employee",
-    numOfEmployees: 10,
-    imageSrc: "assets/icons/employees.png",
-    color: Colors.red,
-  ),
-  AdminCloudStorageInfo(
-    title: "Present Employee",
-    numOfEmployees: 1328,
-    imageSrc: "assets/icons/present.png",
+List<AdminCloudStorageInfo> createDemoMyFiles(AdminDashBoard? adminData) {
+  final List<AdminCloudStorageInfo> demoMyFiles = [];
 
-    color: const Color(0xFFFFA113),
+  if (adminData != null) {
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Total Employee",
+      numOfEmployees: adminData.totalEmployeeCount,
+      imageSrc: "assets/icons/employees.png",
+      color: Colors.red,
+    ));
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Present Employee",
+      numOfEmployees: adminData.presentCount,
+      imageSrc: "assets/icons/present.png",
+      color: const Color(0xFFFFA113),
+    ));
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Absent Employee",
+      numOfEmployees: adminData.absentCount,
+      imageSrc: "assets/icons/absent.png",
+      color: const Color(0xFFA4CDFF),
+    ));
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Late Employee",
+      numOfEmployees: adminData.lateCount,
+      imageSrc: "assets/icons/late.png",
+      color: const Color(0xFF007EE5),
+    ));
+  } else {
+    // If adminData is null or not available, provide default values
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Total Employee",
+      numOfEmployees: 0,
+      imageSrc: "assets/icons/employees.png",
+      color: Colors.red,
+    ));
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Present Employee",
+      numOfEmployees: 0,
+      imageSrc: "assets/icons/present.png",
+      color: const Color(0xFFFFA113),
+    ));
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Absent Employee",
+      numOfEmployees: 0,
+      imageSrc: "assets/icons/absent.png",
+      color: const Color(0xFFA4CDFF),
+    ));
+    demoMyFiles.add(AdminCloudStorageInfo(
+      title: "Late Employee",
+      numOfEmployees: 0,
+      imageSrc: "assets/icons/late.png",
+      color: const Color(0xFF007EE5),
+    ));
+  }
 
-  ),
-  AdminCloudStorageInfo(
-    title: "Absent Employee",
-    numOfEmployees: 1328,
-    imageSrc: "assets/icons/absent.png",
-
-    color: const Color(0xFFA4CDFF),
-  ),
-  AdminCloudStorageInfo(
-    title: "Late Employee",
-    numOfEmployees: 20,
-    imageSrc: "assets/icons/late.png",
-
-    color: const Color(0xFF007EE5),
-
-  ),
-];
+  return demoMyFiles;
+}

@@ -21,11 +21,12 @@ class EmpAppBar extends StatelessWidget {
       future: getShared(),
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-
+          // Data from shared preferences is available, create the bloc
           final sharedPrefEmp = snapshot.data as SharedPreferences;
           final corporateId = sharedPrefEmp.getString('corporate_id')!;
           final username = sharedPrefEmp.getString('user_name')!;
           final password = sharedPrefEmp.getString('password')!;
+          final role = sharedPrefEmp.getString('role') ?? 'employee';
 
           return BlocProvider(
             create: (context) {
@@ -34,7 +35,8 @@ class EmpAppBar extends StatelessWidget {
               )..add(ApiLoadingEvent(
                   corporateId: corporateId,
                   username: username,
-                  password: password));
+                  password: password,
+                  role: role));
             },
             child: BlocBuilder<ApiIntigrationBloc, ApiIntigrationState>(
               builder: (context, state) {
@@ -136,7 +138,7 @@ class EmpAppBar extends StatelessWidget {
             ),
           );
         } else {
-
+          // Data is still being fetched from shared preferences, you can show a loading indicator here
           return const CircularProgressIndicator(); // Replace with your loading indicator widget
         }
       },

@@ -11,8 +11,9 @@ import 'package:project/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminMapDisplay extends StatefulWidget {
-  final VoidCallback openDrawer;
-  const AdminMapDisplay({Key? key, required this.openDrawer}) : super(key: key);
+  const AdminMapDisplay({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<AdminMapDisplay> createState() => _MapDisplayState();
@@ -108,11 +109,6 @@ class _MapDisplayState extends State<AdminMapDisplay> {
             if (currentLat != null && currentLong != null && !locationError) {
               return Scaffold(
                 appBar: AppBar(
-                  leading: IconButton(
-                    icon: const FaIcon(FontAwesomeIcons.bars),
-                    color: Colors.white,
-                    onPressed: widget.openDrawer,
-                  ),
                   backgroundColor: const Color(0xFFE26142),
                   elevation: 0,
                   title: const Center(
@@ -149,9 +145,7 @@ class _MapDisplayState extends State<AdminMapDisplay> {
                       top: (MediaQuery.of(context).size.height / 2) -
                           90 -
                           10, // Adjust position as needed
-                      left: (MediaQuery.of(context).size.width / 2) -
-                          30 -
-                          20,
+                      left: (MediaQuery.of(context).size.width / 2) - 30 - 20,
                       child: Container(
                         width: 100, // Adjust the radius as needed
                         height: 100, // Adjust the radius as needed
@@ -172,11 +166,6 @@ class _MapDisplayState extends State<AdminMapDisplay> {
               checkLocationPermissionAndFetchLocation();
               return Scaffold(
                 appBar: AppBar(
-                  leading: IconButton(
-                    icon: const FaIcon(FontAwesomeIcons.bars),
-                    color: Colors.white,
-                    onPressed: widget.openDrawer,
-                  ),
                   backgroundColor: const Color(0xFFE26142),
                   elevation: 0,
                   title: const Center(
@@ -234,11 +223,6 @@ class _MapDisplayState extends State<AdminMapDisplay> {
             checkLocationPermissionAndFetchLocation();
             return Scaffold(
               appBar: AppBar(
-                leading: IconButton(
-                  icon: const FaIcon(FontAwesomeIcons.bars),
-                  color: Colors.white,
-                  onPressed: widget.openDrawer,
-                ),
                 backgroundColor: const Color(0xFFE26142),
                 elevation: 0,
                 title: const Center(

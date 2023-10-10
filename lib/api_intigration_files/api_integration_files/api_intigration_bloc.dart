@@ -21,6 +21,7 @@ class ApiIntigrationBloc
           corporateId: event.corporateId,
           username: event.username,
           password: event.password,
+          role: event.role,
         );
         emit(ApiLoadedState(users));
       } catch (e) {

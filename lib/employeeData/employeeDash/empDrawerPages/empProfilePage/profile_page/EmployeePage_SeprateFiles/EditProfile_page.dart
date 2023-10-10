@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:camera/camera.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,6 +14,7 @@ import 'dart:io';
 import '../../../../../../api_intigration_files/models/EmpEditProfile_model.dart';
 import '../../../../../../api_intigration_files/models/user_model.dart';
 import '../../../../../../api_intigration_files/repository/user_repository.dart';
+import 'package:camera/camera.dart';
 import 'package:project/api_intigration_files/EmpEditProfile_apiFiles/emp_edit_profile_bloc.dart';
 
 class EmpEditProfilePage extends StatefulWidget {
@@ -477,6 +478,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
         corporateId: retrievedCorporateId,
         username: retrievedUsername,
         password: retrievedPassword,
+        role: 'employee'
       ));
 
       if (employees.isNotEmpty) {

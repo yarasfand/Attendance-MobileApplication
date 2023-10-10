@@ -4,13 +4,14 @@ import 'package:lottie/lottie.dart';
 import 'package:project/bloc_internet/internet_bloc.dart';
 import 'package:project/bloc_internet/internet_state.dart';
 
-
 class AdminAttendanceReportMonthly extends StatefulWidget {
   @override
-  _AdminAttendanceReportMonthlyState createState() => _AdminAttendanceReportMonthlyState();
+  _AdminAttendanceReportMonthlyState createState() =>
+      _AdminAttendanceReportMonthlyState();
 }
 
-class _AdminAttendanceReportMonthlyState extends State<AdminAttendanceReportMonthly> {
+class _AdminAttendanceReportMonthlyState
+    extends State<AdminAttendanceReportMonthly> {
   var screenSize;
   final List<Employee> employees = [
     Employee(
@@ -44,7 +45,8 @@ class _AdminAttendanceReportMonthlyState extends State<AdminAttendanceReportMont
 
   @override
   void initState() {
-    filteredEmployees = employees; // Initialize filtered data with all employees
+    filteredEmployees =
+        employees; // Initialize filtered data with all employees
     super.initState();
   }
 
@@ -65,103 +67,122 @@ class _AdminAttendanceReportMonthlyState extends State<AdminAttendanceReportMont
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
     return BlocConsumer<InternetBloc, InternetStates>(
-  listener: (context, state) {
-    // TODO: implement listener
-  },
-  builder: (context, state) {
-    if(state is InternetGainedState)
-      {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Monthly Attendance Report',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(Icons.arrow_back),
-          ),
-          actions: [
-            Padding(
-              padding: EdgeInsets.only(
-                right: screenSize.width * 0.04,
+        listener: (context, state) {
+      // TODO: implement listener
+    }, builder: (context, state) {
+      if (state is InternetGainedState) {
+        return MaterialApp(
+          home: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Monthly Attendance Report',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: GestureDetector(
-                      onTap: () {
-                        // For excel export
-
-                      },
-                      child: Image.asset(
-                        width: 25,
-                        height: 25,
-                        'assets/images/excel1.png',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: GestureDetector(
-                      onTap: () {
-
-                      },
-                      child: Image.asset(
-                        width: 25,
-                        height: 25,
-                        'assets/images/pdf1.png',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          centerTitle: true,
-          backgroundColor: Color(0xFFE26142),
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: TextField(
-                onChanged: (value) {
-                  filterEmployees(value);
+              leading: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
                 },
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                child: Icon(Icons.arrow_back),
+              ),
+              actions: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    right: screenSize.width * 0.04,
                   ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: GestureDetector(
+                          onTap: () {
+                            // For excel export
+                          },
+                          child: Image.asset(
+                            width: 25,
+                            height: 25,
+                            'assets/images/excel1.png',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: Image.asset(
+                            width: 25,
+                            height: 25,
+                            'assets/images/pdf1.png',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              centerTitle: true,
+              backgroundColor: Color(0xFFE26142),
+            ),
+            body: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: TextField(
+                    onChanged: (value) {
+                      filterEmployees(value);
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredEmployees.length,
+                    itemBuilder: (context, index) {
+                      return EmployeeCard(employee: filteredEmployees[index]);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      } else if (state is InternetLostState) {
+        return Expanded(
+          child: Scaffold(
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
                 ),
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredEmployees.length,
-                itemBuilder: (context, index) {
-                  return EmployeeCard(employee: filteredEmployees[index]);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-    else if(state is InternetLostState)
-      {
+          ),
+        );
+      } else {
         return Expanded(
           child: Scaffold(
             body: Container(
@@ -188,35 +209,7 @@ class _AdminAttendanceReportMonthlyState extends State<AdminAttendanceReportMont
           ),
         );
       }
-    else {
-      return Expanded(
-        child: Scaffold(
-          body: Container(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "No Internet Connection!",
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Lottie.asset('assets/no_wifi.json'),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-  }
-);
+    });
   }
 }
 

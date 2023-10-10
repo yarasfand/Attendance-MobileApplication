@@ -51,15 +51,19 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
       final int? employeeId = prefs.getInt('employee_id');
 
       if (corporateId != null && employeeId != null) {
-        final reports = await _repository.getDailyReports(
+        final response = await _repository.getDailyReports(
           corporateId: corporateId,
           employeeId: employeeId,
           reportDate: reportDateTime,
         );
 
-        setState(() {
-          _dailyReports = reports; // Update the list of fetched reports
-        });
+        if (response is List<DailyReportsModel>) {
+          setState(() {
+            _dailyReports = response; // Update the list of fetched reports
+          });
+        } else {
+          print('API response is not a List of DailyReportsModel');
+        }
       } else {
         print('Corporate ID or Employee ID is null');
       }
@@ -72,41 +76,151 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daily Reports'),
+        title: const Text(
+          'Daily Report',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFE26142),
       ),
       body: Column(
         children: [
-          Text(
-            'Selected Date: ${_selectedDate.toLocal()}'.split(' ')[0],
-            style: const TextStyle(fontSize: 55, fontWeight: FontWeight.bold),
+          Card(
+            color: const Color(0xFFE26142),
+            elevation: 4,
+            margin: const EdgeInsets.all(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text(
+                    'Selected Date: ${_selectedDate.toLocal()}'.split(' ')[0],
+                    style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      _selectFromDate(context);
+                    },
+                    child: const Text('Select Date'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Call the API with the selected date (_selectedDate)
+                      _fetchAndDisplayReports(_selectedDate);
+                    },
+                    child: const Text('Fetch Reports'),
+                  ),
+                ],
+              ),
+            ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              _selectFromDate(context);
-            },
-            child: const Text('Select Date'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Call the API with the selected date (_selectedDate)
-              _fetchAndDisplayReports(_selectedDate);
-            },
-            child: const Text('Fetch Reports'),
-          ),
+          const SizedBox(height: 16), // Add spacing between card and list
           Expanded(
-            child: ListView.builder(
-              itemCount: _dailyReports.length,
-              itemBuilder: (context, index) {
-                final report = _dailyReports[index];
-                // Customize the ListTile to display report details
-                return ListTile(
-                  title: Text('Pay Code: ${report.payCode ?? "N/A"}'),
-                  subtitle: Text(
-                      'Shift Start Time: ${report.shiftStartTime ?? "N/A"}'),
-                  trailing:
-                      Text("Shift End Time: ${report.shiftEndTime} ?? 'N/A'"),
-                );
-              },
+            child: Card(
+              color: const Color(0xFFE26142),
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView.builder(
+                itemCount: _dailyReports.length,
+                itemBuilder: (context, index) {
+                  final report = _dailyReports[index];
+                  // Customize the ListTile to display report details with better alignment
+                  return Padding(
+                    padding:
+                        const EdgeInsets.all(8.0), // Add padding for spacing
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Daily Info",
+                          style: TextStyle(
+                            color: Colors
+                                .white, // Change the color to make it prominent
+                            fontWeight: FontWeight.bold, // Add bold font weight
+                            fontSize: 25, // Customize the font size as needed
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          '• Pay Code - ${report.payCode ?? "N/A"}',
+                          style: const TextStyle(
+                            color: Color(
+                                0xFF9ADCD2), // Change the color to make it prominent
+                            fontWeight: FontWeight.w500, // Add bold font weight
+                            fontSize: 16, // Customize the font size as needed
+                          ),
+                        ),
+                        Text(
+                          '• Shift Start Time - ${report.shiftStartTime ?? "N/A"}',
+                          style: const TextStyle(
+                            color: Color(
+                                0xFF9ADCD2), // Change the color to make it prominent
+                            fontWeight: FontWeight.w500, // Add bold font weight
+                            fontSize: 16, // Customize the font size as needed
+                          ),
+                        ),
+                        Text(
+                          '• Shift End Time - ${report.shiftEndTime ?? 'N/A'}',
+                          style: const TextStyle(
+                            color: Color(
+                                0xFF9ADCD2), // Change the color to make it prominent
+                            fontWeight: FontWeight.w500, // Add bold font weight
+                            fontSize: 16, // Customize the font size as needed
+                          ),
+                        ),
+                        Text(
+                          '• Status - ${report.status ?? 'N/A'}',
+                          style: const TextStyle(
+                            color: Color(
+                                0xFF9ADCD2), // Change the color to make it prominent
+                            fontWeight: FontWeight.w500, // Add bold font weight
+                            fontSize: 16, // Customize the font size as needed
+                          ),
+                        ),
+                        Text(
+                          '• Hours Worked - ${report.hoursWorked ?? 'N/A'}',
+                          style: const TextStyle(
+                            color: Color(
+                                0xFF9ADCD2), // Change the color to make it prominent
+                            fontWeight: FontWeight.w500, // Add bold font weight
+                            fontSize: 16, // Customize the font size as needed
+                          ),
+                        ),
+                        Text(
+                          '• Lunch Start Time - ${report.lunchStartTime ?? 'N/A'}',
+                          style: const TextStyle(
+                            color: Color(
+                                0xFF9ADCD2), // Change the color to make it prominent
+                            fontWeight: FontWeight.w500, // Add bold font weight
+                            fontSize: 16, // Customize the font size as needed
+                          ),
+                        ),
+                        Text(
+                          '• Lunch End Time - ${report.lunchEndTime ?? 'N/A'}',
+                          style: const TextStyle(
+                            color: Color(
+                                0xFF9ADCD2), // Change the color to make it prominent
+                            fontWeight: FontWeight.w500, // Add bold font weight
+                            fontSize: 16, // Customize the font size as needed
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

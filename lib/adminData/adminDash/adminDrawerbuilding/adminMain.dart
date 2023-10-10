@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:project/Login%20Page/login_page.dart';
+import 'package:project/adminData/adminDash/adminDrawerPages/adminMap/adminGeofencing.dart';
 import 'package:project/bloc_internet/internet_bloc.dart';
 import 'package:project/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Login Page/login_bloc/loginbloc.dart';
 import '../adminDashBloc/admin_dash_bloc.dart';
 import '../adminDrawerPages/AdminReports_page/adminScreens/adminReports_page.dart';
-import '../adminDrawerPages/adminMap/adminMapdisplay.dart';
 import '../adminDrawerPages/adminProfile_page/adminProfilePage.dart';
 import 'admindDrawer.dart';
 import 'adminDraweritems.dart';
@@ -224,7 +224,7 @@ class _MainPageState extends State<AdminMainPage> {
         if (state is NavigateToProfileState) {
           return AdminProfilePage(openDrawer: openDrawer);
         } else if (state is NavigateToGeofenceState) {
-          return AdminMapDisplay(
+          return AdminGeofencing(
             openDrawer: openDrawer,
           );
         } else if (state is NavigateToHomeState) {

@@ -289,7 +289,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
         appBar: AppBar(
           backgroundColor: const Color(0xFFE26142),
           elevation: 0,
-          title: Text(
+          title: const Text(
             "Attendance Portal",
             style: TextStyle(
               color: Colors.white,
@@ -348,7 +348,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                         .transparent, // Set the card background to transparent
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -364,7 +364,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                         children: [
                           Text(
                             "Street: $fullAddress",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -373,7 +373,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                           if (sublocaity.isNotEmpty)
                             Text(
                               "Sublocality: $sublocaity",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -391,7 +391,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                           const SizedBox(height: 7),
                           Container(
                             padding: const EdgeInsets.all(
-                                5.0),
+                                5.0), // Adjust padding as needed
                             decoration: BoxDecoration(
                               color: Colors
                                   .white, // Background color for the date capsule
@@ -399,7 +399,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                             ),
                             child: Text(
                               "$currentDateTime",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors
@@ -417,7 +417,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
               Padding(
                 padding: const EdgeInsets.only(left: 25.0, right: 25.0),
                 child: TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Remarks',
                     hintText: 'Enter your remarks...',
                   ),
@@ -428,7 +428,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                   },
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Padding(
@@ -438,7 +438,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                   style: ElevatedButton.styleFrom(
                     primary: Colors
                         .orange, // Change to your desired background color
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                         vertical: 12,
                         horizontal: 24), // Adjust padding as needed
                   ),
@@ -446,7 +446,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                     "Click Your Photo",
                     style: GoogleFonts.lato(
                       // Replace with your desired Google Fonts style
-                      textStyle: TextStyle(
+                      textStyle: const TextStyle(
                         fontSize: 16, // Adjust the font size as needed
                         fontWeight:
                             FontWeight.bold, // Adjust the font weight as needed
@@ -456,7 +456,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 7,
               ),
               Padding(
@@ -468,11 +468,11 @@ class _EmployeeMapState extends State<EmployeeMap> {
                   style: ElevatedButton.styleFrom(
                     primary:
                         Colors.blue, // Change to your desired background color
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                         vertical: 12,
                         horizontal: 24), // Adjust padding as needed
                   ),
-                  child: Text(
+                  child: const Text(
                     "Mark Your Attendance",
                     style: TextStyle(
                       fontSize: 16, // Adjust the font size as needed

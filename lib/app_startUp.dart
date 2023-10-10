@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'adminData/adminDash/adminDrawerbuilding/adminMain.dart';
 import 'employeeData/employeeDash/empDrawerBuilding/employeeMain.dart';
 import 'introduction_screens/intro_screen.dart';
 
 class AppStartup extends StatelessWidget {
-
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dynamic>(
@@ -17,7 +16,7 @@ class AppStartup extends StatelessWidget {
           return CircularProgressIndicator(); // if waiting for the state to return the loading
         } else {
           if (snapshot.data == true) {
-            return EmpMainPage(); // User is logged in, show HomePage
+            return AdminMainPage(); // User is logged in, show HomePage
           } else {
             return IntroScreen(); // User is not logged in, show IntroScreen
           }
@@ -27,11 +26,10 @@ class AppStartup extends StatelessWidget {
   }
 
   Future<dynamic> checkIfUserLoggedIn() async {
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    var isLoggedIn = prefs.getBool('Login'); //it is that value that has been set
-
+    var isLoggedIn =
+        prefs.getBool('Login'); //it is that value that has been set
 
     return isLoggedIn;
   }

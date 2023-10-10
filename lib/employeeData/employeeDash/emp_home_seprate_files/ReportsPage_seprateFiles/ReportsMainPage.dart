@@ -1,5 +1,4 @@
 
-
 import 'package:flutter/Material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:project/employeeData/employeeDash/emp_home_seprate_files/ReportsPage_seprateFiles/Daily_reports.dart';
@@ -11,7 +10,7 @@ class ReportsMainPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Leave Request',
+          'Reports',
           style: TextStyle(
             color: Colors.white,
           ),
@@ -36,8 +35,8 @@ class ReportsMainPage extends StatelessWidget {
                       ));
                 },
                 child: CardWidget(
-                  image: Image.asset("assets/images/request.png"),
-                  text: 'LEAVE APPLICATION',
+                  image: Image.asset("assets/icons/monthly_report.png"),
+                  text: 'MONTHLY REPORTS',
                 ),
               ),
               const SizedBox(height: 20),
@@ -50,7 +49,7 @@ class ReportsMainPage extends StatelessWidget {
                       ));
                 },
                 child: CardWidget(
-                  image: Image.asset("assets/images/history.png"),
+                  image: Image.asset("assets/icons/daily_report.png"),
                   text: 'DAILY REPORTS',
                 ),
               ),

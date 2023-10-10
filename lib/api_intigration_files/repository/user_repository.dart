@@ -8,14 +8,16 @@ class UserRepository {
     required String corporateId,
     required String username,
     required String password,
+    required String role,
   }) async {
     final Map<String, dynamic> data = {
       "user_Name": username,
       "user_Password": password,
       "email": "a",
       "mobile": "a",
-      "role": "employee",
+      "role": role,
       "corporateId": corporateId,
+
     };
 
     final headers = {

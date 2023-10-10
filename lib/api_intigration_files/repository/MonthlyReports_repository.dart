@@ -11,7 +11,7 @@ class MonthlyReportsRepository {
     required String corporateId,
     required int employeeId,
     required int month,
-  }) async {
+  })  async {
     final Uri uri = Uri.parse(
         '$baseUrl?CorporateId=$corporateId&employeeId=$employeeId&Month=$month');
 

@@ -35,3 +35,4 @@ class MonthlyReportsBloc extends Bloc<MonthlyReportsEvent, MonthlyReportsState> 
     // as it's handled by the registered event handler using 'on'.
   }
 }
+

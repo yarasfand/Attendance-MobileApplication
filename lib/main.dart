@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:project/adminData/adminDash/AdminOptions_seprateFiles/ManualAttendance_files/ManualMarkAttendance.dart';
+import 'package:project/adminData/adminDash/AdminOptions_seprateFiles/ManualAttendance_files/SubmitAttendance.dart';
+import 'package:project/api_intigration_files/GetActiveEmployee_apiFiles/get_active_employee_bloc.dart';
+import 'package:project/api_intigration_files/ManualPunch_apiFiles/manual_punch_bloc.dart';
 import 'package:project/api_intigration_files/MonthlyReports_apiFiles/monthly_reports_bloc.dart';
 import 'package:project/api_intigration_files/repository/EmpEditProfile_repository.dart';
+import 'package:project/api_intigration_files/repository/GetActiveEmployee_repository.dart';
 import 'package:project/api_intigration_files/repository/LeaveHistory_repository.dart';
 import 'package:project/api_intigration_files/repository/MonthlyReports_repository.dart';
+import 'package:project/api_intigration_files/repository/Punch_repository.dart';
 import 'package:project/api_intigration_files/repository/emp_leave_request_repository.dart';
 import 'package:project/api_intigration_files/repository/emp_post_leave_request_repository.dart';
 import 'package:project/api_intigration_files/repository/emp_profile_repository.dart';
@@ -63,6 +69,12 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<GeoFenceRepository>(
           create: (_) => GeoFenceRepository(),
         ),
+        RepositoryProvider<GetActiveEmpRepository>(
+          create: (_) => GetActiveEmpRepository(),
+        ),
+        RepositoryProvider<ManualPunchRepository>(
+          create: (_) => ManualPunchRepository(),
+        ),
 
         // Add other repository providers if needed
       ],
@@ -100,6 +112,15 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider<MonthlyReportsBloc>(
             create: (context) => MonthlyReportsBloc(repository: MonthlyReportsRepository()),
+          ),
+          BlocProvider(
+            create: (context) => GetEmployeeBloc(GetActiveEmpRepository()),
+            child: ManualMarkAttendance(),
+          ),
+          BlocProvider<ManualPunchBloc>(
+            create: (BuildContext context) {
+              return ManualPunchBloc(repository: ManualPunchRepository());
+            },
           ),
         ],
         child: MaterialApp(
