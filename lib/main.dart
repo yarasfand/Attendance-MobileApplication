@@ -1,43 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:project/adminData/adminDash/AdminOptions_seprateFiles/ManualAttendance_files/ManualMarkAttendance.dart';
-import 'package:project/adminData/adminDash/AdminOptions_seprateFiles/ManualAttendance_files/SubmitAttendance.dart';
-import 'package:project/api_intigration_files/GetActiveEmployee_apiFiles/get_active_employee_bloc.dart';
-import 'package:project/api_intigration_files/ManualPunch_apiFiles/manual_punch_bloc.dart';
-import 'package:project/api_intigration_files/MonthlyReports_apiFiles/monthly_reports_bloc.dart';
-import 'package:project/api_intigration_files/repository/EmpEditProfile_repository.dart';
-import 'package:project/api_intigration_files/repository/GetActiveEmployee_repository.dart';
-import 'package:project/api_intigration_files/repository/LeaveHistory_repository.dart';
-import 'package:project/api_intigration_files/repository/MonthlyReports_repository.dart';
-import 'package:project/api_intigration_files/repository/Punch_repository.dart';
-import 'package:project/api_intigration_files/repository/emp_leave_request_repository.dart';
-import 'package:project/api_intigration_files/repository/emp_post_leave_request_repository.dart';
-import 'package:project/api_intigration_files/repository/emp_profile_repository.dart';
-import 'package:project/app_startUp.dart';
-import 'api_intigration_files/EmpEditProfile_apiFiles/emp_edit_profile_bloc.dart';
-import 'api_intigration_files/GeoFence_apiFiles/geo_fence_bloc.dart';
-import 'api_intigration_files/api_integration_files/api_intigration_bloc.dart';
-import 'api_intigration_files/emp_profilr_api_files/emp_profile_api_bloc.dart';
-import 'api_intigration_files/repository/GeoFence_repository.dart';
-import 'api_intigration_files/repository/emp_attendance_status_repository.dart';
-import 'api_intigration_files/repository/user_repository.dart';
-import 'bloc_internet/internet_bloc.dart';
-import 'api_intigration_files/repository/admin_repository.dart';
-import 'employeeData/employeeDash/emp_home_seprate_files/ReportsPage_seprateFiles/Monthly_reports.dart';
+import 'package:project/startup/screens/appStartUp.dart';
+import 'admin/adminDashboard/models/adminRepository.dart';
+import 'admin/adminGeofence/bloc/admin_geofence_bloc.dart';
+import 'admin/adminGeofence/models/adminGeofencePostRepository.dart';
+import 'admin/adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_bloc.dart';
+import 'admin/adminReportsFiles/bloc/leaveRequestApiFiles/leave_request_bloc.dart';
+import 'admin/adminReportsFiles/bloc/leaveSubmissionApiFiles/leave_submission_bloc.dart';
+import 'admin/adminReportsFiles/bloc/leaveTypeApiFiles/leave_type_bloc.dart';
+import 'admin/adminReportsFiles/bloc/unApprovedLeaveRequestApiFiles/un_approved_leave_request_bloc.dart';
+import 'admin/adminReportsFiles/models/getActiveEmployeeRepository.dart';
+import 'admin/adminReportsFiles/models/leaveRequestRepository.dart';
+import 'admin/adminReportsFiles/models/leaveSubmissionRepository.dart';
+import 'admin/adminReportsFiles/models/leaveTypeRepository.dart';
+import 'admin/adminReportsFiles/models/unApprovedLeaveRequestRepository.dart';
+import 'admin/adminReportsFiles/screens/LeaveSubmissionPage.dart';
+import 'admin/adminmanualAttendance/bloc/manual_punch_bloc.dart';
+import 'admin/adminmanualAttendance/models/punchRepository.dart';
+import 'admin/adminmanualAttendance/screens/ManualMarkAttendance.dart';
+import 'employee/empDashboard/models/user_repository.dart';
+import 'employee/empMap/bloc/attendanceGeoFenceApiFiles/geo_fence_bloc.dart';
+import 'employee/empMap/models/attendanceGeoFencingRepository.dart';
+import 'employee/empMap/models/empAttendanceStatusRepository.dart';
+import 'employee/empProfilePage/bloc/EmpEditProfileApiFiles/emp_edit_profile_bloc.dart';
+import 'employee/empProfilePage/bloc/emProfileApiFiles/emp_profile_api_bloc.dart';
+import 'employee/empProfilePage/models/EmpEditProfileRepository.dart';
+import 'employee/empProfilePage/models/empProfileRepository.dart';
+import 'employee/empReportsOnDash/bloc/monthlyReportsApiFiles/monthly_reports_bloc.dart';
+import 'employee/empReportsOnDash/models/LeaveHistory_repository.dart';
+import 'employee/empReportsOnDash/models/MonthlyReports_repository.dart';
+import 'employee/empReportsOnDash/models/empLeaveRequestRepository.dart';
+import 'employee/empReportsOnDash/models/empPostLeaveRequestRepository.dart';
+import 'introduction/bloc/bloc_internet/internet_bloc.dart';
+import 'introduction/utilities/api_integration_files/api_intigration_bloc.dart';
 
 // main.dart
 
 // ... (imports)
 
 void main() {
-  Fluttertoast.showToast(msg: 'Data Successfully submitted!');
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  MyApp();
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
@@ -75,6 +82,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<ManualPunchRepository>(
           create: (_) => ManualPunchRepository(),
         ),
+        RepositoryProvider<AdminGeoFenceRepository>(
+          create: (_) => AdminGeoFenceRepository(),
+        ),
 
         // Add other repository providers if needed
       ],
@@ -111,7 +121,8 @@ class MyApp extends StatelessWidget {
             },
           ),
           BlocProvider<MonthlyReportsBloc>(
-            create: (context) => MonthlyReportsBloc(repository: MonthlyReportsRepository()),
+            create: (context) =>
+                MonthlyReportsBloc(repository: MonthlyReportsRepository()),
           ),
           BlocProvider(
             create: (context) => GetEmployeeBloc(GetActiveEmpRepository()),
@@ -121,6 +132,33 @@ class MyApp extends StatelessWidget {
             create: (BuildContext context) {
               return ManualPunchBloc(repository: ManualPunchRepository());
             },
+          ),
+          BlocProvider(
+            create: (context) =>
+                LeaveRequestBloc(repository: LeaveRepository()),
+            child: LeaveSubmissionPage(
+              selectedEmployees: [],
+            ),
+          ),
+          BlocProvider<UnapprovedLeaveRequestBloc>(
+            create: (BuildContext context) => UnapprovedLeaveRequestBloc(
+                repository: UnApprovedLeaveRepository()),
+          ),
+          BlocProvider<LeaveTypeBloc>(
+            create: (BuildContext context) =>
+                LeaveTypeBloc(repository: LeaveTypeRepository()),
+          ),
+          BlocProvider<AdminGeoFenceBloc>(
+            create: (BuildContext context) =>
+                AdminGeoFenceBloc(AdminGeoFenceRepository()),
+          ),
+          BlocProvider(
+            create: (context) => LeaveSubmissionBloc(
+              repository: LeaveSubmissionRepository(),
+            ),
+            child: LeaveSubmissionPage(
+              selectedEmployees: [],
+            ),
           ),
         ],
         child: MaterialApp(
