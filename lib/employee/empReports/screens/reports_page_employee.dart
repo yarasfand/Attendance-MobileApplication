@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/employee/empReports/screens/salary_report_page.dart';
 
 import 'daily_report.dart';
@@ -18,7 +19,7 @@ class EmpReportsPage extends StatelessWidget {
 
     return Scaffold(
       appBar:  AppBar(
-        backgroundColor: Color(0xFFE26142),
+        backgroundColor: AppColors.primaryColor,
         title: Text("Reports Page",style: EmpkAppBarTextTheme),
         leading: IconButton(
           icon: const FaIcon(FontAwesomeIcons.bars),
@@ -75,7 +76,7 @@ class EmpReportsPage extends StatelessWidget {
   ) {
     return Card(
       elevation: 4,
-      color: Color(0xFFE26142),
+      color: AppColors.secondaryColor,
       margin: EdgeInsets.all(16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

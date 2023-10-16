@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
@@ -26,6 +27,27 @@ class _AdminPageState extends State<AdminPage> {
   final adminDashboardRepository = AdminDashboardRepository(
       'http://62.171.184.216:9595'); // Replace with your API base URL
   AdminDashBoard? adminData;
+  @override
+  void initState() {
+    super.initState();
+    // Load API data when the page is first loaded
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final corporateId = prefs.getString('corporate_id') ?? '';
+    try {
+      final adminDashboardData = await adminDashboardRepository
+          .fetchDashboardData(corporateId, selectedDate);
+      setState(() {
+        adminData = adminDashboardData;
+      });
+    } catch (e) {
+      // Handle errors here
+      print('Error fetching data: $e');
+    }
+  }
 
   // Function to update the selected date and fetch data
   Future<void> _updateSelectedDate(DateTime newDate) async {
@@ -54,6 +76,18 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  Future<void> _openDatePicker() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      _updateSelectedDate(picked);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<AdminCloudStorageInfo> demoMyFiles = createDemoMyFiles(adminData);
@@ -64,7 +98,7 @@ class _AdminPageState extends State<AdminPage> {
             key: _scaffoldKey,
             body: SingleChildScrollView(
               primary: false,
-              padding:  const EdgeInsets.all(defaultPadding),
+              padding: const EdgeInsets.all(defaultPadding),
               child: Column(
                 children: [
                   const SizedBox(height: defaultPadding),
@@ -76,7 +110,7 @@ class _AdminPageState extends State<AdminPage> {
                         child: Column(
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
                                   onPressed: () {
@@ -84,43 +118,49 @@ class _AdminPageState extends State<AdminPage> {
                                         .subtract(const Duration(days: 1));
                                     _updateSelectedDate(newDate);
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.arrow_back_ios,
-                                    color: Colors.green,
+                                    color: AppColors.silver,
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "${selectedDate.day} ${selectedDate.month}",
-                                      style: const TextStyle(
-                                        color: Colors.green,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                GestureDetector(
+                                  onTap:
+                                      _openDatePicker, // Open the date picker when tapped
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Existing date display code
+                                      Text(
+                                        "${selectedDate.day} ${selectedDate.month}",
+                                        style: TextStyle(
+                                          color: AppColors.silver,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      DateFormat('EEEE').format(selectedDate),
-                                      style: const TextStyle(
-                                        color: Colors.green,
+                                      Text(
+                                        DateFormat('EEEE').format(selectedDate),
+                                        style: TextStyle(
+                                          color: AppColors.silver,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    final newDate =
-                                        selectedDate.add(const Duration(days: 1));
+                                    final newDate = selectedDate
+                                        .add(const Duration(days: 1));
                                     _updateSelectedDate(newDate);
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.arrow_forward_ios,
-                                    color: Colors.green,
+                                    color: AppColors.silver,
                                   ),
                                 ),
                               ],
                             ),
+
                             // Inside your build method
                             AdminData(
                               adminData: adminData ??
@@ -131,10 +171,11 @@ class _AdminPageState extends State<AdminPage> {
                                     totalEmployeeCount: 0,
                                   ),
                               demoMyFiles: demoMyFiles, // Pass demoMyFiles here
-                              totalEmployees: adminData?.totalEmployeeCount ?? 0, // You can provide the totalEmployees value here
-                              presentEmployees: adminData?.presentCount ?? 0, // You can provide the presentEmployees value here
-                              absentEmployees: adminData?.absentCount ?? 0, // You can provide the absentEmployees value here
-                              lateEmployees: adminData?.lateCount ?? 0, // You can provide the lateEmployees value here
+                              totalEmployees:
+                                  adminData?.totalEmployeeCount ?? 0,
+                              presentEmployees: adminData?.presentCount ?? 0,
+                              absentEmployees: adminData?.absentCount ?? 0,
+                              lateEmployees: adminData?.lateCount ?? 0,
                             ),
 
                             const SizedBox(height: defaultPadding),

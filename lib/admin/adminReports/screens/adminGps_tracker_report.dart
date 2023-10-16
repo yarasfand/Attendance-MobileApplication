@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 import 'constants.dart';
 
@@ -114,7 +115,7 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
       return Scaffold(
         appBar: AppBar(
           title: Text("Reports Page", style: AdminkAppBarTextTheme),
-          backgroundColor: Color(0xFFE26142),
+          backgroundColor: AppColors.primaryColor,
           iconTheme: const IconThemeData(
             color: Colors.white, // Set the icon color to white
           ),
@@ -124,7 +125,7 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.white, Color(0xFFE26142)],
+              colors: [AppColors.primaryColor, AppColors.secondaryColor,AppColors.brightWhite],
             ),
           ),
           child: Padding(
@@ -171,7 +172,7 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
           iconTheme: const IconThemeData(
             color: Colors.white, // Set the icon color to white
           ),
-          backgroundColor: Color(0xFFE26142),
+          backgroundColor: AppColors.primaryColor,
         ),
         body: Center(
           child: Column(
@@ -197,7 +198,7 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
           iconTheme: const IconThemeData(
             color: Colors.white, // Set the icon color to white
           ),
-          backgroundColor: const Color(0xFFE26142),
+          backgroundColor: AppColors.brightWhite,
         ),
         body: Center(
           child: Column(
@@ -254,7 +255,7 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(16),
-        backgroundColor: Color(0xFFE26142),
+        backgroundColor: AppColors.offWhite,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -265,7 +266,7 @@ class _AdminGpsTrackerReportState extends State<AdminGpsTrackerReport> {
       ),
       label: Text(
         text,
-        style: TextStyle(fontSize: 16, color: Colors.white),
+        style: TextStyle(fontSize: 16, color: Colors.black),
       ),
     );
   }

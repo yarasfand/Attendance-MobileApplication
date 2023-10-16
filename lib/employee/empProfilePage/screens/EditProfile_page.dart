@@ -1,15 +1,16 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:camera/camera.dart';
-import '../../../admin/adminReports/screens/AdminAttendance_report_monthly.dart';
+import '../../empDashboard/models/user_model.dart';
 import '../../empDashboard/models/user_repository.dart';
 import '../bloc/EmpEditProfileApiFiles/emp_edit_profile_bloc.dart';
 import '../models/EmpEditProfileRepository.dart';
@@ -207,242 +208,295 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Profile"),
+        title: Text("Edit Profile",style: TextStyle(color: AppColors.brightWhite),),
+        centerTitle: true,
+        iconTheme: IconThemeData(color: AppColors.brightWhite),
+        backgroundColor: AppColors.primaryColor,
       ),
-      body: BlocProvider(
-        create: (context) => EmpEditProfileBloc(
-            empEditProfileRepository: EmpEditProfileRepository()),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      _pickProfilePicture(); // Call the function to pick a profile picture
-                    },
-                    child: Center(
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.blue,
-                            width: 2,
+      body: FutureBuilder(
+          future: _loadUserData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else {
+              return BlocProvider(
+                create: (context) => EmpEditProfileBloc(
+                    empEditProfileRepository: EmpEditProfileRepository()),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Stack(children: [
+                        BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                          child: Container(
+                            color: Colors.black.withOpacity(0), // Adjust opacity as needed
                           ),
                         ),
-                        child: _profilePicture != null
-                            ? ClipOval(
-                                child: Image.file(
-                                  _profilePicture!,
-                                  width: 200,
-                                  height: 200,
-                                  fit: BoxFit
-                                      .cover, // This ensures the image covers the entire circular area
+                        Card(
+                          color:
+                              Colors.transparent, // Make the Card transparent
+                          elevation: 10,
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [AppColors.primaryColor,AppColors.secondaryColor, AppColors.lightBlue,Colors.white], // Adjust colors as needed
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: const Offset(0, 3),
                                 ),
-                              )
-                            : const Icon(Icons.add_a_photo),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    "Personal Information",
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  TextFormField(
-                    controller: empNameController, // Use the controller here
-                    decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      labelStyle: GoogleFonts.poppins(color: Colors.blue),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your full name';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      empNameController.text =
-                          value!; // Update the controller's value
-                    },
-                  ),
-                  // Repeat this for other TextFormFields
-                  TextFormField(
-                    controller: fatherNameController,
-                    decoration: InputDecoration(
-                      labelText: "Father's Name",
-                      labelStyle: GoogleFonts.poppins(color: Colors.blue),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter your father's name";
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      fatherNameController.text = value!;
-                    },
-                  ),
-                  TextFormField(
-                    controller: pwdController,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: GoogleFonts.poppins(color: Colors.blue),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          isPasswordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    _pickProfilePicture(); // Call the function to pick a profile picture
+                                  },
+                                  child: Center(
+                                    child: Container(
+                                      width: 150,
+                                      height: 150,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.blue,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: _profilePicture != null
+                                          ? ClipOval(
+                                              child: Image.file(
+                                                _profilePicture!,
+                                                width: 200,
+                                                height: 200,
+                                                fit: BoxFit
+                                                    .cover, // This ensures the image covers the entire circular area
+                                              ),
+                                            )
+                                          : const Icon(Icons.add_a_photo),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  "Personal Information",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.offWhite,
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: empNameController,
+                                  // Use the controller here
+                                  decoration: InputDecoration(
+                                    labelText: 'Full Name',
+                                    labelStyle:
+                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your full name';
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (value) {
+                                    empNameController.text =
+                                        value!; // Update the controller's value
+                                  },
+                                ),
+                                // Repeat this for other TextFormFields
+                                TextFormField(
+                                  controller: fatherNameController,
+                                  decoration: InputDecoration(
+                                    labelText: "Father's Name",
+                                    labelStyle:
+                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter your father's name";
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (value) {
+                                    fatherNameController.text = value!;
+                                  },
+                                ),
+                                TextFormField(
+                                  controller: pwdController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Password',
+                                    labelStyle:
+                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        isPasswordVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          isPasswordVisible =
+                                              !isPasswordVisible;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  obscureText: !isPasswordVisible,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your password';
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (value) {
+                                    pwdController.text = value!;
+                                  },
+                                ),
+                                TextFormField(
+                                  controller: emailAddressController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Email Address',
+                                    labelStyle:
+                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                  ),
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your email address';
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (value) {
+                                    emailAddressController.text = value!;
+                                  },
+                                ),
+                                TextFormField(
+                                  controller: phoneNoController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Phone Number',
+                                    labelStyle:
+                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                  ),
+                                  keyboardType: TextInputType.phone,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your phone number';
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (value) {
+                                    phoneNoController.text = value!;
+                                  },
+                                ),
+                                const SizedBox(height: 20),
+                                Center(
+                                    child: Center(
+                                  child: BlocConsumer<EmpEditProfileBloc,
+                                      EmpEditProfileState>(
+                                    listener: (context, state) {
+                                      if (state is EmpEditProfileSuccess) {
+                                        // Show a success toast message when data is submitted successfully
+                                        Fluttertoast.showToast(
+                                          msg: "Data submitted successfully!",
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.CENTER,
+                                          // Adjust gravity as needed
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.green,
+                                          textColor: Colors.white,
+                                        );
+                                      } else if (state is EmpEditProfileError) {
+                                        // Show a failure toast message when data submission fails
+                                        Fluttertoast.showToast(
+                                          msg:
+                                              "Failed to submit data. Please try again.",
+                                          toastLength: Toast.LENGTH_LONG,
+                                          gravity: ToastGravity.CENTER,
+                                          // Adjust gravity as needed
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                        );
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      return Builder(builder: (context) {
+                                        return ElevatedButton(
+                                          onPressed: () async {
+                                            if (_formKey.currentState!
+                                                .validate()) {
+                                              _formKey.currentState!.save();
+                                              final dataToSubmit =
+                                                  EmpEditProfileModel(
+                                                empId: 3,
+                                                empName: empNameController.text,
+                                                fatherName:
+                                                    fatherNameController.text,
+                                                pwd: pwdController.text,
+                                                emailAddress:
+                                                    emailAddressController.text,
+                                                phoneNo: phoneNoController.text,
+                                                profilePic: base64Image,
+                                                // Add other fields as needed
+                                              );
+                                              // Call the function to submit data to the API
+                                              _submitDataToAPI(dataToSubmit);
+                                              await Future.delayed(
+                                                  Duration(seconds: 1));
+                                              setState(() {});
+                                              Navigator.pop(context);
+                                              Fluttertoast.showToast(
+                                                msg:
+                                                    "Data submitted successfully!",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.TOP,
+                                                // Adjust gravity as needed
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: Colors.green,
+                                                textColor: Colors.white,
+                                              );
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:AppColors.primaryColor,
+                                          ),
+                                          child: Text(
+                                            'Save',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                    },
+                                  ),
+                                ))
+                              ],
+                            ),
+                          ),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            isPasswordVisible = !isPasswordVisible;
-                          });
-                        },
-                      ),
+                      ]),
                     ),
-                    obscureText: !isPasswordVisible,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      pwdController.text = value!;
-                    },
                   ),
-                  TextFormField(
-                    controller: emailAddressController,
-                    decoration: InputDecoration(
-                      labelText: 'Email Address',
-                      labelStyle: GoogleFonts.poppins(color: Colors.blue),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email address';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      emailAddressController.text = value!;
-                    },
-                  ),
-                  TextFormField(
-                    controller: phoneNoController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      labelStyle: GoogleFonts.poppins(color: Colors.blue),
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      phoneNoController.text = value!;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                      child: Center(
-                    child:
-                        BlocConsumer<EmpEditProfileBloc, EmpEditProfileState>(
-                      listener: (context, state) {
-                        if (state is EmpEditProfileSuccess) {
-                          // Show a success toast message when data is submitted successfully
-                          Fluttertoast.showToast(
-                            msg: "Data submitted successfully!",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity:
-                                ToastGravity.CENTER, // Adjust gravity as needed
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.green,
-                            textColor: Colors.white,
-                          );
-                        } else if (state is EmpEditProfileError) {
-                          // Show a failure toast message when data submission fails
-                          Fluttertoast.showToast(
-                            msg: "Failed to submit data. Please try again.",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity:
-                                ToastGravity.CENTER, // Adjust gravity as needed
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        return Builder(
-                          builder: (context) {
-                            return ElevatedButton(
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  _formKey.currentState!.save();
-                                  final dataToSubmit = EmpEditProfileModel(
-                                    empId: 3,
-                                    empName: empNameController.text,
-                                    fatherName: fatherNameController.text,
-                                    pwd: pwdController.text,
-                                    emailAddress: emailAddressController.text,
-                                    phoneNo: phoneNoController.text,
-                                    profilePic: base64Image,
-                                    // Add other fields as needed
-                                  );
-                                  // Call the function to submit data to the API
-                                  _submitDataToAPI(dataToSubmit);
-                                  await Future.delayed(Duration(seconds: 1));
-                                  setState(() {
-                                  });
-                                  Navigator.pop(context);
-                                  Fluttertoast.showToast(
-                                    msg: "Data submitted successfully!",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity
-                                        .TOP, // Adjust gravity as needed
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.green,
-                                    textColor: Colors.white,
-                                  );
-
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                              ),
-                              child: Text(
-                                'Save',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            );
-                          }
-                        );
-                      },
-                    ),
-                  ))
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+                ),
+              );
+            }
+          }),
     );
   }
 
@@ -473,11 +527,10 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
     final userRepository = UserRepository();
     try {
       final List<Employee> employees = (await userRepository.getData(
-        corporateId: retrievedCorporateId,
-        username: retrievedUsername,
-        password: retrievedPassword,
-        role: 'employee'
-      ));
+          corporateId: retrievedCorporateId,
+          username: retrievedUsername,
+          password: retrievedPassword,
+          role: 'employee'));
 
       if (employees.isNotEmpty) {
         final employee = employees[0];

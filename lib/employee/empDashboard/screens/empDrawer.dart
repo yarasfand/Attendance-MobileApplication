@@ -20,7 +20,7 @@ class EmpDrawer extends StatelessWidget {
           child: Column(
             children: [
               Image.asset(
-                "assets/images/pioneer_logo_app1.png",
+                "assets/images/pioneer_logo_app.png",
                 height: 180,
               ),
               buildDrawerItems(context),

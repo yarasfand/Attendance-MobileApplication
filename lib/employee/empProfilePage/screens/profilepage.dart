@@ -4,11 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import '../bloc/emProfileApiFiles/emp_profile_api_bloc.dart';
 import '../models/empProfileModel.dart';
 import '../models/empProfileRepository.dart';
 import 'EditProfile_page.dart';
-
 
 class EmpProfilePage extends StatefulWidget {
   final VoidCallback openDrawer;
@@ -23,7 +23,6 @@ class EmpProfilePage extends StatefulWidget {
 }
 
 class _EmpProfilePageState extends State<EmpProfilePage> {
-
   late EmpProfileApiBloc _profileApiBloc;
 
   @override
@@ -59,142 +58,187 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
           } else if (state is EmpProfileLoadedState) {
             Widget _buildRefreshButton() {
               return IconButton(
-                icon: Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh),
                 onPressed: refreshUserData,
               );
             }
+
             List<EmpProfileModel> userList = state.users;
             final employeeProfile = userList[0];
             return Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  icon: const FaIcon(FontAwesomeIcons.bars),
-                  color: Colors.white,
-                  onPressed: widget.openDrawer,
-                ),
-                backgroundColor: const Color(0xFFE26142),
-                elevation: 0,
-                title: Text(
-                  "EMPLOYEE PROFILE",
-                  style: GoogleFonts.raleway(
-                    textStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                centerTitle: true,
-                actions: [
-                  _buildRefreshButton(),
-                ],
-              ),
+              backgroundColor: AppColors.offWhite,
               body: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Stack(
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Card(
+                      color: AppColors.lightBlue,
+                      elevation: 4.0,
+                      margin: const EdgeInsets.all(20.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
                         children: [
-                          const SizedBox(
-                            width: 150,
-                            height: 150,
-                            child: CircleAvatar(
-                              backgroundImage:
-                                  AssetImage('assets/icons/man.png'),
+                          Container(
+                            margin: const EdgeInsets.only(
+                                top: 20.0), // Add margin from the top
+                            child: Row(
+                              children: [
+                                const CircleAvatar(
+                                  radius:
+                                      70.0, // Increase the radius to make it larger
+                                  backgroundImage:
+                                      AssetImage('assets/icons/man.png'),
+                                ),
+                                const SizedBox(
+                                    width:
+                                        20), // Add spacing between the picture and text
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width:150,
+                                      child: Text(
+                                        employeeProfile.empName,
+                                        style: GoogleFonts.montserrat(
+                                          textStyle: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20, // Increase font size
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Code: ${employeeProfile.empCode}",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: 16, // Increase font size
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.edit,
-                                color: Colors.blue,
-                                size: 24,
-                              ),
+                          // Capsule structure for icons
+                          Container(
+                            margin: const EdgeInsets.only(
+                                top: 20.0,
+                                bottom:
+                                    20.0), // Add margin from the top and bottom
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(FontAwesomeIcons.phone,
+                                      color: Colors.white),
+                                  onPressed: () {
+                                    // Add your call functionality here
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(FontAwesomeIcons.envelope,
+                                      color: Colors.white),
+                                  onPressed: () {
+                                    // Add your mail functionality here
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    FontAwesomeIcons.comment,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: () {
+                                    // Add your message functionality here
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 20), // Increased vertical padding
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            // Use a gradient background for more colors
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Colors.purple, Colors.deepPurple],
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 20),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          // Use a gradient background for more colors
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.lightBlue,
+                            AppColors.secondaryColor
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildField("Name", employeeProfile.empName),
-                            _buildField("Email", employeeProfile.emailAddress),
-                            _buildField(
-                                "Shift Code", employeeProfile.shiftCode),
-                            _buildField(
-                              "Join Date",
-                              DateFormat('MMMM d, y')
-                                  .format(employeeProfile.dateofJoin),
-                            ),
-                            _buildField("Emp Code", employeeProfile.empCode),
-                          ],
-                        ),
+                        ],
                       ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildField("Name", employeeProfile.empName),
+                          _buildField("Email", employeeProfile.emailAddress),
+                          _buildField("Shift Code", employeeProfile.shiftCode),
+                          _buildField(
+                            "Join Date",
+                            DateFormat('MMMM d, y')
+                                .format(employeeProfile.dateofJoin),
+                          ),
+                          _buildField("Emp Code", employeeProfile.empCode),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(
+                      color: Colors.grey,
+                      height: 2,
+                      thickness: 1,
+                    ),
+                    // Menu
+                    _buildTileWidget(
+                      title: 'Edit Profile',
+                      icon: Icons.supervised_user_circle_sharp,
+                      onTap: () async {
+                        // Navigate to EmpEditProfilePage and pass the refreshData callback
+                        await Navigator.push(
+                          context,
+                          PageTransition(
+                            child: const EmpEditProfilePage(),
+                            type: PageTransitionType.rightToLeft,
+                          ),
+                        );
+                        refreshUserData();
+                      },
+                    ),
 
-                      const SizedBox(height: 20),
-                      const Divider(
-                        color: Colors.grey,
-                        height: 2,
-                        thickness: 1,
-                      ),
-                      // Menu
-                      _buildTileWidget(
-                        title: 'Edit Profile',
-                        icon: Icons.supervised_user_circle_sharp,
-                        onTap: () async {
-                          // Navigate to EmpEditProfilePage and pass the refreshData callback
-                          await Navigator.push(
-                            context,
-                            PageTransition(
-                              child: EmpEditProfilePage(),
-                              type: PageTransitionType.rightToLeft,
-                            ),
-                          );
-                          refreshUserData();
-                        },
-                      ),
-
-                      _buildTileWidget(
-                        title: 'Information',
-                        icon: Icons.info_outline,
-                      ),
-                      _buildTileWidget(
-                        title: 'Logout',
-                        icon: Icons.logout,
-                      ),
-                    ],
-                  ),
+                    _buildTileWidget(
+                      title: 'Information',
+                      icon: Icons.info_outline,
+                    ),
+                    _buildTileWidget(
+                      title: 'Logout',
+                      icon: Icons.logout,
+                    ),
+                  ],
                 ),
               ),
             );
@@ -254,9 +298,9 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
       leading: Container(
         width: 40,
         height: 40,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.amber,
+          color: AppColors.navyBlue,
         ),
         child: Icon(icon, color: Colors.white),
       ),

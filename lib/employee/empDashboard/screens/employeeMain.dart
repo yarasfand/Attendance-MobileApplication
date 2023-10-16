@@ -29,8 +29,6 @@ class _EmpMainPageState extends State<EmpMainPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('Login', false); // Set the login status to false
 
-
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

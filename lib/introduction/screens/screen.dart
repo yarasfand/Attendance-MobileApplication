@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 import '../bloc/bloc_internet/internet_checking.dart';
 
@@ -25,7 +26,9 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Your company logo
-              Expanded(
+              SizedBox(
+                width: 250,
+                height: 250,
                 child: Image.asset(
                   'assets/images/pioneer_logo_app.png',
                 ),
@@ -53,15 +56,9 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                 style: TextStyle(
                   fontSize: 25, // Increase the font size
                   fontWeight: FontWeight.bold,
-                  color: Colors.orange, // Change the text color
+                  color: AppColors.secondaryColor, // Change the text color
                   letterSpacing: 1.5, // Add letter spacing for emphasis
-                  shadows: [
-                    Shadow(
-                      blurRadius: 2.0,
-                      color: Colors.grey, // Add a subtle shadow
-                      offset: Offset(2, 2),
-                    ),
-                  ],
+
                 ),
               ),
 
@@ -114,7 +111,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                 ElevatedButton(
                   style: const ButtonStyle(
                     backgroundColor: MaterialStatePropertyAll(
-                      Color(0xFFE26142),
+                      AppColors.primaryColor,
                     ),
                   ),
                   onPressed: () {
@@ -170,7 +167,7 @@ class _FadingCircleState extends State<FadingCircle> {
             height: 10,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.orange,
+              color: AppColors.darkGrey,
             ),
           ),
         ),

@@ -5,18 +5,19 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
-import '../../empMap/models/empAttendanceStatusModel.dart';
-import '../../empMap/models/empAttendanceStatusRepository.dart';
 import '../../empMap/screens/employeemap.dart';
 import '../../empReportsOnDash/screens/ReportsMainPage.dart';
 import '../../empReportsOnDash/screens/leaveReportMainPage.dart';
-import '../bloc/empAtendanceDashApiFiles/emp_attendance_bloc.dart';
 import '../bloc/empDashApiFiles/emp_dash_bloc.dart';
 import '../models/empDashModel.dart';
 import '../models/empDashRepository.dart';
+import '../models/emp_attendance_status_model.dart';
+import '../models/emp_attendance_status_repository.dart';
+import '../models/emp_attendane_dash_api_files/emp_attendance_bloc.dart';
 
 class EmpDashHome extends StatefulWidget {
   const EmpDashHome({Key? key}) : super(key: key);
@@ -27,6 +28,7 @@ class EmpDashHome extends StatefulWidget {
 
 class _HomePageState extends State<EmpDashHome> {
   String? savedCorporateID;
+  String? savedEmpCode;
   late bool locationError = true;
   double? lat;
   double? long;
@@ -42,6 +44,7 @@ class _HomePageState extends State<EmpDashHome> {
   Future<void> _retrieveCorporateID() async {
     final sharedPref = await SharedPreferences.getInstance();
     savedCorporateID = sharedPref.getString('corporate_id');
+    savedEmpCode = sharedPref.getString('empCode');
     setState(() {});
   }
 
@@ -184,7 +187,7 @@ class _HomePageState extends State<EmpDashHome> {
                                                 height: 80,
                                               ),
                                               background:
-                                                  const Color(0xFFE26142),
+                                                  AppColors.secondaryColor,
                                             ),
                                           ),
                                         ],
@@ -203,7 +206,7 @@ class _HomePageState extends State<EmpDashHome> {
                                         width: 5,
                                       ),
                                       ProfileInfoCard(
-                                        firstText: "OUT",
+                                        firstText: "IN",
                                         secondText: employeeAttendance.in1 !=
                                                 null
                                             ? DateFormat('HH:mm:ss')
@@ -240,7 +243,7 @@ class _HomePageState extends State<EmpDashHome> {
                                 ),
                                 const SizedBox(height: 20),
                                 Text(
-                                  'Welcome ${savedCorporateID ?? ''}',
+                                  'ID ${savedEmpCode ?? ''}',
                                   style: const TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.w500,
@@ -251,7 +254,7 @@ class _HomePageState extends State<EmpDashHome> {
                                   formattedDate,
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    color: Colors.grey,
+                                    color: AppColors.darkGrey,
                                   ),
                                 ),
                                 Table(
@@ -321,7 +324,7 @@ class _HomePageState extends State<EmpDashHome> {
                                                 height: 80,
                                               ),
                                               background:
-                                                  const Color(0xFFE26142),
+                                                  AppColors.secondaryColor,
                                             ),
                                             onTap: () {
                                               Navigator.push(context,
@@ -351,7 +354,7 @@ class _HomePageState extends State<EmpDashHome> {
                                                 height: 80,
                                               ),
                                               background:
-                                                  const Color(0xFFE26142),
+                                                  AppColors.secondaryColor,
                                             ),
                                           ),
                                         ],
@@ -377,7 +380,7 @@ class _HomePageState extends State<EmpDashHome> {
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
+                                          color: AppColors.darkGrey,
                                         ),
                                       ),
                                       SizedBox(height: 8),
@@ -386,7 +389,7 @@ class _HomePageState extends State<EmpDashHome> {
                                         'Powered by Pioneer',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.grey,
+                                          color: AppColors.darkGrey,
                                           fontWeight: FontWeight.w300,
                                         ),
                                       ),
@@ -518,10 +521,10 @@ class ItemDashboard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
-              color: Colors.transparent,
+              color: AppColors.secondaryColor,
               shape: BoxShape.circle,
             ),
-            child: customIcon, // Use the custom icon widget here
+            child: customIcon,
           ),
           const SizedBox(height: 8),
           Text(
@@ -585,7 +588,7 @@ class TwoLineItem extends StatelessWidget {
           firstText,
           style: const TextStyle(
             fontSize: 22.0,
-            color: Colors.black54,
+            color: AppColors.darkGrey,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -593,7 +596,7 @@ class TwoLineItem extends StatelessWidget {
           secondText,
           style: const TextStyle(
             fontSize: 18.0,
-            color: Color(0xFF8391A0),
+            color: AppColors.darkGrey,
             fontWeight: FontWeight.w200,
           ),
         ),
@@ -615,7 +618,7 @@ class ProfileInfoBigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFFE26142),
+      color: AppColors.secondaryColor,
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       elevation: 5,
       shape: RoundedRectangleBorder(

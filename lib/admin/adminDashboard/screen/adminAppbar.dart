@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 class AdminAppBar extends StatefulWidget {
   final VoidCallback openDrawer;
@@ -47,13 +48,13 @@ class _AdminAppBarState extends State<AdminAppBar> {
         color: Colors.white,
         onPressed: widget.openDrawer,
       ),
-      backgroundColor: const Color(0xFFE26142),
+      backgroundColor: AppColors.primaryColor,
       elevation: 0,
       title: const Center(
         child: Padding(
           padding: EdgeInsets.only(right: 55.0), // Add right padding
           child: Text(
-            "ADMIN",
+            "HOME",
             style: TextStyle(color: Colors.white),
           ),
         ),

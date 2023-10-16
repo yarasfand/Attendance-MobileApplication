@@ -1,6 +1,7 @@
 
 import 'package:flutter/Material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 import 'Daily_reports.dart';
 import 'Monthly_reports.dart';
@@ -21,7 +22,7 @@ class ReportsMainPage extends StatelessWidget {
           color: Colors.white,
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFFE26142),
+        backgroundColor: AppColors.primaryColor,
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -76,7 +77,7 @@ class CardWidget extends StatelessWidget {
           0.8, // Adjust card width as needed
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: AppColors.secondaryColor,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
@@ -95,7 +96,7 @@ class CardWidget extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               text,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
             ),
           ],
         ),

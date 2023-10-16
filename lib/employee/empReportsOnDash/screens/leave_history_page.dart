@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../constants/AppColor_constants.dart';
 import '../models/LeaveHistory_repository.dart';
 import '../models/empLeaveHistoryModel.dart';
 import '../models/empLeaveRequestRepository.dart';
+
 class LeavesHistoryPage extends StatefulWidget {
   @override
   _LeavesHistoryPageState createState() => _LeavesHistoryPageState();
@@ -14,11 +18,13 @@ class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
   final EmpLeaveRepository _leaveTypeRepository = EmpLeaveRepository();
   List<LeaveHistoryModel> leaveDetails = [];
   bool isLoading = true;
+  late String _currentTime = DateFormat.yMd().add_jm().format(DateTime.now());
 
   @override
   void initState() {
     super.initState();
     loadData();
+    // Create a timer to update the time every second
   }
 
   Future<void> loadData() async {
@@ -26,6 +32,8 @@ class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
       final leaveHistory = await _repository.getLeaveHistory();
       setState(() {
         leaveDetails = leaveHistory;
+        leaveDetails.sort((a, b) => b.applicationDate.compareTo(
+            a.applicationDate)); // Sort by application date, most recent first
         isLoading = false;
       });
     } catch (e) {
@@ -40,44 +48,87 @@ class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Leave Details',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFE26142),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        body: Column(children: <Widget>[
+      Container(
+        height: MediaQuery.of(context).size.height / 3,
+        color: AppColors.primaryColor,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const SizedBox(height: 20),
-            Expanded(
-              child: isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : leaveDetails.isEmpty
-                      ? const Center(
-                          child: Text("No leave history data available."),
-                        )
-                      : _buildLeaveCards(),
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    // Handle the back button press here
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Leave Details',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 48), // For proper alignment
+              ],
+            ),
+            Card(
+              color: AppColors.offWhite,
+              child: Container(
+                padding: EdgeInsets.all(5),
+                child: Text(
+                  _currentTime, // Display the current date and time
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
       ),
-    );
+      Expanded(
+        child: SingleChildScrollView(
+          child: FutureBuilder(
+            future: _repository.getLeaveHistory(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // While waiting for the data, show a loading indicator
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                // If there's an error, display an error message
+                return Center(
+                  child: Text("Error loading leave history: ${snapshot.error}"),
+                );
+              } else {
+                // Data is loaded successfully, display the sorted list
+                return _buildLeaveCards();
+              }
+            },
+          ),
+        ),
+      )
+    ]));
   }
 
   Widget _buildLeaveCards() {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: leaveDetails.length,
       itemBuilder: (BuildContext context, int index) {
         final leave = leaveDetails[index];
@@ -260,7 +311,7 @@ class LeaveCard extends StatelessWidget {
                     fontSize: 12, // Smaller font size
                   ),
                 ),
-                Spacer(), // Add a Spacer widget to occupy the space
+                const Spacer(), // Add a Spacer widget to occupy the space
                 Text(
                   reason, // Reason text
                   style: const TextStyle(
@@ -274,8 +325,6 @@ class LeaveCard extends StatelessWidget {
         ),
       ),
     );
-
-
   }
 }
 
@@ -338,7 +387,7 @@ Widget _buildDarkTopCard(String leaveTypeName, DateTime fromDate, String reason,
                   fontSize: 12, // Smaller font size
                 ),
               ),
-              Spacer(), // Add a Spacer widget to occupy the space
+              const Spacer(), // Add a Spacer widget to occupy the space
               Text(
                 reason, // Reason text
                 style: const TextStyle(
@@ -352,6 +401,4 @@ Widget _buildDarkTopCard(String leaveTypeName, DateTime fromDate, String reason,
       ),
     ),
   );
-
-
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
@@ -19,17 +20,14 @@ class AdminReportsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // DateTime currentDate = DateTime.now();
-
     return BlocConsumer<InternetBloc, InternetStates>(
-      listener: (context, state) {
-        // TODO: implement listener
-      },
-      builder: (context, state) {
-        if(state is InternetGainedState){
+        listener: (context, state) {
+      // TODO: implement listener
+    }, builder: (context, state) {
+      if (state is InternetGainedState) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: const Color(0xFFE26142),
+            backgroundColor: AppColors.primaryColor,
             title: Text("Reports Page", style: AdminkAppBarTextTheme),
             leading: IconButton(
               icon: const FaIcon(FontAwesomeIcons.bars),
@@ -76,74 +74,71 @@ class AdminReportsPage extends StatelessWidget {
             ),
           ),
         );
-      }
-        else if(state is InternetLostState)
-          {
-            return Expanded(
-              child: Scaffold(
-                body: Container(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "No Internet Connection!",
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Lottie.asset('assets/no_wifi.json'),
-                      ],
+      } else if (state is InternetLostState) {
+        return Expanded(
+          child: Scaffold(
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            );
-          }
-        else {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
-                  ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
                 ),
               ),
             ),
-          );
-        }
+          ),
+        );
+      } else {
+        return Expanded(
+          child: Scaffold(
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Lottie.asset('assets/no_wifi.json'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
       }
-    );
+    });
   }
 
-  Widget buildCard(BuildContext context,
-      String title,
-      IconData icon,
-      Widget pageToNavigate, // Add a Widget parameter for the page to navigate
-      ) {
+  Widget buildCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Widget pageToNavigate, // Add a Widget parameter for the page to navigate
+  ) {
     return Card(
       elevation: 4,
-      color: const Color(0xFFE26142),
+      color: AppColors.secondaryColor,
       margin: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -183,6 +178,3 @@ class AdminReportsPage extends StatelessWidget {
     );
   }
 }
-
-
-// Define the other report pages similarly...

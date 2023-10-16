@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
@@ -141,7 +142,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
             if (currentLat != null && currentLong != null && !locationError) {
               return Scaffold(
                 appBar: AppBar(
-                  backgroundColor: const Color(0xFFE26142),
+                  backgroundColor: AppColors.primaryColor,
                   elevation: 0,
                   title: const Center(
                     child: Padding(
@@ -153,12 +154,13 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                       ),
                     ),
                   ),
+                  iconTheme: IconThemeData(color: Colors.white),
                 ),
                 body: Stack(
                   children: [
                     OpenStreetMapSearchAndPick(
                       center: LatLong(currentLat!, currentLong!),
-                      buttonColor: const Color(0xFFE26142),
+                      buttonColor: AppColors.primaryColor,
                       buttonText: 'Get This Point',
                       onPicked: (pickedData) {
                         getAddress(pickedData.latLong.latitude,
@@ -172,7 +174,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                         });
                         showSnackbar(context, "Cordinates Are Saved");
                       },
-                      locationPinIconColor: const Color(0xFFE26142),
+                      locationPinIconColor: AppColors.secondaryColor,
                       locationPinText: "${address}",
                     ),
                     Positioned(
@@ -185,9 +187,9 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                         height: 100, // Adjust the radius as needed
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFFE26142).withOpacity(0.25),
+                          color: AppColors.primaryColor.withOpacity(0.25),
                           border: Border.all(
-                            color: const Color(0xFFE26142),
+                            color: AppColors.secondaryColor,
                             width: 2,
                           ),
                         ),
@@ -200,7 +202,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
               checkLocationPermissionAndFetchLocation();
               return Scaffold(
                 appBar: AppBar(
-                  backgroundColor: const Color(0xFFE26142),
+                  backgroundColor: AppColors.primaryColor,
                   elevation: 0,
                   title: const Center(
                     child: Padding(
@@ -257,7 +259,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
             checkLocationPermissionAndFetchLocation();
             return Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color(0xFFE26142),
+                backgroundColor: AppColors.primaryColor,
                 elevation: 0,
                 title: const Center(
                   child: Padding(

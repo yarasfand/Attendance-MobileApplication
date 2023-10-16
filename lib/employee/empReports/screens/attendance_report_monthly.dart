@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 
 class EmpAttendanceReportMonthly extends StatefulWidget {
@@ -62,6 +63,7 @@ class _EmpAttendanceReportMonthlyState extends State<EmpAttendanceReportMonthly>
     screenSize = MediaQuery.of(context).size;
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: AppColors.offWhite,
         appBar: AppBar(
           title: Text(
             'Monthly Attendance Report',
@@ -84,7 +86,7 @@ class _EmpAttendanceReportMonthlyState extends State<EmpAttendanceReportMonthly>
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.brightWhite,
                     child: GestureDetector(
                       onTap: () {
                         // For excel export
@@ -101,7 +103,7 @@ class _EmpAttendanceReportMonthlyState extends State<EmpAttendanceReportMonthly>
                     width: 10,
                   ),
                   CircleAvatar(
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.brightWhite,
                     child: GestureDetector(
                       onTap: () {
 
@@ -118,7 +120,7 @@ class _EmpAttendanceReportMonthlyState extends State<EmpAttendanceReportMonthly>
             ),
           ],
           centerTitle: true,
-          backgroundColor: Color(0xFFE26142),
+          backgroundColor: AppColors.primaryColor,
         ),
         body: Column(
           children: [
@@ -191,6 +193,7 @@ class EmployeeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
+        color: AppColors.silver,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),

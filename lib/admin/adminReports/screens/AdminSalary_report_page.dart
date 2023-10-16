@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import 'AdminSalary_report_details_page.dart';
@@ -34,7 +35,7 @@ class _AdminSalaryReportPageState extends State<AdminSalaryReportPage> {
             iconTheme: const IconThemeData(color: Colors.white),
             centerTitle: true,
             backgroundColor:
-                const Color(0xFFE26142), // Match the GPS Tracker Page's theme
+                AppColors.primaryColor, // Match the GPS Tracker Page's theme
           ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),

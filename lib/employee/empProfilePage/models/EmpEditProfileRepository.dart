@@ -9,9 +9,7 @@ class EmpEditProfileRepository {
 
   Future<void> postData(EmpEditProfileModel empEditProfileModel) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String corporateId = prefs.getString("corporate_id") ??
-        "default_corporate_id"; // Replace "default_corporate_id" with a default value if needed
-    print('This is corporate id $corporateId');
+    final String corporateId = prefs.getString("corporate_id") ??"0";
     final headers = {
       'Content-Type': 'application/json', // Set the content type to JSON
     };

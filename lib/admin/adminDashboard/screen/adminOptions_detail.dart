@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import '../../adminReportsFiles/screens/AdminReportsMainPage.dart';
 import '../../adminmanualAttendance/screens/ManualMarkAttendance.dart';
+import '../../pendingLeavesApproval/screens/PendingLeavesPage.dart';
 import 'adminOptions_card.dart';
 import 'adminconstants.dart';
 
@@ -13,9 +17,9 @@ class AdminStorageDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:  const EdgeInsets.all(defaultPadding),
+      padding: const EdgeInsets.all(defaultPadding),
       decoration: const BoxDecoration(
-        color: Color(0xFFE26142),
+        color: AppColors.secondaryColor,
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: Column(
@@ -38,13 +42,12 @@ class AdminStorageDetails extends StatelessWidget {
           GestureDetector(
             onTap: () {
               Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (context) {
-                    return ManualMarkAttendance();
-                  },
-                ),
-              );
+                  context,
+                  PageTransition(
+                    child: ManualMarkAttendance(),
+                    type: PageTransitionType.rightToLeft,
+                    duration: Duration(seconds: 1),
+                  ));
             },
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/present.png",
@@ -52,9 +55,14 @@ class AdminStorageDetails extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const AdminStorageInfoCard(
-            svgSrc: "assets/icons/leave.png",
-            title: "Leaves",
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, PageTransition(child:  PendingLeavesPage(approveRepository: ApproveManualPunchRepository(),), type: PageTransitionType.rightToLeft));
+            },
+            child: const AdminStorageInfoCard(
+              svgSrc: "assets/icons/leave.png",
+              title: "Leaves",
+            ),
           ),
           const SizedBox(height: 5),
           GestureDetector(

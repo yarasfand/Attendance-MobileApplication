@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../constants/AppColor_constants.dart';
 import 'adminconstants.dart';
 
 
@@ -19,9 +20,10 @@ class AdminFileInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+
       padding:  const EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.offWhite,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         boxShadow: [
           BoxShadow(
@@ -52,7 +54,7 @@ class AdminFileInfoCard extends StatelessWidget {
               Text(
                 "$numOfEmployees ", // Use the provided number of employees
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  color: Colors.red,
+                  color: AppColors.darkGrey,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
@@ -67,7 +69,7 @@ class AdminFileInfoCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: Colors.blue,
+                  color: AppColors.primaryColor,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),

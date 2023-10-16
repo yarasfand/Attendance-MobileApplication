@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/employee/empReports/screens/salary_report_details_page.dart';
 
 
@@ -26,7 +27,7 @@ class _EmpSalaryReportPageState extends State<EmpSalaryReportPage> {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         backgroundColor:
-        const Color(0xFFE26142), // Match the GPS Tracker Page's theme
+        AppColors.primaryColor, // Match the GPS Tracker Page's theme
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -35,10 +36,10 @@ class _EmpSalaryReportPageState extends State<EmpSalaryReportPage> {
           children: [
             Row(
               children: [
-                Icon(Icons.calendar_month),
+                const Icon(Icons.calendar_month),
                 Text(
                   DateFormat('MMMM dd, yyyy').format(DateTime.now()), // Format the current date
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -56,21 +57,20 @@ class _EmpSalaryReportPageState extends State<EmpSalaryReportPage> {
                 onTap: () {
                   // Handle button tap here
 
-                    Navigator.push(context, CupertinoPageRoute(builder: (context) => EmpSalaryReportDetail(),),);
+                    Navigator.push(context, CupertinoPageRoute(builder: (context) => const EmpSalaryReportDetail(),),);
 
                 },
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
+                child:  Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
                     children: [
                       Icon(
                         Icons.calendar_today,
                         size: 24,
-                        color: Color(
-                            0xFFE26142), // Match the GPS Tracker Page's theme
+                        color: AppColors.navyBlue, // Match the GPS Tracker Page's theme
                       ),
-                      SizedBox(width: 16),
-                      Text(
+                      const SizedBox(width: 16),
+                      const Text(
                         'Salary Report',
                         style: TextStyle(
                           fontSize: 16,

@@ -25,7 +25,9 @@ class EmpProfileRepository {
     if (coorporateId.isEmpty || employeeId == 0) {
       throw Exception("coorporateId or employeeId not initialized");
     }
-
+    await fetchSharedPrefData();
+    print("---------------------------$coorporateId");
+    print("---------------------------$employeeId");
     String apiUrl =
         "http://62.171.184.216:9595/api/employee/dashboard/profile?CorporateId=$coorporateId&employeeId=$employeeId";
 

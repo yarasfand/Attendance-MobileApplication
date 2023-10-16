@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/employee/empDashboard/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../admin/adminReports/screens/AdminAttendance_report_monthly.dart';
 import '../../../introduction/utilities/api_integration_files/api_intigration_bloc.dart';
 import '../models/user_repository.dart';
 
@@ -49,14 +50,14 @@ class EmpAppBar extends StatelessWidget {
                       color: Colors.white,
                       onPressed: openDrawer,
                     ),
-                    backgroundColor: const Color(0xFFE26142),
+                    backgroundColor: AppColors.primaryColor,
                     elevation: 0,
                     title: Center(
                       child: Padding(
                         padding: const EdgeInsets.only(
                             right: 55.0), // Add right padding
                         child: Text(
-                          "EMP-ID: ${employee!.empCode.toString()}",
+                          "HOME",
                           style: const TextStyle(
                             color: Colors.white,
                           ),
@@ -72,7 +73,7 @@ class EmpAppBar extends StatelessWidget {
                       color: Colors.white,
                       onPressed: openDrawer,
                     ),
-                    backgroundColor: const Color(0xFFE26142),
+                    backgroundColor: AppColors.primaryColor,
                     elevation: 0,
                     title: const Center(
                       child: Padding(
@@ -95,7 +96,7 @@ class EmpAppBar extends StatelessWidget {
                       color: Colors.white,
                       onPressed: openDrawer,
                     ),
-                    backgroundColor: const Color(0xFFE26142),
+                    backgroundColor: AppColors.primaryColor,
                     elevation: 0,
                     title: Center(
                       child: Padding(
@@ -117,7 +118,7 @@ class EmpAppBar extends StatelessWidget {
                       color: Colors.white,
                       onPressed: openDrawer,
                     ),
-                    backgroundColor: const Color(0xFFE26142),
+                    backgroundColor: AppColors.darkGrey,
                     elevation: 0,
                     title: const Center(
                       child: Padding(

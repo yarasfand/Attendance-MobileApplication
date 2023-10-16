@@ -3,6 +3,7 @@ import 'package:flutter/Material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xls;
 import 'dart:io';
@@ -250,7 +251,7 @@ class _EmpPresentReportState extends State<EmpPresentReport> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: kIconThemeData,
-        backgroundColor: EmpkbackgrounColorAppBar,
+        backgroundColor: AppColors.primaryColor,
         title: Text(
           'Present Report',
           style: EmpkAppBarTextTheme,
@@ -264,7 +265,7 @@ class _EmpPresentReportState extends State<EmpPresentReport> {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.offWhite,
                   child: GestureDetector(
                     onTap: () {
                       // For excel export
@@ -281,7 +282,7 @@ class _EmpPresentReportState extends State<EmpPresentReport> {
                   width: 10,
                 ),
                 CircleAvatar(
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.offWhite,
                   child: GestureDetector(
                     onTap: () {
                       _generatePdfFromData();
@@ -304,7 +305,7 @@ class _EmpPresentReportState extends State<EmpPresentReport> {
           // Search Bar
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.brightWhite,
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.5),
@@ -348,14 +349,14 @@ class _EmpPresentReportState extends State<EmpPresentReport> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.grey,
+                color: AppColors.silver,
               ),
             ),
             child: DataTable(
               dividerThickness: 1.0,
               columnSpacing: screenSize.width * 0.02,
               headingRowColor:
-                  MaterialStateProperty.all<Color>(const Color(0xFFE26142)),
+                  MaterialStateProperty.all<Color>(AppColors.primaryColor),
               columns: const [
                 DataColumn(
                   label: Text(

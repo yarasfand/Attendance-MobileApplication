@@ -3,12 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../admin/adminDashboard/screen/adminMain.dart';
+import '../../employee/empDashboard/models/user_repository.dart';
 import '../../employee/empDashboard/screens/employeeMain.dart';
 import '../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../introduction/bloc/bloc_internet/internet_state.dart';
-import '../../introduction/utilities/repository/user_repository.dart';
 import '../bloc/loginBloc/loginEvents.dart';
 import '../bloc/loginBloc/loginStates.dart';
 import '../bloc/loginBloc/loginbloc.dart';
@@ -45,7 +46,6 @@ class _LoginPageState extends State<LoginPage> {
         username: enteredUsername,
         password: enteredPassword,
         role: enteredRole,
-
       );
 
       if (employeeData.isNotEmpty) {
@@ -62,21 +62,22 @@ class _LoginPageState extends State<LoginPage> {
     String enteredCorporateID,
     String enteredUsername,
     String enteredPassword,
-      String enteredRole,
-
+    String enteredRole,
   ) async {
     try {
       final employeeData = await userRepository.getData(
         corporateId: enteredCorporateID,
         username: enteredUsername,
         password: enteredPassword,
-        role:enteredRole,
+        role: enteredRole,
       );
 
       if (employeeData.isNotEmpty) {
-        final cardNo =
-            employeeData[0].cardNo;
-        _saveCardNoToSharedPreferences(cardNo);
+        final cardNo = employeeData[0].cardNo;
+        final empCode = employeeData[0].empCode;
+        final employeeId=employeeData[0].empId;
+        print("--------------employeeId:$employeeId");
+        _saveCardNoToSharedPreferences(cardNo, empCode,employeeId);
         _loginAsEmployee();
       } else {
         _showErrorSnackbar(context, "User not found!");
@@ -115,10 +116,12 @@ class _LoginPageState extends State<LoginPage> {
             child: const EmpMainPage(), type: PageTransitionType.rightToLeft));
   }
 
-  void _saveCardNoToSharedPreferences(String cardNo) async {
+  void _saveCardNoToSharedPreferences(String cardNo, String empCode, int employeeId) async {
     // print("Card Number: $cardNo");
     final sharedPrefEmp = await SharedPreferences.getInstance();
     sharedPrefEmp.setString('cardNo', cardNo);
+    sharedPrefEmp.setString('empCode', empCode);
+    sharedPrefEmp.setInt('employee_id', employeeId);
   }
 
   void _loginAsAdmin() async {
@@ -167,8 +170,7 @@ class _LoginPageState extends State<LoginPage> {
           enteredPassword,
           enteredRole,
         );
-      }
-      else if (_selectedUserType == UserType.admin) {
+      } else if (_selectedUserType == UserType.admin) {
         // Execute admin-related functions
         _handleAdminLogin(
           enteredCorporateID,
@@ -176,9 +178,7 @@ class _LoginPageState extends State<LoginPage> {
           enteredPassword,
           enteredRole,
         );
-
-      }
-      else {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Invalid corporate ID, username, or password.'),
@@ -189,8 +189,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isButtonPressed = false;
       });
-    }
-    else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please fill out all required fields.'),
@@ -218,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Container(
                       height: MediaQuery.of(context).size.height * 0.5,
                       width: MediaQuery.of(context).size.width,
-                      color: const Color(0xFFE26142),
+                      color: AppColors.secondaryColor,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -246,8 +245,8 @@ class _LoginPageState extends State<LoginPage> {
                                   ],
                                 ),
                                 child: Image.asset(
-                                  'assets/images/pioneer_logo_app1.png',
-                                  fit: BoxFit.cover,
+                                  'assets/images/pioneer_logo_app.png',
+                                  fit: BoxFit.contain,
                                   height: 150,
                                   width: 300,
                                 ),
@@ -298,7 +297,7 @@ class _LoginPageState extends State<LoginPage> {
                                         textStyle: const TextStyle(
                                           letterSpacing: 0,
                                           fontSize: 15,
-                                          color: Colors.red,
+                                          color: AppColors.primaryColor,
                                         ),
                                       ),
                                     );
@@ -428,7 +427,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       backgroundColor:
                                           MaterialStateProperty.all(
-                                              const Color(0xFFE26142)),
+                                              AppColors.primaryColor),
                                       elevation: MaterialStateProperty.all(3),
                                       shadowColor: MaterialStateProperty.all(
                                           Colors.grey),
@@ -440,6 +439,7 @@ class _LoginPageState extends State<LoginPage> {
                                         ? const SizedBox(
                                             child: CircularProgressIndicator(
                                               strokeWidth: 2.0,
+                                              color: Colors.white,
                                             ),
                                             width: 15.0,
                                             height: 15.0,

@@ -1,57 +1,65 @@
-class GeoFenceModel {
-  final String cardNo;
-  final DateTime? punchDatetime;
-  final String location;
-  final String lan;
-  final String long;
-  final String? imageData; // Represented as List of bytes
-  final String imeiNo;
-  final String temp1;
-  final String temp2;
-  final int? attendanceType;
-  final String remark1;
-  final String imagePath;
+class GeofenceModel {
+  String? cardno;
+  DateTime? punchDatetime; // Keep it as DateTime
+  String? location;
+  String? lan;
+  String? long;
+  String? imageData;
+  String? imeiNo;
+  String? temp1;
+  String? temp2;
+  String? attendanceType;
+  String? remark1;
+  String? imagepath;
 
-  GeoFenceModel({
-    required this.cardNo,
-    this.punchDatetime,
-    required this.location,
-    required this.lan,
-    required this.long,
-    this.imageData,
-    required this.imeiNo,
-    required this.temp1,
-    required this.temp2,
-    this.attendanceType,
-    required this.remark1,
-    required this.imagePath,
-  });
+  GeofenceModel(
+      {this.cardno,
+        this.punchDatetime,
+        this.location,
+        this.lan,
+        this.long,
+        this.imageData,
+        this.imeiNo,
+        this.temp1,
+        this.temp2,
+        this.attendanceType,
+        this.remark1,
+        this.imagepath});
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
-      "Cardno": cardNo,
-      "Location": location,
-      "Lan": lan,
-      "Long": long,
-      "ImeiNo": imeiNo,
-      "Temp1": temp1,
-      "Temp2": temp2,
-      "Remark1": remark1,
-      "Imagepath": imagePath,
-    };
-
-    if (punchDatetime != null) {
-      data["PunchDatetime"] = punchDatetime!.toIso8601String();
-    }
-
-    if (imageData != null) {
-      data["ImageData"] = imageData;
-    }
-
-    if (attendanceType != null) {
-      data["AttendanceType"] = attendanceType;
-    }
-
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['Cardno'] = this.cardno;
+    data['PunchDatetime'] = this.punchDatetime?.toIso8601String(); // Convert DateTime to ISO 8601 string
+    data['Location'] = this.location;
+    data['Lan'] = this.lan;
+    data['Long'] = this.long;
+    data['ImageData'] = this.imageData;
+    data['ImeiNo'] = this.imeiNo;
+    data['Temp1'] = this.temp1;
+    data['Temp2'] = this.temp2;
+    data['AttendanceType'] = this.attendanceType;
+    data['Remark1'] = this.remark1;
+    data['Imagepath'] = this.imagepath;
     return data;
+  }
+
+  // Deserialize DateTime from ISO 8601 string
+  factory GeofenceModel.fromJson(Map<String, dynamic> json) {
+    return GeofenceModel(
+      cardno: json['Cardno'],
+      punchDatetime: json['PunchDatetime'] != null
+          ? DateTime.parse(json['PunchDatetime'])
+          : null,
+      location: json['Location'],
+      lan: json['Lan'],
+      long: json['Long'],
+      imageData: json['ImageData'],
+      imeiNo: json['ImeiNo'],
+      temp1: json['Temp1'],
+      temp2: json['Temp2'],
+      attendanceType: json['AttendanceType'],
+      remark1: json['Remark1'],
+      imagepath: json['Imagepath'],
+    );
   }
 }

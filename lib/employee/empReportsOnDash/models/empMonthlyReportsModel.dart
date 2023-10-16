@@ -5,6 +5,7 @@ class MonthlyReportsModel {
   final String? lunchStartTime;
   final String? lunchEndTime;
   final int? hoursWorked;
+  final String? status;
 
   MonthlyReportsModel({
     required this.dateOffice,
@@ -13,6 +14,7 @@ class MonthlyReportsModel {
     required this.lunchStartTime,
     required this.lunchEndTime,
     required this.hoursWorked,
+    required this.status,
   });
 
   factory MonthlyReportsModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class MonthlyReportsModel {
       lunchStartTime: json['lunchstarttime'] as String?,
       lunchEndTime: json['lunchendtime'] as String?,
       hoursWorked: json['hoursworked'] as int?,
+      status: json['status'] as String?,
     );
   }
 }

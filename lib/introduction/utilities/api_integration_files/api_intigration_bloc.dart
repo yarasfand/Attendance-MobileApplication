@@ -2,8 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../models/user_model.dart';
-import '../repository/user_repository.dart';
+import '../../../employee/empDashboard/models/user_model.dart';
+import '../../../employee/empDashboard/models/user_repository.dart';
 
 part 'api_intigration_event.dart';
 part 'api_intigration_state.dart';

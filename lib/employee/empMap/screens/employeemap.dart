@@ -13,6 +13,8 @@ import 'dart:convert';
 
 import '../models/attendanceGeoFencingModel.dart';
 import '../models/attendanceGeoFencingRepository.dart';
+import '../models/geofenceGetLatLongRepository.dart';
+import '../models/geofenceGetlatLongmodel.dart';
 
 class EmployeeMap extends StatefulWidget {
   EmployeeMap({Key? key}) : super(key: key);
@@ -24,7 +26,7 @@ class EmployeeMap extends StatefulWidget {
 class _EmployeeMapState extends State<EmployeeMap> {
   double? getLat;
   double? getLong;
-  double? getRadius;
+  double? geofenceRadius = 100;
 
   double? currentLat;
   double? currentLong;
@@ -40,8 +42,25 @@ class _EmployeeMapState extends State<EmployeeMap> {
   void initState() {
     super.initState();
     checkLocationPermission();
+    _initializelatLong();
     display();
     checkLocationPermissionAndFetchLocation();
+  }
+
+  Future<void> _initializelatLong() async {
+    final getLatLongRepo = GetLatLongRepo();
+    getLatLong? locationData;
+    locationData = await getLatLongRepo.fetchData();
+
+    if (locationData?.lat != null &&
+        locationData?.lon != null &&
+        locationData?.radius != null) {
+      getLat = double.parse(locationData!.lat!);
+      getLong = double.parse(locationData!.lon!);
+      geofenceRadius = double.parse(locationData!.radius!);
+    }
+
+    print("${getLat} ${getLong} ${geofenceRadius}");
   }
 
   Future<void> checkLocationPermission() async {
@@ -57,7 +76,6 @@ class _EmployeeMapState extends State<EmployeeMap> {
   Future<void> _startGeoFencingUpdate() async {
     final double? geofenceLatitude = getLat;
     final double? geofenceLongitude = getLong;
-    const double geofenceRadius = 250;
 
     if (geofenceLatitude != null &&
         geofenceLongitude != null &&
@@ -70,27 +88,77 @@ class _EmployeeMapState extends State<EmployeeMap> {
         currentLong!,
       );
 
-      if (distance <= geofenceRadius) {
-        inRadius();
-      } else if (distance >= geofenceRadius) {
-        outRadius();
+      if (distance <= geofenceRadius!) {
+        //inRadius();
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final String cardNo = prefs.getString('cardNo') ?? " ";
+        String imei = "fake imei";
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        AndroidDeviceInfo? androidInfo;
+        Future<AndroidDeviceInfo> getInfo() async {
+          return await deviceInfo.androidInfo;
+        }
+
+        print(getInfo());
+        if (selectedImage == null) {
+          _imageError();
+        } else {
+          final base64Image = base64Encode(selectedImage!.readAsBytesSync());
+          final geoFenceModel = GeofenceModel(
+            cardno: cardNo.toString(),
+            location: fullAddress,
+            lan: currentLat.toString(),
+            long: currentLong.toString(),
+            imageData: base64Image,
+            imeiNo: imei,
+            temp1: '',
+            temp2: '',
+            attendanceType: null,
+            remark1: remarks,
+            imagepath: '',
+            punchDatetime: DateTime.now(),
+          );
+          final geoFenceRepository = GeoFenceRepository("Office");
+
+          try {
+            await geoFenceRepository.postData(geoFenceModel);
+            Fluttertoast.showToast(
+              msg: 'Attendance marked successfully!',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+            );
+          } catch (e) {
+            print('Error making API request: $e');
+            Fluttertoast.showToast(
+              msg:
+                  'Failed to mark attendance. Please check your internet connection.',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+            );
+          }
+        }
+      } else if (distance >= geofenceRadius!) {
+        Fluttertoast.showToast(
+          msg: 'Failed to mark attendance. Please check your Location.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
       }
     }
   }
 
-  Future<void> _markAttendance() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String cardNo = prefs.getString('cardNo') ?? " ";
-    String imei="fake imei";
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo? androidInfo;
-    Future<AndroidDeviceInfo> getInfo() async {
-      return await deviceInfo.androidInfo;
-    }
-
-    print(getInfo());
-    if (selectedImage == null) {
-      showDialog(
+  void _imageError() {
+    showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -105,25 +173,39 @@ class _EmployeeMapState extends State<EmployeeMap> {
               ),
             ],
           );
-        },
-      );
+        });
+  }
+
+  Future<void> _markAttendance() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String cardNo = prefs.getString('cardNo') ?? " ";
+    String imei = "fake imei";
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo? androidInfo;
+    Future<AndroidDeviceInfo> getInfo() async {
+      return await deviceInfo.androidInfo;
+    }
+
+    print(getInfo());
+    if (selectedImage == null) {
+      _imageError();
     } else {
       final base64Image = base64Encode(selectedImage!.readAsBytesSync());
-      final geoFenceModel = GeoFenceModel(
-        cardNo: cardNo,
+      final geoFenceModel = GeofenceModel(
+        cardno: cardNo.toString(),
         location: fullAddress,
         lan: currentLat.toString(),
         long: currentLong.toString(),
         imageData: base64Image,
-        imeiNo: imei ,
+        imeiNo: imei,
         temp1: '',
         temp2: '',
         attendanceType: null,
         remark1: remarks,
-        imagePath: '',
+        imagepath: '',
         punchDatetime: DateTime.now(),
       );
-      final geoFenceRepository = GeoFenceRepository();
+      final geoFenceRepository = GeoFenceRepository("Location");
 
       try {
         await geoFenceRepository.postData(geoFenceModel);
@@ -179,6 +261,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
     }
   }
 
+  /*
   void inRadius() {
     showDialog(
       context: context,
@@ -212,6 +295,35 @@ class _EmployeeMapState extends State<EmployeeMap> {
                 Navigator.pop(context);
               },
               child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+*/
+
+  void CheckOfficeOrLocation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Attendance'),
+          content: const Text('Mark Attendance From Office/Location'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                _startGeoFencingUpdate();
+                Navigator.pop(context);
+              },
+              child: const Text('Office'),
+            ),
+            TextButton(
+              onPressed: () {
+                _markAttendance();
+                Navigator.pop(context);
+              },
+              child: const Text('Location'),
             ),
           ],
         );
@@ -284,7 +396,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
           ),
         ],
       );
-    } else if (currentLat != null && currentLong != null) {
+    } else if (currentLat != null && currentLong != null && getLat != null) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFFE26142),
@@ -463,7 +575,11 @@ class _EmployeeMapState extends State<EmployeeMap> {
                 padding: const EdgeInsets.only(left: 25.0, right: 25.0),
                 child: ElevatedButton(
                   onPressed: () async {
-                    _markAttendance();
+                    if (selectedImage != null) {
+                      CheckOfficeOrLocation();
+                    } else {
+                      _imageError();
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     primary:

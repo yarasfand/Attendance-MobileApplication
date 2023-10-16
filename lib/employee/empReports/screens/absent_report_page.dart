@@ -3,6 +3,7 @@ import 'package:flutter/Material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xls;
 
@@ -252,7 +253,7 @@ class _EmpAbsentReportsState extends State<EmpAbsentReports> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: kIconThemeData,
-        backgroundColor: EmpkbackgrounColorAppBar,
+        backgroundColor: AppColors.primaryColor,
         title: Text(
           'Absent Report',
           style: EmpkAppBarTextTheme,
@@ -317,7 +318,7 @@ class _EmpAbsentReportsState extends State<EmpAbsentReports> {
               dividerThickness: 1.0,
               columnSpacing: screenSize.width * 0.02,
               headingRowColor:
-                  MaterialStateProperty.all<Color>(const Color(0xFFE26142)),
+                  MaterialStateProperty.all<Color>(AppColors.primaryColor),
               columns: const [
                 DataColumn(
                   label: Text(

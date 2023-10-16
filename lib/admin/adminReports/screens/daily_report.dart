@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:project/admin/adminReports/screens/present_report.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
@@ -39,7 +40,7 @@ class _AdminDailyReportsPageState extends State<AdminDailyReportsPage> {
           {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: AdminkbackgrounColorAppBar,
+            backgroundColor: AppColors.primaryColor,
             iconTheme: IconThemeData(color: Colors.white),
             title: Text(
               'Daily Reports',
@@ -55,19 +56,14 @@ class _AdminDailyReportsPageState extends State<AdminDailyReportsPage> {
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.calendar_month,
-                        size: 32,
-                        color: Colors.green,
-                      ),
-                      const SizedBox(width: 16),
+
                       Text(
                         '${currentDate.day}/${currentDate.month}/${currentDate
                             .year} ${currentDate.hour}:${currentDate.minute}',
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          color: AppColors.silver,
                         ),
                       ),
                     ],
@@ -190,7 +186,7 @@ class _AdminDailyReportsPageState extends State<AdminDailyReportsPage> {
       VoidCallback onTap,) {
     return Card(
       elevation: 4,
-      color: const Color(0xFFE26142),
+      color: AppColors.navyBlue,
       margin: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

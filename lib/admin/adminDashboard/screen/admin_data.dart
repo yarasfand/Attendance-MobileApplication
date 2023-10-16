@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import '../models/AdminDashBoard_model.dart';
 import 'adminFile_info_card.dart';
 import 'adminResponsive.dart';
@@ -40,9 +41,9 @@ class _AdminDataState extends State<AdminData> {
             Text(
               "Reports",
               style: TextStyle(
-                color: Colors.orange,
+                color: AppColors.darkGrey,
                 fontWeight: FontWeight.bold,
-                fontSize: 15,
+                fontSize: 20,
               ),
             ),
           ],
@@ -111,7 +112,7 @@ class FileInfoCardGridView extends StatelessWidget {
               imageSrc: "assets/icons/employees.png",
               title: "Total Employee",
               numOfEmployees: totalEmployees,
-              color: Colors.red,
+              color: Colors.blue,
             );
           case 1:
             return AdminFileInfoCard(
@@ -132,7 +133,7 @@ class FileInfoCardGridView extends StatelessWidget {
               imageSrc: "assets/icons/late.png",
               title: "Late Employee",
               numOfEmployees: lateEmployees,
-              color: const Color(0xFF007EE5),
+              color: Colors.red,
             );
           default:
             return const SizedBox();

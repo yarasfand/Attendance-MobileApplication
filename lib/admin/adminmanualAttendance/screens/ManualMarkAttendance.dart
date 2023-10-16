@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_bloc.dart';
 import '../../adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_event.dart';
@@ -286,7 +287,7 @@ class _ManualMarkAttendanceState extends State<ManualMarkAttendance> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: const Color(0xFFE26142),
+        backgroundColor: AppColors.primaryColor,
         title: const Text(
           'Manual Mark',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -315,7 +316,7 @@ class _ManualMarkAttendanceState extends State<ManualMarkAttendance> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Card(
-                color: const Color(0xFFE26142),
+                color: AppColors.secondaryColor,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -587,11 +588,13 @@ class _ManualMarkAttendanceState extends State<ManualMarkAttendance> {
 
             // "Select All" Button
             ElevatedButton(
+              style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(AppColors.lightBlue)),
               onPressed: _toggleSelectAll,
               child: Text(
                 selectAll ? 'Deselect All' : 'Select All',
                 style: const TextStyle(
                   fontSize: 16,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -605,8 +608,8 @@ class _ManualMarkAttendanceState extends State<ManualMarkAttendance> {
                   border: Border.all(color: Colors.black), // Add border styling
                 ),
                 child: DataTable(
-                  headingRowColor: const MaterialStatePropertyAll(
-                    Color(0xFFE26142),
+                  headingRowColor:  MaterialStatePropertyAll(
+                    AppColors.primaryColor,
                   ),
                   columnSpacing: 20.0,
                   columns: const [

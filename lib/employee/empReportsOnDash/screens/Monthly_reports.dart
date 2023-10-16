@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/MonthlyReports_repository.dart';
@@ -11,6 +14,21 @@ class MonthlyReportsPage extends StatefulWidget {
 class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
   int selectedMonth = DateTime.now().month; // Default to current month
 
+  // Declare monthNames here
+  List<String> monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
   @override
   void initState() {
     super.initState();
@@ -41,25 +59,47 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
     return Scaffold(
+      backgroundColor: AppColors.offWhite,
       appBar: AppBar(
-        title: Text('Monthly Reports'),
+        title: Text(
+          'Monthly Reports',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: AppColors.primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
+        centerTitle: true,
       ),
       body: Column(
         children: [
-          DropdownButton<int>(
-            value: selectedMonth,
-            onChanged: (int? newValue) {
+          DropdownButton<String>(
+            value: monthNames[selectedMonth - 1], // Adjust for 0-based index
+            onChanged: (String? newValue) {
               if (newValue != null) {
-                _onMonthSelected(newValue);
+                int monthIndex = monthNames.indexOf(newValue) + 1;
+                _onMonthSelected(monthIndex);
               }
             },
-            items: List<DropdownMenuItem<int>>.generate(12, (int index) {
-              return DropdownMenuItem<int>(
-                value: index + 1,
-                child: Text('${index + 1}'),
+            items: monthNames.map((String month) {
+              return DropdownMenuItem<String>(
+                value: month,
+                child: Text(month),
               );
-            }),
+            }).toList(),
           ),
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -67,18 +107,19 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
               future: fetchMonthlyReportsData(selectedMonth: selectedMonth),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  // While data is being fetched, show a loading indicator
                   return CustomLoadingIndicator();
                 } else if (snapshot.hasError) {
-                  // If there's an error, display an error message
-                  return Center(child: Text('Error: ${snapshot.error.toString()}'));
+                  return Center(
+                      child: Text('Error: ${snapshot.error.toString()}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  // Handle the case when there is no data to display
                   return Center(child: Text('No monthly reports available.'));
                 } else {
                   // If data has been successfully fetched, display it
                   final monthlyReports = snapshot.data!;
-                  return MonthlyReportsListView(monthlyReports: monthlyReports);
+                  return MonthlyReportsListView(
+                    monthlyReports: monthlyReports,
+                    selectedMonth: selectedMonth, // Pass selectedMonth here
+                  );
                 }
               },
             ),
@@ -107,12 +148,15 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       );
 
       // Map MonthlyReportsModel objects to the desired format
-      final mappedReports = reportsData.map((report) =>
-      {
-        'shiftstarttime': report.shiftStartTime,
-        'shiftendtime': report.shiftEndTime,
-        // Add other fields as needed
-      }).toList();
+      final mappedReports = reportsData
+          .map((report) => {
+                'shiftstarttime': report.shiftStartTime,
+                'shiftendtime': report.shiftEndTime,
+                'status': report.status,
+                'hoursworked':report.hoursWorked,
+                // Add other fields as needed
+              })
+          .toList();
 
       return mappedReports;
     } catch (e) {
@@ -125,8 +169,28 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
 
 class MonthlyReportsListView extends StatelessWidget {
   final List<Map<String, dynamic>> monthlyReports;
+  final int selectedMonth;
 
-  MonthlyReportsListView({required this.monthlyReports});
+  // Declare monthNames here
+  List<String> monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  MonthlyReportsListView({
+    required this.monthlyReports,
+    required this.selectedMonth,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -134,12 +198,67 @@ class MonthlyReportsListView extends StatelessWidget {
       itemCount: monthlyReports.length,
       itemBuilder: (context, index) {
         final report = monthlyReports[index];
+        final shiftStartTime = report['shiftstarttime'];
+        final shiftEndTime = report['shiftendtime'];
+        final status = report['status'];
+        final hoursWorked = report['hoursworked'];
+
         return Card(
-          margin: EdgeInsets.all(8.0),
+          margin: EdgeInsets.all(16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 5,
+          color: AppColors.secondaryColor, // Background color
           child: ListTile(
-            title: Text("Shift Start Time: ${report['shiftstarttime']}"),
-            subtitle: Text("Shift End Time: ${report['shiftendtime']}"),
-            // Add other fields you want to display
+            contentPadding: EdgeInsets.all(16.0),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Shift Start Time: ${shiftStartTime != null ? DateFormat('dd MMMM y, hh:mm a').format(DateTime.parse(shiftStartTime)) : 'N/A'}",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Shift End Time: ${shiftEndTime != null ? DateFormat('dd MMMM y, hh:mm a').format(DateTime.parse(shiftEndTime)) : 'N/A'}",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  "Hours Worked: $hoursWorked",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            subtitle: Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.green, // Status color
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Text(
+                  "Status: ${status != null ? status : 'N/A'}",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
           ),
         );
       },
@@ -156,7 +275,8 @@ class CustomLoadingIndicator extends StatelessWidget {
         height: 30.0, // Customize the size as needed
         child: CircularProgressIndicator(
           strokeWidth: 3.0, // Customize the thickness of the circle
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue), // Customize the color
+          valueColor:
+              AlwaysStoppedAnimation<Color>(Colors.blue), // Customize the color
         ),
       ),
     );

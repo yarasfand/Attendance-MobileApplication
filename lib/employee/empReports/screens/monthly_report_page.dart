@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'attendance_report_monthly.dart';
 
 class EmpMonthlyReportPage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _EmpMonthlyReportPageState extends State<EmpMonthlyReportPage> {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         backgroundColor:
-            const Color(0xFFE26142), // Match the GPS Tracker Page's theme
+            AppColors.primaryColor, // Match the GPS Tracker Page's theme
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -34,11 +35,11 @@ class _EmpMonthlyReportPageState extends State<EmpMonthlyReportPage> {
           children: [
             Row(
               children: [
-                Icon(Icons.calendar_month),
+                const Icon(Icons.calendar_month),
                 Text(
                   DateFormat('MMMM dd, yyyy')
                       .format(DateTime.now()), // Format the current date
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -60,18 +61,17 @@ class _EmpMonthlyReportPageState extends State<EmpMonthlyReportPage> {
                         builder: (context) => EmpAttendanceReportMonthly(),
                       ));
                 },
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
+                child:  Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
                     children: [
                       Icon(
                         Icons.calendar_today,
                         size: 24,
-                        color: Color(
-                            0xFFE26142), // Match the GPS Tracker Page's theme
+                        color: AppColors.navyBlue, // Match the GPS Tracker Page's theme
                       ),
-                      SizedBox(width: 16),
-                      Text(
+                      const SizedBox(width: 16),
+                      const Text(
                         'Attendance Report',
                         style: TextStyle(
                           fontSize: 16,

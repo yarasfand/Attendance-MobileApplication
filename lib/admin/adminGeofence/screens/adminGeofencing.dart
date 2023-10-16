@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_bloc.dart';
 import '../../adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_event.dart';
@@ -276,7 +277,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
           color: Colors.white,
           onPressed: widget.openDrawer,
         ),
-        backgroundColor: const Color(0xFFE26142),
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
         title: const Center(
           child: Padding(
@@ -328,7 +329,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Card(
-                    color: const Color(0xFFE26142),
+                    color: AppColors.offWhite,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -338,7 +339,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                             "FILTERS",
                             style: GoogleFonts.openSans(
                               textStyle: const TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -358,7 +359,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                       'Department:',
                                       style: GoogleFonts.openSans(
                                         textStyle: const TextStyle(
-                                          color: Colors.white,
+                                          color: Colors.black,
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -426,7 +427,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                       'Branch:',
                                       style: GoogleFonts.openSans(
                                         textStyle: const TextStyle(
-                                          color: Colors.white,
+                                          color: Colors.black,
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -498,7 +499,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                       'Company:',
                                       style: GoogleFonts.openSans(
                                         textStyle: const TextStyle(
-                                          color: Colors.white,
+                                          color: Colors.black,
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -624,7 +625,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                     ),
                     child: DataTable(
                       headingRowColor: const MaterialStatePropertyAll(
-                        Color(0xFFE26142),
+                        AppColors.primaryColor,
                       ),
                       columnSpacing: 20.0,
                       columns: const [

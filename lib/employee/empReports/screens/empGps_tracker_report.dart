@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 import 'empConstants.dart';
 
@@ -77,7 +78,7 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         backgroundColor: Colors.green, // Set the background color to green
       ),
     );
@@ -122,20 +123,20 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
           iconTheme: const IconThemeData(
             color: Colors.white, // Set the icon color to white
           ),
-          backgroundColor: Color(0xFFE26142),
+          backgroundColor: AppColors.primaryColor,
         ),
         body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.white, Color(0xFFE26142)],
+              colors: [AppColors.primaryColor, AppColors.secondaryColor],
             ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Card(
-              color: Colors.white,
+              color: AppColors.brightWhite,
               elevation: 8,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
@@ -174,9 +175,9 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
             'GPS Tracker Report',
             style: EmpkAppBarTextTheme,
           ),
-          backgroundColor: Color(0xFFE26142),
+          backgroundColor: AppColors.brightWhite,
         ),
-        body: Center(
+        body: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -194,9 +195,9 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
       return  Scaffold(
         appBar: AppBar(
             title: Text("Reports Page", style: EmpkAppBarTextTheme),
-          backgroundColor: const Color(0xFFE26142),
+          backgroundColor: AppColors.primaryColor,
         ),
-        body: Center(
+        body: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -221,7 +222,7 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
             flex: 1,
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -231,7 +232,7 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
             flex: 2,
             child: Text(
               info,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
@@ -251,7 +252,7 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(16),
-        backgroundColor: Color(0xFFE26142),
+        backgroundColor: AppColors.secondaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -262,7 +263,7 @@ class _EmpGpsTrackerReportState extends State<EmpGpsTrackerReport> {
       ),
       label: Text(
         text,
-        style: TextStyle(fontSize: 16, color: Colors.white),
+        style: const TextStyle(fontSize: 16, color: Colors.white),
       ),
     );
   }

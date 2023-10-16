@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../bloc/empLeaveRequestApiFiles/emp_leave_request_bloc.dart';
 import '../bloc/empPostRequestApiFiles/emp_post_request_bloc.dart';
 import '../models/empLeaveRequestModel.dart';
@@ -18,6 +22,7 @@ class LeaveRequestForm extends StatefulWidget {
 class _LeaveRequestFormState extends State<LeaveRequestForm> {
   final _reasonController = TextEditingController();
   final _leaveDurationController = TextEditingController();
+  late String _currentTime;
 
   DateTime _fromDate = DateTime.now();
   DateTime _toDate = DateTime.now();
@@ -36,6 +41,14 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
     super.initState();
     // Initialize controllers with default values
     getSharedData();
+    _currentTime = DateFormat.yMd().add_jm().format(DateTime.now());
+
+    // Create a timer to update the time every second
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentTime = DateFormat.yMd().add_jm().format(DateTime.now());
+      });
+    });
   }
 
   late final empId;
@@ -67,7 +80,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
     }
   }
 
-  Map<String, int> _reasonToLTypeId = {
+  final Map<String, int> _reasonToLTypeId = {
     "Annual": 1,
     "Outstation Duty": 2,
     "SL": 3,
@@ -76,213 +89,296 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
   String _selectedReason = "Annual";
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        return EmpLeaveRequestBloc(
-          RepositoryProvider.of<EmpLeaveRepository>(context),
-        )..add(EmpLeaveRequestLoadingEvent());
-      },
-      child: BlocConsumer<EmpLeaveRequestBloc, EmpLeaveRequestState>(
-        listener: (context, state) {
-          // TODO: implement listener
-        },
-        builder: (context, state) {
-          if (state is EmpLeaveRequestLoadingState) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is EmpLeaveRequestLoadedState) {
-            int selectedTypeId = 0;
-            List<EmpLeaveModel> userList = state.users;
-            final employeeLeave1 = userList.isNotEmpty
-                ? userList[0]
-                : EmpLeaveModel(leaveTypeId: 0, ltypeCode: '', ltypeName: '');
-            final employeeLeave2 = userList.length > 1
-                ? userList[1]
-                : EmpLeaveModel(leaveTypeId: 0, ltypeCode: '', ltypeName: '');
-            final employeeLeave3 = userList.length > 2
-                ? userList[2]
-                : EmpLeaveModel(leaveTypeId: 0, ltypeCode: '', ltypeName: '');
-
-            selectedTypeId = employeeLeave1.leaveTypeId ?? 0;
-
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Leave Request Form',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                iconTheme: IconThemeData(
-                  color: Colors.white,
-                ),
-                centerTitle: true,
-                backgroundColor: const Color(0xFFE26142),
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      body: Column(
+        children: <Widget>[
+          Container(
+            height: MediaQuery.of(context).size.height / 3,
+            color: AppColors.primaryColor,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                const SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'From Date',
-                      style: TextStyle(fontSize: 16),
+                    IconButton(
+                      onPressed: () {
+                        // Handle the back button press here
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                      ),
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            readOnly: true,
-                            onTap: () => _selectFromDate(context),
-                            decoration: InputDecoration(
-                              hintText: 'Select Date',
-                              suffixIcon: Icon(Icons.calendar_today),
-                            ),
-                            controller: TextEditingController(
-                              text: "${_fromDate.toLocal()}".split(' ')[0],
-                            ),
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Leave Details',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
                         ),
-                      ],
+                      ),
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      'To Date',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            readOnly: true,
-                            onTap: () => _selectToDate(context),
-                            decoration: InputDecoration(
-                              hintText: 'Select Date',
-                              suffixIcon: Icon(Icons.calendar_today),
-                            ),
-                            controller: TextEditingController(
-                              text: "${_toDate.toLocal()}".split(' ')[0],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Reason',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: _selectedReason,
-                      items: [
-                        employeeLeave1.ltypeName,
-                        employeeLeave2.ltypeName,
-                        employeeLeave3.ltypeName,
-                      ].map((String reason) {
-                        return DropdownMenuItem<String>(
-                          value: reason,
-                          child: Text(reason),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedReason = value!;
-                          _reasonController.text = _selectedReason;
-                          selectedTypeId = _reasonToLTypeId[value] ?? 0;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Leave Duration',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: _selectedLeaveDuration,
-                      items: [
-                        "Full Day",
-                        "Half Day",
-                      ].map((String duration) {
-                        return DropdownMenuItem<String>(
-                          value: duration,
-                          child: Text(duration),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedLeaveDuration = value!;
-                          _leaveDurationController.text =
-                              _selectedLeaveDuration;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final selectedLeaveDuration =
-                            _leaveDurationController.text;
-                        final selectedReason = _reasonController.text;
-                        final selectedTypeId =
-                            _reasonToLTypeId[selectedReason] ?? 0;
-
-                        final submissionModel = SubmissionModel(
-                          employeeId: empId.toString(),
-                          fromDate:
-                              "${_fromDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
-                          toDate:
-                              "${_toDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
-                          reason: selectedReason,
-                          leaveId: selectedTypeId,
-                          leaveDuration: selectedLeaveDuration,
-                          status: 'UnApproved',
-                          applicationDate:
-                              "${DateTime.now().toIso8601String().split('T')[0]}T00:00:00Z",
-                          remark: '',
-                        );
-
-                        _postRequestBloc.add(Create(
-                          submissionModel.employeeId,
-                          submissionModel.fromDate,
-                          submissionModel.toDate,
-                          submissionModel.reason,
-                          submissionModel.leaveId,
-                          submissionModel.leaveDuration,
-                          submissionModel.status,
-                          submissionModel.applicationDate,
-                          submissionModel.remark,
-                        ));
-
-                        await Future.delayed(const Duration(seconds: 2));
-
-                        if (_postRequestBloc.state is SubmissionSuccess) {
-                          print("Successful");
-                          Fluttertoast.showToast(
-                            msg: "Request submitted successfully",
-                          );
-                        } else if (_postRequestBloc.state is SubmissionError) {
-                          print("Not Successful");
-
-                          Fluttertoast.showToast(
-                            msg:
-                                "Error: ${(_postRequestBloc.state as SubmissionError).error}",
-                          );
-                        }
-                      },
-                      child: Text('Submit'),
-                    ),
+                    SizedBox(width: 48), // For proper alignment
                   ],
                 ),
+                Card(
+                  color: AppColors.offWhite,
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Text(
+                      _currentTime, // Display the current date and time
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: BlocProvider(
+              create: (context) {
+                return EmpLeaveRequestBloc(
+                  RepositoryProvider.of<EmpLeaveRepository>(context),
+                )..add(EmpLeaveRequestLoadingEvent());
+              },
+              child: BlocConsumer<EmpLeaveRequestBloc, EmpLeaveRequestState>(
+                listener: (context, state) {
+                  // TODO: implement listener
+                },
+                builder: (context, state) {
+                  if (state is EmpLeaveRequestLoadingState) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is EmpLeaveRequestLoadedState) {
+                    int selectedTypeId = 0;
+                    List<EmpLeaveModel> userList = state.users;
+                    final employeeLeave1 = userList.isNotEmpty
+                        ? userList[0]
+                        : EmpLeaveModel(
+                            leaveTypeId: 0, ltypeCode: '', ltypeName: '');
+                    final employeeLeave2 = userList.length > 1
+                        ? userList[1]
+                        : EmpLeaveModel(
+                            leaveTypeId: 0, ltypeCode: '', ltypeName: '');
+                    final employeeLeave3 = userList.length > 2
+                        ? userList[2]
+                        : EmpLeaveModel(
+                            leaveTypeId: 0, ltypeCode: '', ltypeName: '');
+
+                    selectedTypeId = employeeLeave1.leaveTypeId ?? 0;
+
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Center(
+                        child: Container(
+                          color: AppColors.brightWhite,
+                          width: MediaQuery.of(context).size.width / 1.2, // Adjust the width as needed
+                          child: Card(
+                            color: AppColors.brightWhite,
+                            elevation: 5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Text(
+                                    'Leave Request Form',
+                                    style: GoogleFonts.openSans(
+                                      textStyle: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  const Text(
+                                    'From Date',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextFormField(
+                                          readOnly: true,
+                                          onTap: () => _selectFromDate(context),
+                                          decoration: const InputDecoration(
+                                            hintText: 'Select Date',
+                                            suffixIcon: Icon(Icons.calendar_today),
+                                          ),
+                                          controller: TextEditingController(
+                                            text: "${_fromDate.toLocal()}".split(' ')[0],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'To Date',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextFormField(
+                                          readOnly: true,
+                                          onTap: () => _selectToDate(context),
+                                          decoration: const InputDecoration(
+                                            hintText: 'Select Date',
+                                            suffixIcon: Icon(Icons.calendar_today),
+                                          ),
+                                          controller: TextEditingController(
+                                            text: "${_toDate.toLocal()}".split(' ')[0],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Reason',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedReason,
+                                    items: [
+                                      employeeLeave1.ltypeName,
+                                      employeeLeave2.ltypeName,
+                                      employeeLeave3.ltypeName,
+                                    ].map((String reason) {
+                                      return DropdownMenuItem<String>(
+                                        value: reason,
+                                        child: Text(reason),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedReason = value!;
+                                        _reasonController.text = _selectedReason;
+                                        selectedTypeId = _reasonToLTypeId[value] ?? 0;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Leave Duration',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedLeaveDuration,
+                                    items: [
+                                      "Full Day",
+                                      "Half Day",
+                                    ].map((String duration) {
+                                      return DropdownMenuItem<String>(
+                                        value: duration,
+                                        child: Text(duration),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedLeaveDuration = value!;
+                                        _leaveDurationController.text =
+                                            _selectedLeaveDuration;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 32),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30.0), // Adjust the value as needed
+                                      ), backgroundColor: Colors.blue,
+                                      padding: EdgeInsets.all(16.0),
+                                      minimumSize: Size(200, 40), // Change the button color as needed
+                                    ),
+                                    onPressed: () async {
+                                      final selectedLeaveDuration =
+                                          _leaveDurationController.text;
+                                      final selectedReason = _reasonController.text;
+                                      final selectedTypeId =
+                                          _reasonToLTypeId[selectedReason] ?? 0;
+
+                                      final submissionModel = SubmissionModel(
+                                        employeeId: empId.toString(),
+                                        fromDate:
+                                        "${_fromDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
+                                        toDate:
+                                        "${_toDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
+                                        reason: selectedReason,
+                                        leaveId: selectedTypeId,
+                                        leaveDuration: selectedLeaveDuration,
+                                        status: 'UnApproved',
+                                        applicationDate:
+                                        "${DateTime.now().toIso8601String().split('T')[0]}T00:00:00Z",
+                                        remark: '',
+                                      );
+
+                                      _postRequestBloc.add(Create(
+                                        submissionModel.employeeId,
+                                        submissionModel.fromDate,
+                                        submissionModel.toDate,
+                                        submissionModel.reason,
+                                        submissionModel.leaveId,
+                                        submissionModel.leaveDuration,
+                                        submissionModel.status,
+                                        submissionModel.applicationDate,
+                                        submissionModel.remark,
+                                      ));
+
+                                      await Future.delayed(const Duration(seconds: 2));
+
+                                      if (_postRequestBloc.state is SubmissionSuccess) {
+                                        print("Successful");
+                                        Fluttertoast.showToast(
+                                          msg: "Request submitted successfully",
+                                        );
+                                      } else if (_postRequestBloc.state is SubmissionError) {
+                                        print("Not Successful");
+
+                                        Fluttertoast.showToast(
+                                          msg:
+                                          "Error: ${(_postRequestBloc.state as SubmissionError).error}",
+                                        );
+                                      }
+                                    },
+                                    child: Text(
+                                      'Submit',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+
+
+                  } else if (state is EmpLeaveRequestErrorState) {
+                    return Text("Error: ${state.message}");
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
               ),
-            );
-          } else if (state is EmpLeaveRequestErrorState) {
-            return Text("Error: ${state.message}");
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+            ),
+          ),
+        ],
       ),
     );
   }

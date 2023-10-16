@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import '../bloc/leaveRequestApiFiles/leave_request_bloc.dart';
 import '../bloc/unApprovedLeaveRequestApiFiles/un_approved_leave_request_bloc.dart';
 import '../bloc/unApprovedLeaveRequestApiFiles/un_approved_leave_request_event.dart';
@@ -14,46 +16,87 @@ class LeaveApprovalPage extends StatefulWidget {
 
 class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
   bool showApprovedList = false; // Initially, show the unapproved list.
-
+  double unapprovedButtonScale = 1.0;
+  double approvedButtonScale = 1.0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Leave Submission Page'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(200.0), // Set the desired height of the app bar
+        child: AppBar(
+          title: Text(
+            'Leave Submission Page',
+            style: TextStyle(color: AppColors.brightWhite),
+          ),
+          centerTitle: true,
+          backgroundColor: AppColors.primaryColor,
+          iconTheme: IconThemeData(color: AppColors.brightWhite),
+        ),
       ),
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    showApprovedList = false;
-                  });
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity, // Set to take up the full width
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          showApprovedList = false;
+                          unapprovedButtonScale = 1.2;
+                          approvedButtonScale = 1.0;
+                        });
 
-                  // Trigger the fetch unapproved leave requests event.
-                  context
-                      .read<UnapprovedLeaveRequestBloc>()
-                      .add(FetchUnapprovedLeaveRequests());
-                },
-                child: Text('Unapproved'),
-                style: ElevatedButton.styleFrom(
-                  primary: showApprovedList ? Colors.grey : Colors.blue,
+                        // Trigger the fetch unapproved leave requests event.
+                        context
+                            .read<UnapprovedLeaveRequestBloc>()
+                            .add(FetchUnapprovedLeaveRequests());
+                      },
+                      child: const Text('Unapproved'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: showApprovedList ? AppColors.offWhite : Colors.red[400],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10), // Set the radius to 0 for sharp corners
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    showApprovedList = true;
-                  });
+              const SizedBox(width: 6,),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: 50,
+                    width: double.infinity, // Set to take up the full width
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          showApprovedList = true;
+                          approvedButtonScale = 1.2;
+                          unapprovedButtonScale = 1.0;
+                        });
 
-                  // Trigger the fetch approved leave requests event.
-                  context.read<LeaveRequestBloc>().add(FetchLeaveRequests());
-                },
-                child: Text('Approved'),
-                style: ElevatedButton.styleFrom(
-                  primary: showApprovedList ? Colors.blue : Colors.grey,
+                        // Trigger the fetch approved leave requests event.
+                        context
+                            .read<LeaveRequestBloc>()
+                            .add(FetchLeaveRequests());
+                      },
+                      child: const Text('Approved'),
+                      style: ElevatedButton.styleFrom(
+                        primary: showApprovedList ? Colors.green : AppColors.offWhite,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10), // Set the radius to 0 for sharp corners
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -66,10 +109,10 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
                       // ... (existing code for approved requests)
                       if (state is LeaveRequestInitial) {
                         // Initial state: Display a loading indicator or message.
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       } else if (state is LeaveRequestLoading) {
                         // Loading state: Display a loading indicator or message.
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       } else if (state is LeaveRequestLoaded) {
                         // Loaded state: Display the list of leave requests.
                         final leaveRequests = state.leaveRequests;
@@ -86,10 +129,11 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
                           itemCount: filteredList.length,
                           itemBuilder: (context, index) {
                             final leaveRequest = filteredList[index];
-                            return ListTile(
-                              title: Text(leaveRequest.reason),
-                              subtitle: Text(leaveRequest.fromdate.toString()),
-                              // Add more details here as needed.
+                            return LeaveRequestCard(
+                              reason: leaveRequest.reason,
+                              fromDate: leaveRequest.fromdate,
+                              status: leaveRequest.approvedStatus,
+                              applicationDate: leaveRequest.applicationDate,
                             );
                           },
                         );
@@ -100,7 +144,7 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
                         );
                       } else {
                         // Handle other states as needed.
-                        return Center(
+                        return const Center(
                           child: Text('Unknown state'),
                         );
                       }
@@ -112,10 +156,10 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
                     builder: (context, state) {
                       if (state is UnapprovedLeaveRequestInitial) {
                         // Initial state: Display a loading indicator or message.
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       } else if (state is UnapprovedLeaveRequestLoading) {
                         // Loading state: Display a loading indicator or message.
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       } else if (state is UnapprovedLeaveRequestLoaded) {
                         // Loaded state: Display the list of unapproved leave requests.
                         final unapprovedLeaveRequests =
@@ -124,10 +168,12 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
                           itemCount: unapprovedLeaveRequests.length,
                           itemBuilder: (context, index) {
                             final leaveRequest = unapprovedLeaveRequests[index];
-                            return ListTile(
-                              title: Text(leaveRequest.reason),
-                              subtitle: Text(leaveRequest.fromdate.toString()),
-                              // Add more details here as needed.
+
+                            return LeaveRequestCard(
+                              reason: leaveRequest.reason,
+                              fromDate: leaveRequest.fromdate,
+                              status: leaveRequest.approvedStatus,
+                              applicationDate: leaveRequest.applicationDate,
                             );
                           },
                         );
@@ -138,7 +184,7 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
                         );
                       } else {
                         // Handle other states as needed.
-                        return Center(
+                        return const Center(
                           child: Text('Unknown state'),
                         );
                       }
@@ -150,3 +196,72 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage> {
     );
   }
 }
+
+// ... Previous code ...
+
+class LeaveRequestCard extends StatelessWidget {
+  final String reason;
+  final DateTime fromDate;
+  final String status;
+  final DateTime applicationDate;
+
+  LeaveRequestCard({
+    required this.reason,
+    required this.fromDate,
+    required this.status,
+    required this.applicationDate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4.0,
+      margin: const EdgeInsets.all(16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              reason,
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'From: ${fromDate.toString()}',
+              style: GoogleFonts.lato(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Status: $status',
+              style: GoogleFonts.lato(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Application Date: ${applicationDate.toString()}',
+              style: GoogleFonts.lato(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ... The rest of your code ...
+

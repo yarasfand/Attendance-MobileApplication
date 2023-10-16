@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/employee/empReports/screens/present_report.dart';
 
 import 'absent_report_page.dart';
@@ -31,7 +32,7 @@ class _EmpDailyReportsPageState extends State<EmpDailyReportsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: EmpkbackgrounColorAppBar,
+        backgroundColor: AppColors.primaryColor,
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           'Daily Reports',
@@ -50,7 +51,7 @@ class _EmpDailyReportsPageState extends State<EmpDailyReportsPage> {
                   const Icon(
                     Icons.calendar_month,
                     size: 32,
-                    color: Colors.green,
+                    color: AppColors.darkGrey,
                   ),
                   const SizedBox(width: 16),
                   Text(
@@ -58,7 +59,7 @@ class _EmpDailyReportsPageState extends State<EmpDailyReportsPage> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                 ],
@@ -127,7 +128,7 @@ class _EmpDailyReportsPageState extends State<EmpDailyReportsPage> {
   ) {
     return Card(
       elevation: 4,
-      color: const Color(0xFFE26142),
+      color: AppColors.navyBlue,
       margin: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

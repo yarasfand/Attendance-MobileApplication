@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/constants/AppColor_constants.dart';
 
 class EmpSalaryReportDetail extends StatefulWidget {
   const EmpSalaryReportDetail({super.key});
@@ -12,6 +13,7 @@ class _EmpSalaryReportDetailState extends State<EmpSalaryReportDetail> {
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar:AppBar(
+
         title: const Text(
           'Salary Report',
           style: TextStyle(
@@ -22,7 +24,7 @@ class _EmpSalaryReportDetailState extends State<EmpSalaryReportDetail> {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         backgroundColor:
-        const Color(0xFFE26142), // Match the GPS Tracker Page's theme
+        AppColors.primaryColor, // Match the GPS Tracker Page's theme
       ),
       body: Center(child: Text("This is salary reports page")),
     );
