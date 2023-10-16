@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../adminReportsFiles/models/getActiveEmployeesModel.dart';
@@ -29,6 +30,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
   double? currentLong;
   double? sendLat;
   double? sendLong;
+  double? sendRadius = 100.0;
   String address = "";
 
   bool locationError = false;
@@ -170,7 +172,6 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                           sendLong = pickedData.latLong.longitude;
                           _submitGeofenceDataForAllEmployees();
                           saveLocationToSharedPreferences(sendLat!, sendLong!);
-
                         });
                         showSnackbar(context, "Cordinates Are Saved");
                       },
@@ -192,6 +193,30 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                             color: AppColors.secondaryColor,
                             width: 2,
                           ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: (MediaQuery.of(context).size.height / 2.5) ,// Adjust position as needed
+                      left: (MediaQuery.of(context).size.width / 1.24),
+                      child: Container(
+                        child: SfSlider.vertical(
+                          min: 100.0,
+                          max: 300.0,
+                          value: sendRadius,
+                          interval: 50,
+                          showTicks: true,
+                          showLabels: true,
+                          inactiveColor: AppColors.darkGrey,
+                          activeColor: AppColors.primaryColor,
+                          enableTooltip: true,
+                          minorTicksPerInterval: 1,
+                          onChanged: (dynamic value) {
+                            setState(() {
+                              sendRadius = value;
+                              print(sendRadius);
+                            });
+                          },
                         ),
                       ),
                     ),

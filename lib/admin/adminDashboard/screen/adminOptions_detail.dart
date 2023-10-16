@@ -34,10 +34,7 @@ class AdminStorageDetails extends StatelessWidget {
             ),
           ),
           const SizedBox(height: defaultPadding),
-          const AdminStorageInfoCard(
-            svgSrc: "assets/icons/master.png",
-            title: "Master",
-          ),
+
           const SizedBox(height: 5),
           GestureDetector(
             onTap: () {
@@ -77,15 +74,8 @@ class AdminStorageDetails extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const AdminStorageInfoCard(
-            svgSrc: "assets/icons/gps.png",
-            title: "GPS Tracker",
-          ),
-          const SizedBox(height: 5),
-          const AdminStorageInfoCard(
-            svgSrc: "assets/icons/lock.png",
-            title: "Access Control",
-          ),
+
+
         ],
       ),
     );

@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -399,7 +400,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
     } else if (currentLat != null && currentLong != null && getLat != null) {
       return Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color(0xFFE26142),
+          backgroundColor: AppColors.primaryColor,
           elevation: 0,
           title: const Text(
             "Attendance Portal",
@@ -460,14 +461,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                         .transparent, // Set the card background to transparent
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.deepOrange,
-                            Colors.orange
-                          ], // Define your two colors here
-                        ),
+                       color: Colors.white,
                         borderRadius: BorderRadius.circular(25.0),
                       ),
                       padding: const EdgeInsets.all(20.0),
@@ -479,7 +473,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                           if (sublocaity.isNotEmpty)
@@ -488,7 +482,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             ),
                           Text(
@@ -496,7 +490,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(height: 7),
@@ -505,8 +499,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                             padding: const EdgeInsets.all(
                                 5.0), // Adjust padding as needed
                             decoration: BoxDecoration(
-                              color: Colors
-                                  .white, // Background color for the date capsule
+                              // Background color for the date capsule
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                             child: Text(
@@ -515,7 +508,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors
-                                    .deepOrange, // Text color for the date
+                                    .black, // Text color for the date
                               ),
                             ),
                           ),
@@ -548,8 +541,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                 child: ElevatedButton(
                   onPressed: chooseImage,
                   style: ElevatedButton.styleFrom(
-                    primary: Colors
-                        .orange, // Change to your desired background color
+                    primary: AppColors.primaryColor, // Change to your desired background color
                     padding: const EdgeInsets.symmetric(
                         vertical: 12,
                         horizontal: 24), // Adjust padding as needed
@@ -582,8 +574,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary:
-                        Colors.blue, // Change to your desired background color
+                    primary: AppColors.primaryColor, // Change to your desired background color
                     padding: const EdgeInsets.symmetric(
                         vertical: 12,
                         horizontal: 24), // Adjust padding as needed
