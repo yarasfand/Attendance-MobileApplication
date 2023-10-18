@@ -61,7 +61,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
       geofenceRadius = double.parse(locationData!.radius!);
     }
 
-    print("${getLat} ${getLong} ${geofenceRadius}");
+    print("This are ${getLat} ${getLong} ${geofenceRadius}");
   }
 
   Future<void> checkLocationPermission() async {
@@ -155,6 +155,15 @@ class _EmployeeMapState extends State<EmployeeMap> {
           textColor: Colors.white,
         );
       }
+    } else {
+      Fluttertoast.showToast(
+        msg: 'Failed to mark attendance. Please check your Internet Connection/Location.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
   }
 
@@ -397,7 +406,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
           ),
         ],
       );
-    } else if (currentLat != null && currentLong != null && getLat != null) {
+    } else if (currentLat != null && currentLong != null) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.primaryColor,
@@ -461,7 +470,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                         .transparent, // Set the card background to transparent
                     child: Container(
                       decoration: BoxDecoration(
-                       color: Colors.white,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(25.0),
                       ),
                       padding: const EdgeInsets.all(20.0),
@@ -507,8 +516,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors
-                                    .black, // Text color for the date
+                                color: Colors.black, // Text color for the date
                               ),
                             ),
                           ),
@@ -541,7 +549,8 @@ class _EmployeeMapState extends State<EmployeeMap> {
                 child: ElevatedButton(
                   onPressed: chooseImage,
                   style: ElevatedButton.styleFrom(
-                    primary: AppColors.primaryColor, // Change to your desired background color
+                    primary: AppColors
+                        .primaryColor, // Change to your desired background color
                     padding: const EdgeInsets.symmetric(
                         vertical: 12,
                         horizontal: 24), // Adjust padding as needed
@@ -574,7 +583,8 @@ class _EmployeeMapState extends State<EmployeeMap> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: AppColors.primaryColor, // Change to your desired background color
+                    primary: AppColors
+                        .primaryColor, // Change to your desired background color
                     padding: const EdgeInsets.symmetric(
                         vertical: 12,
                         horizontal: 24), // Adjust padding as needed

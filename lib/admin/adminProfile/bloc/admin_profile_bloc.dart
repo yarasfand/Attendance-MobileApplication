@@ -1,19 +1,29 @@
-import 'dart:async';
-import 'package:bloc/bloc.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../models/AdminProfileRepository.dart';
 import 'admin_profile_event.dart';
 import 'admin_profile_state.dart';
 
-
-
 class AdminProfileBloc extends Bloc<AdminProfileEvent, AdminProfileState> {
-  AdminProfileBloc() : super(ProfileInitial()) {
-   on<AdminNavigateToViewPageEvent>(navigateToViewPageEvent);
+  final AdminProfileRepository repository;
+
+  AdminProfileBloc(this.repository) : super(AdminProfileInitial()) {
+    on<FetchAdminProfile>((event, emit) async {
+      await _mapFetchAdminProfileToState(event, emit);
+    });
   }
 
+  Future<void> _mapFetchAdminProfileToState(FetchAdminProfile event, Emitter<AdminProfileState> emit) async {
+    emit(AdminProfileLoading());
 
-  FutureOr<void> navigateToViewPageEvent(AdminNavigateToViewPageEvent event, Emitter<AdminProfileState> emit) {
-
-    emit(NavigateToViewPageState());
+    try {
+      final adminProfile = await repository.fetchAdminProfile(event.corporateId, event.employeeId);
+      if (adminProfile != null) {
+        emit(AdminProfileLoaded(adminProfile: adminProfile));
+      } else {
+        emit(AdminProfileError(error: 'Admin profile data is null.'));
+      }
+    } catch (e) {
+      emit(AdminProfileError(error: 'Error fetching admin profile data: $e'));
+    }
   }
 }

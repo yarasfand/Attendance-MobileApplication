@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
+import 'package:project/admin/pendingLeavesApproval/screens/PendingLeavesPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
+import '../../adminGeofence/screens/GeoFenceMainPage.dart';
 import '../../adminGeofence/screens/adminGeofencing.dart';
 import '../../adminProfile/screens/adminProfilePage.dart';
 import '../../adminReports/screens/adminReports_page.dart';
@@ -224,9 +227,7 @@ class _MainPageState extends State<AdminMainPage> {
         if (state is NavigateToProfileState) {
           return AdminProfilePage(openDrawer: openDrawer);
         } else if (state is NavigateToGeofenceState) {
-          return AdminGeofencing(
-            openDrawer: openDrawer,
-          );
+          return GeoFenceMainPage();
         } else if (state is NavigateToHomeState) {
           return AdminDashboard(openDrawer: openDrawer);
         } else if (state is NavigateToReportsState) {

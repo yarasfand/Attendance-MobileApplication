@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../constants/AppColor_constants.dart';
 import 'adminconstants.dart';
 
 class AdminStorageInfoCard extends StatelessWidget {
@@ -41,7 +42,7 @@ class AdminStorageInfoCard extends StatelessWidget {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.green),
+                      style: const TextStyle(color: AppColors.black),
                     ),
                   ],
                 ),

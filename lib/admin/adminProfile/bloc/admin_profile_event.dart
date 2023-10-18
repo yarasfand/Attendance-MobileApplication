@@ -1,8 +1,16 @@
+import 'package:equatable/equatable.dart';
 
+abstract class AdminProfileEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
 
-import 'package:flutter/Material.dart';
+class FetchAdminProfile extends AdminProfileEvent {
+  final String corporateId;
+  final String employeeId;
 
-@immutable
-abstract class AdminProfileEvent {}
-abstract class ProfileActionEvent extends AdminProfileEvent{}
-class AdminNavigateToViewPageEvent extends ProfileActionEvent{}
+  FetchAdminProfile({required this.corporateId, required this.employeeId});
+
+  @override
+  List<Object> get props => [corporateId, employeeId];
+}

@@ -1,13 +1,21 @@
-abstract class AdminGeoFenceState {}
+import 'package:equatable/equatable.dart';
 
-class InitialState extends AdminGeoFenceState {}
+abstract class AdminGeoFenceState extends Equatable {
+  const AdminGeoFenceState();
 
-class PostingState extends AdminGeoFenceState {}
+  @override
+  List<Object> get props => [];
+}
 
-class PostedState extends AdminGeoFenceState {}
+class GeoFenceInitial extends AdminGeoFenceState {}
 
-class ErrorState extends AdminGeoFenceState {
-  final String errorMessage;
+class GeoFencePostedSuccessfully extends AdminGeoFenceState {}
 
-  ErrorState(this.errorMessage);
+class GeoFencePostFailed extends AdminGeoFenceState {
+  final String error;
+
+  GeoFencePostFailed({required this.error});
+
+  @override
+  List<Object> get props => [error];
 }

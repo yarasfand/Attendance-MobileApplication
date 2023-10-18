@@ -1,25 +1,25 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/adminGeofencePostRepository.dart';
+import 'dart:async';
+import 'package:bloc/bloc.dart';
+
 import 'admin_geofence_event.dart';
 import 'admin_geofence_state.dart';
 
-
-class AdminGeoFenceBloc extends Bloc<AdminGeoFenceEvent, AdminGeoFenceState> {
-  final AdminGeoFenceRepository repository;
-
-  AdminGeoFenceBloc(this.repository) : super(InitialState());
-
-  @override
-  Stream<AdminGeoFenceState> mapEventToState(AdminGeoFenceEvent event) async* {
-    if (event is SetGeoFenceEvent) {
-      yield PostingState();
-
+class AdminGeoFenceBloc extends Bloc<AdminGeofenceEvent, AdminGeoFenceState> {
+  AdminGeoFenceBloc() : super(GeoFenceInitial()) {
+    on<SetGeoFenceEvent>((event, emit) {
       try {
-        await repository.setGeoFence(event.data);
-        yield PostedState();
+        final geofenceData = event.geofenceData;
+
+        // Here, you can iterate through the geofenceData list and post data for each geofence
+        for (final data in geofenceData) {
+          // Call the repository or API to post data for each geofence
+          // Example: await geoFenceRepository.postGeoFenceData(data);
+        }
+
+        emit(GeoFencePostedSuccessfully());
       } catch (e) {
-        yield ErrorState('Failed to post Geo-fence data: $e');
+        emit(GeoFencePostFailed(error: e.toString()));
       }
-    }
+    });
   }
 }

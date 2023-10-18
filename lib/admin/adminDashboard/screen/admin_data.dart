@@ -32,23 +32,23 @@ class _AdminDataState extends State<AdminData> {
 
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 30,
         ),
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Reports",
+              "Status",
               style: TextStyle(
-                color: AppColors.darkGrey,
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
             ),
           ],
         ),
-        SizedBox(height: defaultPadding),
+        const SizedBox(height: defaultPadding),
         AdminResponsive(
           mobile: FileInfoCardGridView(
             crossAxisCount: _size.width < 650 ? 2 : 4,
@@ -58,13 +58,13 @@ class _AdminDataState extends State<AdminData> {
             absentEmployees: widget.absentEmployees,
             lateEmployees: widget.lateEmployees,
           ),
-          tablet: FileInfoCardGridView(
+          tablet: const FileInfoCardGridView(
             totalEmployees: 20,
             presentEmployees: 30,
             absentEmployees: 40,
             lateEmployees: 50,
           ),
-          desktop: FileInfoCardGridView(
+          desktop: const FileInfoCardGridView(
               totalEmployees: 10,
               presentEmployees: 10,
               absentEmployees: 10,
@@ -96,7 +96,7 @@ class FileInfoCardGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: 4,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

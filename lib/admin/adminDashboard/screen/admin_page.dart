@@ -118,9 +118,9 @@ class _AdminPageState extends State<AdminPage> {
                                         .subtract(const Duration(days: 1));
                                     _updateSelectedDate(newDate);
                                   },
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.arrow_back_ios,
-                                    color: AppColors.silver,
+                                    color: AppColors.black,
                                   ),
                                 ),
                                 GestureDetector(
@@ -129,23 +129,25 @@ class _AdminPageState extends State<AdminPage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      // Existing date display code
                                       Text(
-                                        "${selectedDate.day} ${selectedDate.month}",
-                                        style: TextStyle(
-                                          color: AppColors.silver,
+                                        DateFormat('d MMM yyyy').format(selectedDate),
+                                        style: const TextStyle(
+                                          color: Colors.black,
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       Text(
-                                        DateFormat('EEEE').format(selectedDate),
-                                        style: TextStyle(
-                                          color: AppColors.silver,
+                                        DateFormat(' (EEEE)').format(selectedDate),
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16, // Adjust the font size for day name here
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ],
                                   ),
+
                                 ),
                                 IconButton(
                                   onPressed: () {
@@ -153,9 +155,9 @@ class _AdminPageState extends State<AdminPage> {
                                         .add(const Duration(days: 1));
                                     _updateSelectedDate(newDate);
                                   },
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.arrow_forward_ios,
-                                    color: AppColors.silver,
+                                    color: AppColors.black,
                                   ),
                                 ),
                               ],

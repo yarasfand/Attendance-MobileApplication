@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:project/admin/adminOptionsReport/adminOptions_bloc/admin_monthly_reports_bloc.dart';
+import 'package:project/admin/adminOptionsReport/models/AdminDailyReportsRepository.dart';
+import 'package:project/admin/adminOptionsReport/models/AdminMonthlyReportsRepository.dart';
+import 'package:project/admin/adminProfile/bloc/admin_profile_bloc.dart';
+import 'package:project/admin/adminProfile/models/AdminEditProfileModel.dart';
+import 'package:project/admin/adminProfile/models/AdminEditProfileRepository.dart';
 import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
 import 'package:project/admin/pendingLeavesApproval/model/PendingLeavesRepository.dart';
-import 'package:project/employee/empMap/screens/employeemap.dart';
 import 'package:project/startup/screens/appStartUp.dart';
-import 'MonthlyReports_apiFiles/monthly_reports_bloc.dart';
 import 'admin/adminDashboard/models/adminRepository.dart';
 import 'admin/adminGeofence/bloc/admin_geofence_bloc.dart';
 import 'admin/adminGeofence/models/adminGeofencePostRepository.dart';
+import 'admin/adminOptionsReport/adminOptions_bloc/admin_daily_reports_bloc.dart';
+import 'admin/adminOptionsReport/screens/DailyReportsScreen.dart';
+import 'admin/adminProfile/bloc/admin_edit_profile_bloc.dart';
+import 'admin/adminProfile/models/AdminProfileRepository.dart';
+import 'admin/adminProfile/screens/AdminEditProfilePage.dart';
+import 'admin/adminProfile/screens/adminProfilePage.dart';
+import 'admin/adminReports/screens/daily_report.dart';
 import 'admin/adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_bloc.dart';
 import 'admin/adminReportsFiles/bloc/leaveRequestApiFiles/leave_request_bloc.dart';
 import 'admin/adminReportsFiles/bloc/leaveSubmissionApiFiles/leave_submission_bloc.dart';
@@ -28,13 +39,12 @@ import 'admin/pendingLeavesApproval/screens/PendingLeavesPage.dart';
 import 'employee/empDashboard/models/emp_attendance_status_repository.dart';
 import 'employee/empDashboard/models/user_repository.dart';
 import 'employee/empMap/bloc/attendanceGeoFenceApiFiles/geo_fence_bloc.dart';
-import 'employee/empMap/bloc/geofenceGetLatLon/get_lat_long_bloc.dart';
 import 'employee/empMap/models/attendanceGeoFencingRepository.dart';
-import 'employee/empMap/models/geofenceGetLatLongRepository.dart';
 import 'employee/empProfilePage/bloc/EmpEditProfileApiFiles/emp_edit_profile_bloc.dart';
 import 'employee/empProfilePage/bloc/emProfileApiFiles/emp_profile_api_bloc.dart';
 import 'employee/empProfilePage/models/EmpEditProfileRepository.dart';
 import 'employee/empProfilePage/models/empProfileRepository.dart';
+import 'employee/empReportsOnDash/bloc/MonthlyReports_apiFiles/monthly_reports_bloc.dart';
 import 'employee/empReportsOnDash/models/LeaveHistory_repository.dart';
 import 'employee/empReportsOnDash/models/MonthlyReports_repository.dart';
 import 'employee/empReportsOnDash/models/empLeaveRequestRepository.dart';
@@ -88,9 +98,6 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<AdminGeoFenceRepository>(
           create: (_) => AdminGeoFenceRepository(),
         ),
-        RepositoryProvider<GetLatLongRepo>(
-            create: (_) => GetLatLongRepo()
-        )
 
         // Add other repository providers if needed
       ],
@@ -154,10 +161,9 @@ class MyApp extends StatelessWidget {
             create: (BuildContext context) =>
                 LeaveTypeBloc(repository: LeaveTypeRepository()),
           ),
+          BlocProvider<InternetBloc>(create: (context) => InternetBloc()),
           BlocProvider<AdminGeoFenceBloc>(
-            create: (BuildContext context) =>
-                AdminGeoFenceBloc(AdminGeoFenceRepository()),
-          ),
+              create: (context) => AdminGeoFenceBloc()),
           BlocProvider(
             create: (context) => LeaveSubmissionBloc(
               repository: LeaveSubmissionRepository(),
@@ -168,18 +174,42 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => PendingLeavesBloc(PendingLeavesRepository()),
-            child:  PendingLeavesPage(approveRepository: ApproveManualPunchRepository(),),
-          ),
-
-          BlocProvider(
-            create: (context) => GetLatLongBloc(GetLatLongRepo()), // Create your bloc and provide the repository
-            child: EmployeeMap(), // Replace with your actual home page widget
+            child: PendingLeavesPage(
+              approveRepository: ApproveManualPunchRepository(),
+            ),
           ),
           BlocProvider<ApproveManualPunchBloc>(
             create: (BuildContext context) {
               // Create an instance of the ApproveManualPunchBloc here.
               return ApproveManualPunchBloc();
             },
+          ),
+          BlocProvider<AdminMonthlyReportsBloc>(
+            create: (BuildContext context) {
+              return AdminMonthlyReportsBloc(AdminMonthlyReportsRepository());
+            },
+          ),
+          BlocProvider(
+            create: (context) {
+              return AdminProfileBloc(
+                  AdminProfileRepository('http://62.171.184.216:9595'));
+            },
+            child: AdminProfilePage(
+              openDrawer: () {},
+            ),
+          ),
+          BlocProvider(
+            create: (context) => AdminEditProfileBloc(
+                AdminEditProfileRepository("http://62.171.184.216:9595")),
+            child:
+                const AdminEditProfilePage(), // Replace with your main UI page
+          ),
+          BlocProvider(
+            create: (context) => AdminReportsBloc(
+                AdminReportsRepository('http://62.171.184.216:9595')),
+            child: const DailyReportsScreen(
+              selectedEmployeeIds: [],
+            ),
           ),
         ],
         child: MaterialApp(

@@ -2,18 +2,18 @@ import 'package:equatable/equatable.dart';
 
 import '../models/adminGeofenceModel.dart';
 
-abstract class AdminGeoFenceEvent extends Equatable {
-  const AdminGeoFenceEvent();
+abstract class AdminGeofenceEvent extends Equatable {
+  const AdminGeofenceEvent();
 
   @override
   List<Object> get props => [];
 }
 
-class SetGeoFenceEvent extends AdminGeoFenceEvent {
-  final List<AdminGeoFenceModel> data;
+class SetGeoFenceEvent extends AdminGeofenceEvent {
+  final List<AdminGeoFenceModel> geofenceData;
 
-  SetGeoFenceEvent(this.data);
+  SetGeoFenceEvent(this.geofenceData);
 
   @override
-  List<Object> get props => [data];
+  List<Object> get props => [geofenceData];
 }

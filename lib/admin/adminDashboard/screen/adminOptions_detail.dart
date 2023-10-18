@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:project/admin/adminOptionsReport/screens/AdminMonthlyAndDailyReportsMainPage.dart';
+import 'package:project/admin/adminOptionsReport/screens/AdminReportsEmployeeListPage.dart';
 import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import '../../adminReportsFiles/screens/AdminReportsMainPage.dart';
@@ -34,7 +36,6 @@ class AdminStorageDetails extends StatelessWidget {
             ),
           ),
           const SizedBox(height: defaultPadding),
-
           const SizedBox(height: 5),
           GestureDetector(
             onTap: () {
@@ -54,7 +55,11 @@ class AdminStorageDetails extends StatelessWidget {
           const SizedBox(height: 5),
           GestureDetector(
             onTap: () {
-              Navigator.push(context, PageTransition(child:  PendingLeavesPage(approveRepository: ApproveManualPunchRepository(),), type: PageTransitionType.rightToLeft));
+              Navigator.push(
+                  context,
+                  PageTransition(
+                      child: AdminReportsMainPage(),
+                      type: PageTransitionType.rightToLeft));
             },
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/leave.png",
@@ -66,7 +71,7 @@ class AdminStorageDetails extends StatelessWidget {
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AdminReportsMainPage(),
+                  builder: (context) =>  AdminMonthlyAndDailyReportsMainPage(),
                 )),
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/report.png",
@@ -74,8 +79,6 @@ class AdminStorageDetails extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-
-
         ],
       ),
     );

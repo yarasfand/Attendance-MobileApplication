@@ -1,31 +1,37 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-import '../models/adminGeofenceModel.dart';
+import 'adminGeofenceModel.dart';
 
 class AdminGeoFenceRepository {
   final String baseUrl = 'http://62.171.184.216:9595/api/admin/location/setgeofence?CorporateId=ptsoffice';
 
-  Future<void> setGeoFence(List<AdminGeoFenceModel> data) async {
+  Future<void> postGeoFenceData(List<AdminGeoFenceModel> geoFenceDataList) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+    };
+
     try {
-      final List<Map<String, dynamic>> jsonDataList = data.map((model) => model.toJson()).toList();
+      // Convert the list of AdminGeoFenceModel to a list of JSON objects
+      final List<Map<String, dynamic>> jsonList = geoFenceDataList.map((model) => model.toJson()).toList();
 
       final response = await http.post(
         Uri.parse(baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(jsonDataList),
+        headers: headers,
+        body: jsonEncode(jsonList),
       );
 
       if (response.statusCode == 200) {
-        print('Geo-fence data successfully posted');
+        // Request was successful
         print(response.body);
+        print('GeoFence data posted successfully');
       } else {
-        print('Failed to post Geo-fence data. Status code: ${response.statusCode}');
+        // Request failed
+        print('Failed to post GeoFence data. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error posting Geo-fence data: $e');
+      // Request error
+      print('Error posting GeoFence data: $e');
     }
   }
 }

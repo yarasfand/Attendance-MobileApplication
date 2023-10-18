@@ -1,7 +1,30 @@
-import 'package:flutter/Material.dart';
+import 'package:equatable/equatable.dart';
 
-@immutable
-abstract class AdminProfileState {}
+import '../models/AdminProfileModel.dart';
 
-class ProfileInitial extends AdminProfileState {}
-class NavigateToViewPageState extends AdminProfileState{}
+abstract class AdminProfileState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class AdminProfileInitial extends AdminProfileState {}
+
+class AdminProfileLoading extends AdminProfileState {}
+
+class AdminProfileLoaded extends AdminProfileState {
+  final AdminProfileModel adminProfile;
+
+  AdminProfileLoaded({required this.adminProfile});
+
+  @override
+  List<Object> get props => [adminProfile];
+}
+
+class AdminProfileError extends AdminProfileState {
+  final String error;
+
+  AdminProfileError({required this.error});
+
+  @override
+  List<Object> get props => [error];
+}

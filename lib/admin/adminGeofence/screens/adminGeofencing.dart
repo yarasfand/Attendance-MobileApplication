@@ -15,8 +15,7 @@ import '../../adminReportsFiles/models/getActiveEmployeesModel.dart';
 import 'adminMapdisplay.dart';
 
 class AdminGeofencing extends StatefulWidget {
-  final VoidCallback openDrawer;
-  const AdminGeofencing({Key? key, required this.openDrawer}) : super(key: key);
+  const AdminGeofencing({Key? key}) : super();
 
   @override
   State<AdminGeofencing> createState() => _AdminGeofencingState();
@@ -268,15 +267,12 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
       return matchesFilter && searchMatch;
     }).toList();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.bars),
-          color: Colors.white,
-          onPressed: widget.openDrawer,
-        ),
+        iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: AppColors.primaryColor,
         elevation: 0,
         title: const Center(
@@ -296,12 +292,13 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(top: 50),
-                child:ElevatedButton(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AdminMapDisplay(selectedEmployees: selectedEmployees),
+                        builder: (context) => AdminMapDisplay(
+                            selectedEmployees: selectedEmployees),
                       ),
                     );
                   },
@@ -321,7 +318,6 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                     ),
                   ),
                 ),
-
               ),
             ),
             Column(
@@ -372,7 +368,8 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                           color: Colors.white,
                                           width: 2.0,
                                         ),
-                                        borderRadius: BorderRadius.circular(4.0),
+                                        borderRadius:
+                                        BorderRadius.circular(4.0),
                                       ),
                                       child: DropdownButton<String>(
                                         isExpanded: true,
@@ -395,7 +392,8 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                               ),
                                             ),
                                           ),
-                                          ...departmentNames.map((String value) {
+                                          ...departmentNames
+                                              .map((String value) {
                                             return DropdownMenuItem<String>(
                                               value: value,
                                               child: Text(
@@ -440,7 +438,8 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                           color: Colors.white,
                                           width: 2.0,
                                         ),
-                                        borderRadius: BorderRadius.circular(4.0),
+                                        borderRadius:
+                                        BorderRadius.circular(4.0),
                                       ),
                                       child: DropdownButton<String>(
                                         isExpanded: true,
@@ -512,7 +511,8 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                           color: Colors.white,
                                           width: 2.0,
                                         ),
-                                        borderRadius: BorderRadius.circular(4.0),
+                                        borderRadius:
+                                        BorderRadius.circular(4.0),
                                       ),
                                       child: DropdownButton<String>(
                                         isExpanded: true,
@@ -587,7 +587,8 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                                               .black, // Change hint text color to black
                                         ),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding: const EdgeInsets
+                                          .symmetric(
                                           horizontal:
                                           12.0), // Adjust padding as needed
                                       border: InputBorder
@@ -617,11 +618,13 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
 
                 // Employee List in DataTable form
                 SingleChildScrollView(
-                  scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+                  scrollDirection:
+                  Axis.horizontal, // Enable horizontal scrolling
                   child: Container(
                     margin: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black), // Add border styling
+                      border:
+                      Border.all(color: Colors.black), // Add border styling
                     ),
                     child: DataTable(
                       headingRowColor: const MaterialStatePropertyAll(
@@ -664,7 +667,8 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                           ),
                         ),
                       ],
-                      rows: filterEmployees(employees, searchQuery).map((employee) {
+                      rows: filterEmployees(employees, searchQuery)
+                          .map((employee) {
                         return DataRow(
                           cells: [
                             DataCell(Text(

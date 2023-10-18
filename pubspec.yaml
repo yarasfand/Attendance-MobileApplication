@@ -45,6 +45,7 @@ dependencies:
   device_info_plus: ^9.0.3
   camera: ^0.10.5+5
   syncfusion_flutter_sliders: ^22.2.12
+  url_launcher: ^6.1.14
 
 
 flutter_native_splash:

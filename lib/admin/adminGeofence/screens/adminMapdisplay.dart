@@ -14,6 +14,7 @@ import '../../adminReportsFiles/models/getActiveEmployeesModel.dart';
 import '../bloc/admin_geofence_bloc.dart';
 import '../bloc/admin_geofence_event.dart';
 import '../models/adminGeofenceModel.dart';
+import '../models/adminGeofencePostRepository.dart';
 
 class AdminMapDisplay extends StatefulWidget {
   final List<GetActiveEmpModel> selectedEmployees;
@@ -34,6 +35,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
   String address = "";
 
   bool locationError = false;
+  final adminGeoFenceRepository = AdminGeoFenceRepository();
 
   @override
   void initState() {
@@ -47,31 +49,35 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
     await prefs.setDouble('longitude', long);
   }
 
-  Future<void> _submitGeofenceDataForAllEmployees() async {
+  Future<void> _submitGeofenceDataForSelectedEmployees() async {
     final adminGeofenceBloc = BlocProvider.of<AdminGeoFenceBloc>(context);
 
-    // Replace this list with the actual list of employees you have
-    final List<GetActiveEmpModel> employees = widget.selectedEmployees;
+    final List<GetActiveEmpModel> selectedEmployees = widget.selectedEmployees;
+    final List<AdminGeoFenceModel> geofenceDataList = [];
 
-    for (final employee in employees) {
+    for (int i = 0; i < selectedEmployees.length; i++) {
+      final employee = selectedEmployees[i];
+
+      // Use the employee data to create the geofence model
       final geofenceModel = AdminGeoFenceModel(
         empId: employee.empId ?? 0,
-        empName: employee.empName ?? '',
-        fatherName: "null",
-        pwd: "null",
-        emailAddress: "null",
-        phoneNo: 'null',
-        profilePic: '', // You may need to set a valid value here
-        lat: currentLat.toString(), // Replace with the actual latitude
-        lon: currentLong.toString(), // Replace with the actual longitude
-        radius: '10',
+        empName: employee.empName,
+        lat: currentLat.toString(),
+        lon: currentLong.toString(),
+        radius: sendRadius.toString(),
+        emailAddress: null,
+        fatherName: null,
+        phoneNo: null,
+        profilePic: null,
+        pwd: null,
+        // Add other required fields based on your model
       );
 
-      // Print the geofenceModel before sending it to the API
-      print("Sending geofenceModel: ${geofenceModel.toJson()}");
-
-      adminGeofenceBloc.add(SetGeoFenceEvent([geofenceModel]));
+      geofenceDataList.add(geofenceModel);
     }
+
+    // Post the geofence data for selected employees
+    await adminGeoFenceRepository.postGeoFenceData(geofenceDataList);
   }
 
   Future<void> checkLocationPermissionAndFetchLocation() async {
@@ -170,7 +176,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                         setState(() {
                           sendLat = pickedData.latLong.latitude;
                           sendLong = pickedData.latLong.longitude;
-                          _submitGeofenceDataForAllEmployees();
+                          _submitGeofenceDataForSelectedEmployees();
                           saveLocationToSharedPreferences(sendLat!, sendLong!);
                         });
                         showSnackbar(context, "Cordinates Are Saved");

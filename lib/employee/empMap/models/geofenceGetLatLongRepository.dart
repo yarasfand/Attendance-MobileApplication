@@ -5,7 +5,7 @@ import 'geofenceGetlatLongmodel.dart';
 
 class GetLatLongRepo{
 
-  final String baseUrl = "http://62.171.184.216:9595/api/admin/location/locationdetail?CorporateId=ptsoffice&employeeId=3";
+  final String baseUrl = "http://62.171.184.216:9595/api/employee/location/locationdetail?CorporateId=ptsoffice&employeeId=3";
 
   Future<getLatLong?> fetchData() async {
     try {
