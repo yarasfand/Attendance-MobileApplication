@@ -21,11 +21,9 @@ class EmpMainPage extends StatefulWidget {
 }
 
 class _EmpMainPageState extends State<EmpMainPage> {
-
-
   final EmpDashboardkBloc dashBloc = EmpDashboardkBloc();
-  Future<void> _logout(BuildContext context) async {
 
+  Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('Login', false); // Set the login status to false
 
@@ -77,60 +75,61 @@ class _EmpMainPageState extends State<EmpMainPage> {
 
   @override
   Widget build(BuildContext context) =>
-      BlocConsumer<InternetBloc, InternetStates>(listener: (context, state) {
-        // TODO: implement listener
-      }, builder: (context, state) {
-        if (state is InternetGainedState) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFF2D2BD),
-            body: Stack(
-              children: [
-                buildDrawer(),
-                buildPage(),
-              ],
-            ),
-          );
-        } else if (state is InternetLostState) {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
+      BlocConsumer<InternetBloc, InternetStates>(
+          listener: (context, state) {},
+          builder: (context, state) {
+            if (state is InternetGainedState) {
+              return Scaffold(
+                backgroundColor: const Color(0xFFF2D2BD),
+                body: Stack(
+                  children: [
+                    buildDrawer(),
+                    buildPage(),
+                  ],
+                ),
+              );
+            } else if (state is InternetLostState) {
+              return Expanded(
+                child: Scaffold(
+                  body: Container(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "No Internet Connection!",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Lottie.asset('assets/no_wifi.json'),
+                        ],
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        } else {
-          return Scaffold(
-              body: Container(),
-          );
-        }
-      });
+              );
+            } else {
+              return Scaffold(
+                body: Container(),
+              );
+            }
+          });
 
   Widget buildDrawer() => SafeArea(
         child: AnimatedOpacity(
           opacity: isDrawerOpen ? 1.0 : 0.0,
           duration: Duration(milliseconds: 300),
           child: Padding(
-            padding: EdgeInsets.only(top:  MediaQuery.of(context).size.height/10),
+            padding:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height / 10),
             child: Container(
-              height: MediaQuery.of(context).size.height/1,
+              height: MediaQuery.of(context).size.height / 1,
               width: xoffset,
               child: EmpDrawer(
                 onSelectedItems: (selectedItem) {
@@ -232,7 +231,12 @@ class _EmpMainPageState extends State<EmpMainPage> {
               TextButton(
                 child: const Text('Cancel'),
                 onPressed: () {
-                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => EmpMainPage(),),);// Close the dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EmpMainPage(),
+                    ),
+                  ); // Close the dialog
                 },
               ),
               TextButton(

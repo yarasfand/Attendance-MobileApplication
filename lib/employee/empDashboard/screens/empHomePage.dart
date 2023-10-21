@@ -117,6 +117,19 @@ class _HomePageState extends State<EmpDashHome> {
     String formattedDate =
         DateFormat('EEEE, d MMMM yyyy').format(DateTime.now());
 
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    double lowerButtonsHorizontal;
+    double lowerButtonsVertical;
+
+    if (screenWidth <= 360) {
+      lowerButtonsHorizontal = 10;
+      lowerButtonsVertical = 5;
+    } else {
+      lowerButtonsHorizontal = 10;
+      lowerButtonsVertical = 35;
+    }
+
     //FIRST APPROACH
     return BlocProvider(
       create: (context) {
@@ -151,17 +164,17 @@ class _HomePageState extends State<EmpDashHome> {
                             child: Column(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 20),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: screenHeight / 80),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const SizedBox(height: 20),
                                       GridView.count(
                                         shrinkWrap: true,
                                         crossAxisCount: 2,
-                                        crossAxisSpacing: 20,
+                                        crossAxisSpacing: 70,
                                         mainAxisSpacing: 20,
                                         children: [
                                           Container(
@@ -171,8 +184,8 @@ class _HomePageState extends State<EmpDashHome> {
                                             child: ClipOval(
                                               child: Image.asset(
                                                 "assets/icons/man.png",
-                                                width: 120,
-                                                height: 80,
+                                                width: 100,
+                                                height: 45,
                                               ),
                                             ),
                                           ),
@@ -183,8 +196,8 @@ class _HomePageState extends State<EmpDashHome> {
                                               title: 'Mark Attendance',
                                               customIcon: Image.asset(
                                                 "assets/icons/locate.png",
-                                                width: 120,
-                                                height: 80,
+                                                width: 100,
+                                                height: 45,
                                               ),
                                               background:
                                                   AppColors.secondaryColor,
@@ -196,14 +209,14 @@ class _HomePageState extends State<EmpDashHome> {
                                   ),
                                 ),
                                 Container(
-                                  height: 80,
+                                  height: 75,
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     mainAxisSize: MainAxisSize.max,
                                     children: <Widget>[
                                       const SizedBox(
-                                        width: 5,
+                                        width: 10,
                                       ),
                                       ProfileInfoCard(
                                         firstText: "IN",
@@ -236,27 +249,28 @@ class _HomePageState extends State<EmpDashHome> {
                                                 : "---",
                                       ),
                                       const SizedBox(
-                                        width: 5,
+                                        width: 10,
                                       ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 14),
                                 Text(
                                   'ID ${savedEmpCode ?? ''}',
                                   style: const TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
+                                      fontSize: 21,
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.black87),
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 5),
                                 Text(
                                   formattedDate,
                                   style: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     color: AppColors.darkGrey,
                                   ),
                                 ),
+                                const SizedBox(height: 8),
                                 Table(
                                   children: [
                                     TableRow(
@@ -267,7 +281,7 @@ class _HomePageState extends State<EmpDashHome> {
                                           secondText: "Total Present",
                                           icon: Image.asset(
                                             "assets/icons/Attend.png",
-                                            width: 35,
+                                            width: screenWidth / 15,
                                           ),
                                         ),
                                         ProfileInfoBigCard(
@@ -276,7 +290,7 @@ class _HomePageState extends State<EmpDashHome> {
                                           secondText: "Total Absent",
                                           icon: Image.asset(
                                             "assets/icons/absence.png",
-                                            width: 35,
+                                            width: 28,
                                           ),
                                         ),
                                       ],
@@ -293,7 +307,7 @@ class _HomePageState extends State<EmpDashHome> {
                                           secondText: "Total Leaves",
                                           icon: Image.asset(
                                             "assets/icons/leave.png",
-                                            width: 35,
+                                            width: 28,
                                           ),
                                         ),
                                       ],
@@ -301,17 +315,18 @@ class _HomePageState extends State<EmpDashHome> {
                                   ],
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 20),
+                                  width: screenWidth,
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: lowerButtonsVertical,
+                                      horizontal: lowerButtonsHorizontal),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const SizedBox(height: 20),
                                       GridView.count(
                                         shrinkWrap: true,
                                         crossAxisCount: 2,
-                                        crossAxisSpacing: 20,
+                                        crossAxisSpacing: 50,
                                         mainAxisSpacing: 20,
                                         children: [
                                           GestureDetector(
@@ -320,8 +335,8 @@ class _HomePageState extends State<EmpDashHome> {
                                               title: 'Leave Request',
                                               customIcon: Image.asset(
                                                 "assets/icons/leave.png",
-                                                width: 120,
-                                                height: 80,
+                                                width: 100,
+                                                height: 45,
                                               ),
                                               background:
                                                   AppColors.secondaryColor,
@@ -350,8 +365,8 @@ class _HomePageState extends State<EmpDashHome> {
                                               title: 'Reports',
                                               customIcon: Image.asset(
                                                 "assets/icons/report.png",
-                                                width: 120,
-                                                height: 80,
+                                                width: 50,
+                                                height: 45,
                                               ),
                                               background:
                                                   AppColors.secondaryColor,
@@ -361,43 +376,6 @@ class _HomePageState extends State<EmpDashHome> {
                                       ),
                                     ],
                                   ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                  color: Colors.grey,
-                                  thickness: 1,
-                                  indent: 60,
-                                  endIndent: 60,
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                const Center(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        'Contact Us',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.darkGrey,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      // Adjust the spacing between the lines
-                                      Text(
-                                        'Powered by Pioneer',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.darkGrey,
-                                          fontWeight: FontWeight.w300,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
                                 ),
                               ],
                             ),
@@ -480,62 +458,65 @@ class _HomePageState extends State<EmpDashHome> {
   }
 }
 
-// ... The rest of your code for ItemDashboard, ProfileInfoCard, TwoLineItem, ProfileInfoBigCard, etc.
-
+// ... The rest of code for ItemDashboard, ProfileInfoCard, TwoLineItem, ProfileInfoBigCard.
 class ItemDashboard extends StatelessWidget {
   final String title;
   final Widget customIcon;
   final Color background;
   final bool showShadow;
-  final double iconSize;
 
   const ItemDashboard({
-    super.key,
+    Key? key,
     required this.title,
     required this.customIcon,
     required this.background,
     this.showShadow = true,
-    this.iconSize = 40.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: showShadow
-            ? [
-                BoxShadow(
-                  offset: const Offset(4, 10),
-                  color: background.withOpacity(0.5),
-                  spreadRadius: 3,
-                  blurRadius: 5,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double fontSize = constraints.maxWidth * 0.075;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: showShadow
+                ? [
+                    BoxShadow(
+                      offset: const Offset(4, 10),
+                      color: background.withOpacity(0.5),
+                      spreadRadius: 3,
+                      blurRadius: 5,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.secondaryColor,
+                  shape: BoxShape.circle,
                 ),
-              ]
-            : null,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              color: AppColors.secondaryColor,
-              shape: BoxShape.circle,
-            ),
-            child: customIcon,
+                child: customIcon,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                title.toUpperCase(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            title.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -554,7 +535,7 @@ class ProfileInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Card(
-        elevation: 12,
+        elevation: 10,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: hasImage
             ? Center(
@@ -587,7 +568,7 @@ class TwoLineItem extends StatelessWidget {
         Text(
           firstText,
           style: const TextStyle(
-            fontSize: 22.0,
+            fontSize: 16.0,
             color: AppColors.darkGrey,
             fontWeight: FontWeight.w600,
           ),
@@ -595,7 +576,7 @@ class TwoLineItem extends StatelessWidget {
         Text(
           secondText,
           style: const TextStyle(
-            fontSize: 18.0,
+            fontSize: 14.0,
             color: AppColors.darkGrey,
             fontWeight: FontWeight.w200,
           ),
@@ -617,31 +598,40 @@ class ProfileInfoBigCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double cardwidth;
+
+    if (screenWidth <= 360) {
+      cardwidth = screenWidth / 200;
+    } else {
+      cardwidth = screenWidth / 15;
+    }
+
     return Card(
       color: AppColors.secondaryColor,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
+        padding: EdgeInsets.only(
           left: 16.0,
-          top: 16,
-          bottom: 18,
+          top: cardwidth,
+          bottom: 5,
           right: 16,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Align(
-              alignment: Alignment.topRight,
+              alignment: Alignment.centerRight,
               child: icon,
             ),
             Text(
               firstText,
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -649,7 +639,7 @@ class ProfileInfoBigCard extends StatelessWidget {
             Text(
               secondText,
               style: const TextStyle(
-                fontSize: 19.0,
+                fontSize: 14.0,
                 color: Colors.white70,
                 fontWeight: FontWeight.w300,
               ),
