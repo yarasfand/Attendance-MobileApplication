@@ -8,6 +8,7 @@ import 'package:project/admin/adminProfile/models/AdminEditProfileModel.dart';
 import 'package:project/admin/adminProfile/models/AdminEditProfileRepository.dart';
 import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
 import 'package:project/admin/pendingLeavesApproval/model/PendingLeavesRepository.dart';
+import 'package:project/employee/empDashboard/screens/empHomePage.dart';
 import 'package:project/startup/screens/appStartUp.dart';
 import 'admin/adminDashboard/models/adminRepository.dart';
 import 'admin/adminGeofence/bloc/admin_geofence_bloc.dart';
@@ -44,6 +45,8 @@ import 'employee/empProfilePage/bloc/EmpEditProfileApiFiles/emp_edit_profile_blo
 import 'employee/empProfilePage/bloc/emProfileApiFiles/emp_profile_api_bloc.dart';
 import 'employee/empProfilePage/models/EmpEditProfileRepository.dart';
 import 'employee/empProfilePage/models/empProfileRepository.dart';
+import 'employee/empProfilePage/screens/profilepage.dart';
+import 'employee/empReports/screens/reports_page_employee.dart';
 import 'employee/empReportsOnDash/bloc/MonthlyReports_apiFiles/monthly_reports_bloc.dart';
 import 'employee/empReportsOnDash/models/LeaveHistory_repository.dart';
 import 'employee/empReportsOnDash/models/MonthlyReports_repository.dart';
@@ -195,7 +198,6 @@ class MyApp extends StatelessWidget {
                   AdminProfileRepository('http://62.171.184.216:9595'));
             },
             child: AdminProfilePage(
-              openDrawer: () {},
             ),
           ),
           BlocProvider(
@@ -219,6 +221,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
             useMaterial3: true,
           ),
+
           home: AppStartup(),
         ),
       ),

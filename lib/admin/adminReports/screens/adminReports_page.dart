@@ -14,9 +14,8 @@ import 'constants.dart';
 import 'daily_report.dart';
 
 class AdminReportsPage extends StatelessWidget {
-  final VoidCallback openDrawer;
 
-  const AdminReportsPage({super.key, required this.openDrawer});
+  const AdminReportsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,16 +25,7 @@ class AdminReportsPage extends StatelessWidget {
     }, builder: (context, state) {
       if (state is InternetGainedState) {
         return Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColors.primaryColor,
-            title: Text("Reports Page", style: AdminkAppBarTextTheme),
-            leading: IconButton(
-              icon: const FaIcon(FontAwesomeIcons.bars),
-              color: Colors.white,
-              onPressed: openDrawer,
-            ),
-            centerTitle: true,
-          ),
+
           body: SingleChildScrollView(
             child: Container(
               decoration: const BoxDecoration(

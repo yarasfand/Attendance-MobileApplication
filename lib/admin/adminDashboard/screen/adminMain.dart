@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
 import 'package:project/admin/pendingLeavesApproval/screens/PendingLeavesPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../constants/AppColor_constants.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
@@ -13,6 +14,7 @@ import '../../adminGeofence/screens/adminGeofencing.dart';
 import '../../adminProfile/screens/adminProfilePage.dart';
 import '../../adminReports/screens/adminReports_page.dart';
 import '../bloc/admin_dash_bloc.dart';
+import 'adminAppbar.dart';
 import 'adminHome.dart';
 import 'admindDrawer.dart';
 import 'adminDraweritems.dart';
@@ -46,35 +48,11 @@ class _MainPageState extends State<AdminMainPage> {
     );
   }
 
-  late double xoffset;
-  late double yoffset;
-  late double scaleFactor;
-  bool isDragging = false;
-  bool isDrawerOpen = false;
-  DrawerItem item = DrawerItems.home;
+  AdminDrawerItem item = AdminDrawerItems.home;
 
   @override
   void initState() {
     super.initState();
-    closeDrawer();
-  }
-
-  void openDrawer() {
-    setState(() {
-      xoffset = 230;
-      yoffset = 170;
-      scaleFactor = 0.6;
-      isDrawerOpen = true;
-    });
-  }
-
-  void closeDrawer() {
-    setState(() {
-      xoffset = 0;
-      yoffset = 0;
-      scaleFactor = 1;
-      isDrawerOpen = false;
-    });
   }
 
   @override
@@ -84,36 +62,88 @@ class _MainPageState extends State<AdminMainPage> {
           builder: (context, state) {
             if (state is InternetGainedState) {
               return Scaffold(
-                backgroundColor: const Color(0xFFFDFCF9),
-                body: Stack(
-                  children: [
-                    buildDrawer(),
-                    buildPage(),
-                  ],
+                appBar: PreferredSize(
+                  preferredSize: AppBar().preferredSize,
+                  child: AdminAppBar(
+                    pageHeading: _getPageInfo(item),
+                  ),
                 ),
+                drawer: Drawer(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: MediaQuery.of(context).size.height,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.secondaryColor,
+                              Colors.transparent,
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                        child: MyDrawer(
+                          onSelectedItems: (selectedItem) {
+                            setState(() {
+                              item = selectedItem;
+                              Navigator.of(context).pop();
+                            });
+
+                            switch (item) {
+                              case AdminDrawerItems.home:
+                                dashBloc.add(NavigateToHomeEvent());
+                                break;
+
+                              case AdminDrawerItems.geofence:
+                                dashBloc.add(NavigateToGeofenceEvent());
+                                break;
+
+                              case AdminDrawerItems.reports:
+                                dashBloc.add(NavigateToReportsEvent());
+                                break;
+
+                              case AdminDrawerItems.profile:
+                                dashBloc.add(NavigateToProfileEvent());
+                                break;
+
+                              case AdminDrawerItems.logout:
+                                dashBloc.add(NavigateToLogoutEvent());
+                                break;
+
+                              default:
+                                dashBloc.add(NavigateToHomeEvent());
+                                break;
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                backgroundColor: Colors.white,
+                body: getDrawerPage(),
               );
             } else if (state is InternetLostState) {
-              return Expanded(
-                child: Scaffold(
-                  body: Container(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "No Internet Connection!",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
+              return Scaffold(
+                body: Container(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "No Internet Connection!",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Lottie.asset('assets/no_wifi.json'),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Lottie.asset('assets/no_wifi.json'),
+                      ],
                     ),
                   ),
                 ),
@@ -125,145 +155,64 @@ class _MainPageState extends State<AdminMainPage> {
             }
           });
 
-  Widget buildDrawer() => SafeArea(
-    child: AnimatedOpacity(
-      opacity: isDrawerOpen ? 1.0 : 0.0,
-      duration: Duration(milliseconds: 300),
-      child: Padding(
-        padding:
-        EdgeInsets.only(top: MediaQuery.of(context).size.height / 10),
-        child: Container(
-          height: MediaQuery.of(context).size.height / 1,
-          width: xoffset,
-          child: MyDrawer(
-            onSelectedItems: (selectedItem) {
-              setState(() {
-                item = selectedItem;
-                closeDrawer();
-              });
-
-              switch (item) {
-                case DrawerItems.home:
-                  dashBloc.add(NavigateToHomeEvent());
-                  break;
-
-                case DrawerItems.geofence:
-                  dashBloc.add(NavigateToGeofenceEvent());
-                  break;
-
-                case DrawerItems.reports:
-                  dashBloc.add(NavigateToReportsEvent());
-                  break;
-
-                case DrawerItems.profile:
-                  dashBloc.add(NavigateToProfileEvent());
-                  break;
-
-                case DrawerItems.logout:
-                  dashBloc.add(NavigateToLogoutEvent());
-                  break;
-
-                default:
-                  dashBloc.add(NavigateToHomeEvent());
-                  break;
-              }
-            },
-          ),
-        ),
-      ),
-    ),
-  );
-
-  Widget buildPage() {
-    return WillPopScope(
-      onWillPop: () async {
-        if (isDrawerOpen) {
-          closeDrawer();
-          return false;
-        } else {
-          return true;
-        }
-      },
-      child: GestureDetector(
-        onTap: closeDrawer,
-        onHorizontalDragStart: (details) => isDragging = true,
-        onHorizontalDragUpdate: (details) {
-          const delta = 1;
-
-          if (!isDragging) return;
-
-          if (details.delta.dx > delta) {
-            openDrawer();
-          } else if (details.delta.dx < -delta) {
-            closeDrawer();
-          }
-          isDragging = false;
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          transform: Matrix4.translationValues(xoffset, yoffset, 0)
-            ..scale(scaleFactor),
-          child: AbsorbPointer(
-            absorbing: isDrawerOpen,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(isDrawerOpen ? 20 : 0),
-              child: Container(
-                color: isDrawerOpen
-                    ? Colors.white12.withOpacity(0.23)
-                    : const Color(0xFFFDF7F5),
-                child: getDrawerPage(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget getDrawerPage() {
     return BlocBuilder<AdminDashBloc, AdminDashboardkState>(
-      bloc: dashBloc,
-      builder: (context, state) {
-        if (state is NavigateToProfileState) {
-          return AdminProfilePage(openDrawer: openDrawer);
-        } else if (state is NavigateToGeofenceState) {
-          return GeoFenceMainPage();
-        } else if (state is NavigateToHomeState) {
-          return AdminDashboard(openDrawer: openDrawer);
-        } else if (state is NavigateToReportsState) {
-          return AdminReportsPage(
-            openDrawer: openDrawer,
-          );
-        } else if (state is NavigateToLogoutState) {
-          return AlertDialog(
-            title: const Text("Confirm Logout"),
-            content: const Text("Are you sure?"),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdminMainPage(),
-                    ),
-                  ); // Close the dialog
-                  // Close the dialog
-                },
-              ),
-              TextButton(
-                child: const Text('Logout'),
-                onPressed: () {
-                  // Add the logic to perform logout here
-                  _logout(context); // Close the dialog
-                },
-              ),
-            ],
-          );
-        } else {
-          return AdminDashboard(openDrawer: openDrawer);
-        }
-      },
-    );
+        bloc: dashBloc,
+        builder: (context, state) {
+          if (state is NavigateToProfileState) {
+            return AdminProfilePage();
+          } else if (state is NavigateToGeofenceState) {
+            return GeoFenceMainPage();
+          } else if (state is NavigateToHomeState) {
+            return AdminDashboard();
+          } else if (state is NavigateToReportsState) {
+            return AdminReportsPage();
+          } else if (state is NavigateToLogoutState) {
+            return AlertDialog(
+              title: const Text("Confirm Logout"),
+              content: const Text("Are you sure?"),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminMainPage(),
+                      ),
+                    ); // Close the dialog
+                    // Close the dialog
+                  },
+                ),
+                TextButton(
+                  child: const Text('Logout'),
+                  onPressed: () {
+                    // Add the logic to perform logout here
+                    _logout(context); // Close the dialog
+                  },
+                ),
+              ],
+            );
+          } else {
+            return AdminDashboard();
+          }
+        });
+  }
+
+  String _getPageInfo(AdminDrawerItem item) {
+    switch (item) {
+      case AdminDrawerItems.home:
+        return "Home";
+      case AdminDrawerItems.geofence:
+        return "Geofence";
+      case AdminDrawerItems.profile:
+        return "Profile";
+      case AdminDrawerItems.reports:
+        return "Reports";
+      case AdminDrawerItems.logout:
+        return "";
+      default:
+        return "Home"; // Set the default title
+    }
   }
 }

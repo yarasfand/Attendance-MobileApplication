@@ -3,16 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/employee/empDashboard/models/user_model.dart';
+import 'package:project/employee/empDashboard/screens/generalAppBar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/utilities/api_integration_files/api_intigration_bloc.dart';
 import '../models/user_repository.dart';
 
 class EmpAppBar extends StatelessWidget {
-  final VoidCallback openDrawer;
 
+  final String pageHeading;
   const EmpAppBar({
     Key? key,
-    required this.openDrawer,
+    required this.pageHeading,
   }) : super(key: key);
 
   @override
@@ -43,35 +44,17 @@ class EmpAppBar extends StatelessWidget {
                 if (state is ApiLoadedState) {
                   List<Employee> userList = state.users;
                   final employee = userList.isNotEmpty ? userList[0] : null;
+                  return GenAppBar(pageHeading: pageHeading,);
 
-                  return AppBar(
-                    leading: IconButton(
-                      icon: const FaIcon(FontAwesomeIcons.bars),
-                      color: Colors.white,
-                      onPressed: openDrawer,
-                    ),
-                    backgroundColor: AppColors.primaryColor,
-                    elevation: 0,
-                    title: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            right: 55.0), // Add right padding
-                        child: Text(
-                          "HOME",
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
                 } else if (state is ApiLoadingState) {
                   // Loading state, display a loading indicator
                   return AppBar(
                     leading: IconButton(
                       icon: const FaIcon(FontAwesomeIcons.bars),
                       color: Colors.white,
-                      onPressed: openDrawer,
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
                     ),
                     backgroundColor: AppColors.primaryColor,
                     elevation: 0,
@@ -94,7 +77,9 @@ class EmpAppBar extends StatelessWidget {
                     leading: IconButton(
                       icon: const FaIcon(FontAwesomeIcons.bars),
                       color: Colors.white,
-                      onPressed: openDrawer,
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
                     ),
                     backgroundColor: AppColors.primaryColor,
                     elevation: 0,
@@ -116,7 +101,9 @@ class EmpAppBar extends StatelessWidget {
                     leading: IconButton(
                       icon: const FaIcon(FontAwesomeIcons.bars),
                       color: Colors.white,
-                      onPressed: openDrawer,
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
                     ),
                     backgroundColor: AppColors.darkGrey,
                     elevation: 0,

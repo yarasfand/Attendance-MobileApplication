@@ -10,24 +10,13 @@ import 'empGps_tracker_report.dart';
 import 'monthly_report_page.dart';
 
 class EmpReportsPage extends StatelessWidget {
-  final VoidCallback openDrawer;
 
-  const EmpReportsPage({super.key, required this.openDrawer});
+  const EmpReportsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar:  AppBar(
-        backgroundColor: AppColors.primaryColor,
-        title: Text("Reports Page",style: EmpkAppBarTextTheme),
-        leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.bars),
-          color: Colors.white,
-          onPressed: openDrawer,
-        ),
-        centerTitle: true,
-      ),
       body: SingleChildScrollView(
         child: Container(
           decoration: BoxDecoration(

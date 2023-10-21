@@ -11,11 +11,11 @@ import '../models/empProfileRepository.dart';
 import 'EditProfile_page.dart';
 
 class EmpProfilePage extends StatefulWidget {
-  final VoidCallback openDrawer;
+
 
   EmpProfilePage({
     super.key,
-    required this.openDrawer,
+
   });
 
   @override

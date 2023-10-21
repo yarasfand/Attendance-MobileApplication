@@ -17,9 +17,8 @@ import 'AdminEditProfilePage.dart';
 import 'adminProfile.dart';
 
 class AdminProfilePage extends StatefulWidget {
-  final VoidCallback openDrawer;
 
-  AdminProfilePage({Key? key, required this.openDrawer}) : super(key: key);
+  AdminProfilePage({Key? key}) : super(key: key);
 
   @override
   _AdminProfilePageState createState() => _AdminProfilePageState();
@@ -93,10 +92,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Profile"),
-        centerTitle: true,
-      ),
+
       body: BlocBuilder<AdminProfileBloc, AdminProfileState>(
         bloc: adminProfileBloc,
         builder: (context, state) {

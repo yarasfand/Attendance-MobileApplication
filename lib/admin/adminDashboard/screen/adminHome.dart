@@ -7,10 +7,10 @@ import 'adminAppbar.dart';
 import 'admin_page.dart';
 
 class AdminDashboard extends StatelessWidget {
-  final VoidCallback openDrawer;
+
 
   const AdminDashboard({
-    super.key, required this.openDrawer
+    super.key
   });
 
   @override
@@ -19,14 +19,8 @@ class AdminDashboard extends StatelessWidget {
       builder: (context, state) {
         if(state is InternetGainedState)
           {
-        return Scaffold(
+        return const Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: PreferredSize(
-            preferredSize: AppBar().preferredSize,
-            child: AdminAppBar(
-              openDrawer: openDrawer,
-            ),
-          ),
           body: AdminPage(),
         );
       }

@@ -3,11 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project/constants/AppColor_constants.dart';
 
 class AdminAppBar extends StatefulWidget {
-  final VoidCallback openDrawer;
+  final String pageHeading;
 
   const AdminAppBar({
     Key? key,
-    required this.openDrawer,
+    required this.pageHeading,
   }) : super(key: key);
 
   @override
@@ -15,46 +15,23 @@ class AdminAppBar extends StatefulWidget {
 }
 
 class _AdminAppBarState extends State<AdminAppBar> {
-
-  // Maps working
-  late bool locationError = true;
-  double? lat;
-  double? long;
-  String? corporateID;
-  String? username;
-  String? password;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.green,
-        content: Text(message),
-        duration: Duration(seconds: 2), // Adjust the duration as needed
-      ),
-    );
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return AppBar(
       leading: IconButton(
-        icon: const FaIcon(FontAwesomeIcons.bars),
+        icon: FaIcon(FontAwesomeIcons.bars),
         color: Colors.white,
-        onPressed: widget.openDrawer,
+        onPressed: () {
+          Scaffold.of(context).openDrawer();
+        },
       ),
       backgroundColor: AppColors.primaryColor,
       elevation: 0,
-      title: const Center(
+      title: Center(
         child: Padding(
-          padding: EdgeInsets.only(right: 55.0), // Add right padding
+          padding: const EdgeInsets.only(right: 55.0), // Add right padding
           child: Text(
-            "HOME",
+            widget.pageHeading, // Access pageHeading from the widget
             style: TextStyle(color: Colors.white),
           ),
         ),
