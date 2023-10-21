@@ -46,11 +46,11 @@ class EmpDrawer extends StatelessWidget {
               (item) => ListTile(
                 contentPadding: EdgeInsets.fromLTRB(
                     0, MediaQuery.of(context).size.height / 22.5, 0, 0),
-                leading: Icon(item.icon, color: Colors.indigo),
+                leading: Icon(item.icon, color: Colors.black87),
                 title: Text(
                   item.title,
                   style: const TextStyle(
-                    color: Colors.indigo,
+                    color: Colors.black,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     shadows: [

@@ -45,11 +45,11 @@ class MyDrawer extends StatelessWidget {
                 contentPadding: EdgeInsets.fromLTRB(
                     MediaQuery.of(context).size.height/50 ,
                     MediaQuery.of(context).size.height/43,0,0),
-                leading: Icon(item.icon, color: Colors.indigo),
+                leading: Icon(item.icon, color: Colors.black87),
                 title: Text(
                   item.title,
                   style: const TextStyle(
-                    color: Colors.indigo,
+                    color: Colors.black,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     shadows: [
