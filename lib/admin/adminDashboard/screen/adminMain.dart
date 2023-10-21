@@ -68,57 +68,61 @@ class _MainPageState extends State<AdminMainPage> {
                     pageHeading: _getPageInfo(item),
                   ),
                 ),
-                drawer: Drawer(
-                  child: Column(
-                    children: [
-                      Container(
-                        height: MediaQuery.of(context).size.height,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.secondaryColor,
-                              Colors.transparent,
-                            ],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
+                drawer:ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(40.0), // Adjust as needed
+                    bottomRight: Radius.circular(40.0), // Adjust as needed
+                  ),
+                  child: Drawer(
+                    child: Column(
+                      children: [
+                        UserAccountsDrawerHeader(
+                          accountName: Text("Name"),
+                          accountEmail: Text("youremail@example.com"),
+                          currentAccountPicture: CircleAvatar(
+                            backgroundImage: AssetImage(
+                              "assets/icons/userr.png",
+                            ),
                           ),
                         ),
-                        child: MyDrawer(
-                          onSelectedItems: (selectedItem) {
-                            setState(() {
-                              item = selectedItem;
-                              Navigator.of(context).pop();
-                            });
+                        Container(
+                          child: MyDrawer(
+                            onSelectedItems: (selectedItem) {
+                              setState(() {
+                                item = selectedItem;
+                                Navigator.of(context).pop();
+                              });
 
-                            switch (item) {
-                              case AdminDrawerItems.home:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
+                              switch (item) {
+                                case AdminDrawerItems.home:
+                                  dashBloc.add(NavigateToHomeEvent());
+                                  break;
 
-                              case AdminDrawerItems.geofence:
-                                dashBloc.add(NavigateToGeofenceEvent());
-                                break;
+                                case AdminDrawerItems.geofence:
+                                  dashBloc.add(NavigateToGeofenceEvent());
+                                  break;
 
-                              case AdminDrawerItems.reports:
-                                dashBloc.add(NavigateToReportsEvent());
-                                break;
+                                case AdminDrawerItems.reports:
+                                  dashBloc.add(NavigateToReportsEvent());
+                                  break;
 
-                              case AdminDrawerItems.profile:
-                                dashBloc.add(NavigateToProfileEvent());
-                                break;
+                                case AdminDrawerItems.profile:
+                                  dashBloc.add(NavigateToProfileEvent());
+                                  break;
 
-                              case AdminDrawerItems.logout:
-                                dashBloc.add(NavigateToLogoutEvent());
-                                break;
+                                case AdminDrawerItems.logout:
+                                  dashBloc.add(NavigateToLogoutEvent());
+                                  break;
 
-                              default:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
-                            }
-                          },
+                                default:
+                                  dashBloc.add(NavigateToHomeEvent());
+                                  break;
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 backgroundColor: Colors.white,
@@ -202,17 +206,17 @@ class _MainPageState extends State<AdminMainPage> {
   String _getPageInfo(AdminDrawerItem item) {
     switch (item) {
       case AdminDrawerItems.home:
-        return "Home";
+        return "HOME";
       case AdminDrawerItems.geofence:
-        return "Geofence";
+        return "GEOFENCE";
       case AdminDrawerItems.profile:
-        return "Profile";
+        return "PROFILE";
       case AdminDrawerItems.reports:
-        return "Reports";
+        return "REPORTS";
       case AdminDrawerItems.logout:
         return "";
       default:
-        return "Home"; // Set the default title
+        return "HOME";
     }
   }
 }

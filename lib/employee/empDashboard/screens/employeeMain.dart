@@ -9,6 +9,9 @@ import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
+import '../../empProfilePage/bloc/emProfileApiFiles/emp_profile_api_bloc.dart';
+import '../../empProfilePage/models/empProfileModel.dart';
+import '../../empProfilePage/models/empProfileRepository.dart';
 import '../../empProfilePage/screens/profilepage.dart';
 import '../../empReports/screens/reports_page_employee.dart';
 import '../bloc/employeeDashboardBloc/EmpDashboardk_bloc.dart';
@@ -25,6 +28,7 @@ class EmpMainPage extends StatefulWidget {
 
 class _EmpMainPageState extends State<EmpMainPage> {
   final EmpDashboardkBloc dashBloc = EmpDashboardkBloc();
+  EmpProfileModel? empProfile;
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -49,7 +53,22 @@ class _EmpMainPageState extends State<EmpMainPage> {
 
   @override
   void initState() {
+    fetchProfileData();
     super.initState();
+  }
+
+  Future<void> fetchProfileData() async {
+    try {
+      final repository = EmpProfileRepository();
+      final profileData = await repository.getData();
+      if (profileData.isNotEmpty) {
+        setState(() {
+          empProfile = profileData[0];
+        });
+      }
+    } catch (e) {
+      print("Error fetching profile data: $e");
+    }
   }
 
   @override
@@ -65,52 +84,56 @@ class _EmpMainPageState extends State<EmpMainPage> {
                     pageHeading: _getPageInfo(item),
                   ),
                 ),
-                drawer: Drawer(
-                  child: Column(
-                    children: [
-                      Container(
-                        height: MediaQuery.of(context).size.height ,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.secondaryColor,
-                              Colors.transparent,
-                            ],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
+                drawer: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(40.0), // Adjust as needed
+                    bottomRight: Radius.circular(40.0), // Adjust as needed
+                  ),
+                  child: Drawer(
+                    child: Column(
+                      children: [
+                        UserAccountsDrawerHeader(
+                          accountName: Text(empProfile?.empName ?? ""),
+                          accountEmail: Text("youremail@example.com"),
+                          currentAccountPicture: CircleAvatar(
+                            backgroundImage: AssetImage(
+                              "assets/icons/userr.png",
+                            ),
                           ),
                         ),
-                        child: EmpDrawer(
-                          onSelectedItems: (selectedItem) {
-                            setState(() {
-                              Navigator.of(context).pop();
-                              item = selectedItem;
-                            });
-                            switch (item) {
-                              case EmpDrawerItems.home:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
+                        Container(
+                          child: EmpDrawer(
+                            onSelectedItems: (selectedItem) {
+                              setState(() {
+                                Navigator.of(context).pop();
+                                item = selectedItem;
+                              });
+                              switch (item) {
+                                case EmpDrawerItems.home:
+                                  dashBloc.add(NavigateToHomeEvent());
+                                  break;
 
-                              case EmpDrawerItems.reports:
-                                dashBloc.add(NavigateToReportsEvent());
-                                break;
+                                case EmpDrawerItems.reports:
+                                  dashBloc.add(NavigateToReportsEvent());
+                                  break;
 
-                              case EmpDrawerItems.profile:
-                                dashBloc.add(NavigateToProfileEvent());
-                                break;
+                                case EmpDrawerItems.profile:
+                                  dashBloc.add(NavigateToProfileEvent());
+                                  break;
 
-                              case EmpDrawerItems.logout:
-                                dashBloc.add(NavigateToLogoutEvent());
-                                break;
+                                case EmpDrawerItems.logout:
+                                  dashBloc.add(NavigateToLogoutEvent());
+                                  break;
 
-                              default:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
-                            }
-                          },
+                                default:
+                                  dashBloc.add(NavigateToHomeEvent());
+                                  break;
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 backgroundColor: Colors.white,
@@ -191,15 +214,15 @@ class _EmpMainPageState extends State<EmpMainPage> {
   String _getPageInfo(EmpDrawerItem item) {
     switch (item) {
       case EmpDrawerItems.home:
-        return "Home";
+        return "HOME";
       case EmpDrawerItems.reports:
-        return "Reports";
+        return "REPORTS";
       case EmpDrawerItems.profile:
-        return "Profile";
+        return "PROFILE";
       case EmpDrawerItems.logout:
         return "";
       default:
-        return "Home"; // Set the default title
+        return "HOME"; // Set the default title
     }
   }
 }

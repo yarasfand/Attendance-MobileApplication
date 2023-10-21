@@ -21,10 +21,11 @@ class EmpProfileRepository {
   }
 
   Future<List<EmpProfileModel>> getData() async {
-    // Check if coorporateId and employeeId are initialized
-    if (coorporateId.isEmpty || employeeId == 0) {
+
+     if (coorporateId.isEmpty || employeeId == 0) {
       throw Exception("coorporateId or employeeId not initialized");
     }
+
     await fetchSharedPrefData();
     print("---------------------------$coorporateId");
     print("---------------------------$employeeId");

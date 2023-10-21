@@ -65,6 +65,7 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
 
             List<EmpProfileModel> userList = state.users;
             final employeeProfile = userList[0];
+
             return Scaffold(
               backgroundColor: AppColors.offWhite,
               body: SingleChildScrollView(
