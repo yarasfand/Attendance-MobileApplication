@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppBar_constant.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 
+import '../../../No_internet/no_internet.dart';
 import '../bloc/pending_leaves_bloc.dart';
 import '../bloc/pending_leaves_event.dart';
 import '../bloc/pending_leaves_state.dart';
@@ -20,7 +25,6 @@ class PendingLeavesPage extends StatefulWidget {
       _PendingLeavesPageState(approveRepository);
 }
 
-
 class _PendingLeavesPageState extends State<PendingLeavesPage> {
   String? errorMessage; // Declare the errorMessage variable
   final ApproveManualPunchRepository approveRepository;
@@ -34,69 +38,129 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
     // Trigger the fetch event when the widget is initialized.
     BlocProvider.of<PendingLeavesBloc>(context).add(FetchPendingLeaves());
   }
+
   void _refreshPendingLeaves() {
     BlocProvider.of<PendingLeavesBloc>(context).add(FetchPendingLeaves());
   }
+
+  bool isInternetLost = false;
+
   @override
   Widget build(BuildContext context) {
-
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Pending Leaves'),
-      ),
-      body: BlocBuilder<PendingLeavesBloc, PendingLeavesState>(
-        builder: (context, state) {
-          if (state is PendingLeavesLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else if (state is PendingLeavesLoaded) {
-            return _buildList(state.pendingLeaves);
-          } else if (state is PendingLeavesError &&
-              !(state is PendingLeavesLoading)) {
-            return Center(
-              child: Text('Error: ${state.error}'),
+    return BlocConsumer<InternetBloc, InternetStates>(
+      listener: (context, state) {
+        // TODO: implement listener
+        if (state is InternetLostState) {
+          // Set the flag to true when internet is lost
+          isInternetLost = true;
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.push(
+              context,
+              PageTransition(
+                child: NoInternet(),
+                type: PageTransitionType.rightToLeft,
+              ),
             );
-          } else {
-            return const Placeholder(); // Initial state
+          });
+        } else if (state is InternetGainedState) {
+          // Check if internet was previously lost
+          if (isInternetLost) {
+            // Navigate back to the original page when internet is regained
+            Navigator.pop(context);
           }
-        },
-      ),
+          isInternetLost = false; // Reset the flag
+        }
+      },
+      builder: (context, state) {
+        if (state is InternetGainedState) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Pending Leaves',style: AppBarStyles.appBarTextStyle,),
+              backgroundColor: AppBarStyles.appBarBackgroundColor,
+              iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+              centerTitle: true,
+
+            ),
+            body: BlocBuilder<PendingLeavesBloc, PendingLeavesState>(
+              builder: (context, state) {
+                if (state is PendingLeavesLoading) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (state is PendingLeavesLoaded) {
+                  return _buildList(state.pendingLeaves);
+                } else if (state is PendingLeavesError &&
+                    !(state is PendingLeavesLoading)) {
+                  return Center(
+                    child: Text('Error: ${state.error}'),
+                  );
+                } else {
+                  return const Placeholder(); // Initial state
+                }
+              },
+            ),
+          );
+        } else {
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+      },
     );
   }
 
   Widget _buildList(List<PendingLeavesModel> leaves) {
-
     return ListView.builder(
       itemCount: leaves.length,
       itemBuilder: (context, index) {
         final leave = leaves[index];
+        final formattedDateTime = DateFormat('yyyy-MM-dd hh:mm a').format(leave.punchDatetime);
+
         return Card(
           elevation: 3,
-          margin: EdgeInsets.all(10),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Card No: ${leave.cardNo}'),
-                Text('Punch Date-Time: ${leave.punchDatetime.toString()}'),
-                Text('Location: ${leave.location}'),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    // Call the method to approve the leave and show feedback with FutureBuilder
-                    _approveLeave(leave.cardNo, leave.punchDatetime);
-                  },
-                  child: Text('Approve'),
-                ),
-              ],
+          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.credit_card, size: 36), // Icon for Card No
+                  Text(
+                    '${leave.cardNo}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Icon(Icons.access_time, size: 36), // Icon for Punch Date Time
+                  Text(
+                    '$formattedDateTime',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Icon(Icons.location_on, size: 36), // Icon for Location
+                  Container(
+                    width: 250,
+                    child: Center(
+                      child: Text(
+                        '${leave.location}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Call the method to approve the leave and show feedback with FutureBuilder
+                      _approveLeave(leave.cardNo, leave.punchDatetime);
+                    },
+                    child: Text('Approve'),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
     );
   }
-
 
   void _approveLeave(String cardNo, DateTime punchDatetime) {
     final dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -106,7 +170,8 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
     final data = [
       {
         "cardNo": cardNo, // Pass cardNo as leave.cardNo
-        "punchDatetime": formattedPunchDatetime, // Punch Date-Time = formatted punchDatetime
+        "punchDatetime":
+            formattedPunchDatetime, // Punch Date-Time = formatted punchDatetime
         "pDay": formattedPunchDatetime, // Pass punchDatetime as pDay
         "ismanual": "string",
         "payCode": cardNo, // PayCode same as card number
@@ -131,6 +196,4 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
       );
     });
   }
-
-
 }

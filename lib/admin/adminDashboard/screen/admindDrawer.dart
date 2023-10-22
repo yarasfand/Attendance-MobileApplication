@@ -26,15 +26,19 @@ class MyDrawer extends StatelessWidget {
   Widget buildDrawerItems(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
+    double optTopDiff;
+
+    if (screenWidth <= 370) {
+      optTopDiff = screenHeight / 27;
+    } else {
+      optTopDiff = screenHeight / 20;
+    }
 
     return Column(
       children: AdminDrawerItems.all
           .map(
-            (item) =>
-            ListTile(
-              contentPadding:  EdgeInsets.fromLTRB(
-                  0,
-                  screenHeight / 20, 0, 0),
+            (item) => ListTile(
+              contentPadding: EdgeInsets.fromLTRB(0, optTopDiff, 0, 0),
               leading: Padding(
                 padding: EdgeInsets.fromLTRB(0, 0, screenWidth / 10, 0),
                 child: Icon(item.icon, color: Colors.black87),
@@ -45,22 +49,13 @@ class MyDrawer extends StatelessWidget {
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      color: Colors.grey, // Color of the shadow
-                      offset:
-                      Offset(2, 2), // Offset of the shadow from the text
-                      blurRadius: 3, // Blur radius of the shadow
-                    ),
-                    // You can add more Shadow objects for multiple shadows
-                  ],
+
                 ),
               ),
               onTap: () => onSelectedItems(item),
             ),
-      )
+          )
           .toList(),
     );
   }
 }
-

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppBar_constant.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
+import '../../../No_internet/no_internet.dart';
+import '../../../constants/AppColor_constants.dart';
 import '../models/getActiveEmployeesModel.dart';
 import '../models/leaveTypeRepository.dart';
 
@@ -30,9 +37,9 @@ class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
   String selectedValue = "";
   String durationSelectedValue = "FullDay";
   Map<String, int> leaveTypeMap = {
-    'Annual': 1,  // Update with your actual leave type names and IDs
+    'Annual': 1, // Update with your actual leave type names and IDs
     'Outstation Duty': 2,
-    'SL':3,
+    'SL': 3,
     // Add more leave types as needed
   };
   @override
@@ -49,315 +56,357 @@ class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
     });
   }
 
+  bool isInternetLost = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Leave Submission Page",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFE26142),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Container(
-          margin: const EdgeInsets.all(15),
-          child: Column(
-            children: [
-              Card(
-                color: const Color(0xFFE26142),
-                elevation: 6,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+    return BlocConsumer<InternetBloc, InternetStates>(
+      listener: (context, state) {
+        // TODO: implement listener
+        if (state is InternetLostState) {
+          // Set the flag to true when internet is lost
+          isInternetLost = true;
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.push(
+              context,
+              PageTransition(
+                child: NoInternet(),
+                type: PageTransitionType.rightToLeft,
+              ),
+            );
+          });
+        } else if (state is InternetGainedState) {
+          // Check if internet was previously lost
+          if (isInternetLost) {
+            // Navigate back to the original page when internet is regained
+            Navigator.pop(context);
+          }
+          isInternetLost = false; // Reset the flag
+        }
+      },
+      builder: (context, state) {
+        if (state is InternetGainedState)
+          {
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text(
+                  "Leave Submission Page",
+                  style: AppBarStyles.appBarTextStyle
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                centerTitle: true,
+                backgroundColor: AppColors.primaryColor,
+                iconTheme: const IconThemeData(color: Colors.white),
+              ),
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  margin: const EdgeInsets.all(15),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Center(
-                        child: Text(
-                          "Leave Request",
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                      Card(
+
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "From Date",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                                TextFormField(
-                                  controller: fromDateController,
-                                  decoration: InputDecoration(
-                                    labelText: "Select Date",
-                                    suffixIcon: IconButton(
-                                      icon: const Icon(Icons.calendar_today),
-                                      onPressed: () async {
-                                        final selectedDate =
-                                            await _selectDateTime(context);
-                                        if (selectedDate != null) {
-                                          fromDateController.text =
-                                              _formatDate(selectedDate);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "To Date",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                                TextFormField(
-                                  controller: toDateController,
-                                  decoration: InputDecoration(
-                                    labelText: "Select Date",
-                                    suffixIcon: IconButton(
-                                      icon: const Icon(Icons.calendar_today),
-                                      onPressed: () async {
-                                        final selectedDate =
-                                            await _selectDateTime(context);
-                                        if (selectedDate != null) {
-                                          toDateController.text =
-                                              _formatDate(selectedDate);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Column(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "Leave Type",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
+                              const Center(
+                                child: Text(
+                                  "Leave Request",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black),
+                                ),
                               ),
-                              DropdownButton<String>(
-                                value: selectedValue,
-                                items: hardcodedValues.map((value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedValue = value!;
-                                    selectedLeaveType=value;
-                                    selectedLeaveTypeId = leaveTypeMap[value] ?? 1;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 20),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Leave Duration",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
-                              DropdownButton<String>(
-                                value: durationSelectedValue,
-                                items: const [
-                                  DropdownMenuItem<String>(
-                                    value: "FullDay",
-                                    child: Text("Full Day"),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "From Date",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                        TextFormField(
+                                          controller: fromDateController,
+                                          decoration: InputDecoration(
+                                            labelText: "Select Date",
+                                            suffixIcon: IconButton(
+                                              icon:
+                                              const Icon(Icons.calendar_today),
+                                              onPressed: () async {
+                                                final selectedDate =
+                                                await _selectDateTime(context);
+                                                if (selectedDate != null) {
+                                                  fromDateController.text =
+                                                      _formatDate(selectedDate);
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  DropdownMenuItem<String>(
-                                    value: "HalfDay",
-                                    child: Text("Half Day"),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "To Date",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                        TextFormField(
+                                          controller: toDateController,
+                                          decoration: InputDecoration(
+                                            labelText: "Select Date",
+                                            suffixIcon: IconButton(
+                                              icon:
+                                              const Icon(Icons.calendar_today),
+                                              onPressed: () async {
+                                                final selectedDate =
+                                                await _selectDateTime(context);
+                                                if (selectedDate != null) {
+                                                  toDateController.text =
+                                                      _formatDate(selectedDate);
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    durationSelectedValue = value!;
-                                  });
-                                },
                               ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Leave Type",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black),
+                                      ),
+                                      DropdownButton<String>(
+                                        value: selectedValue,
+                                        items: hardcodedValues.map((value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedValue = value!;
+                                            selectedLeaveType = value;
+                                            selectedLeaveTypeId =
+                                                leaveTypeMap[value] ?? 1;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Leave Duration",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black),
+                                      ),
+                                      DropdownButton<String>(
+                                        value: durationSelectedValue,
+                                        items: const [
+                                          DropdownMenuItem<String>(
+                                            value: "FullDay",
+                                            child: Text("Full Day"),
+                                          ),
+                                          DropdownMenuItem<String>(
+                                            value: "HalfDay",
+                                            child: Text("Half Day"),
+                                          ),
+                                        ],
+                                        onChanged: (value) {
+                                          setState(() {
+                                            durationSelectedValue = value!;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    const apiUrl =
+                                        'http://62.171.184.216:9595/api/admin/leave/addleave?CorporateId=ptsoffice';
+
+                                    final fromDate = fromDateController.text;
+                                    final toDate = toDateController.text;
+                                    final reason = selectedLeaveType!.isNotEmpty
+                                        ? selectedLeaveType
+                                        : "Annual";
+                                    final leaveId = selectedLeaveTypeId != 0
+                                        ? selectedLeaveTypeId
+                                        : 1;
+                                    final leaveDuration = durationSelectedValue;
+                                    final status = "string";
+                                    final applicationDate =
+                                    _formatDate(DateTime.now());
+
+                                    List<Future<http.Response>> requests = [];
+
+                                    for (final employee in selectedEmployees) {
+                                      final leaveRequestList = {
+                                        "employeeId": employee.empId.toString(),
+                                        "fromDate": fromDate,
+                                        "toDate": toDate,
+                                        "reason": reason,
+                                        "leaveId": leaveId,
+                                        "leaveDuration": leaveDuration,
+                                        "status": status,
+                                        "applicationDate": applicationDate,
+                                        "remark": employee.remarks,
+                                      };
+
+                                      final request = http.post(
+                                        Uri.parse(apiUrl),
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                        },
+                                        body: json.encode([leaveRequestList]),
+                                      );
+                                      requests.add(request);
+                                    }
+
+                                    try {
+                                      final responses = await Future.wait(requests);
+
+                                      bool allRequestsSucceeded = responses.every(
+                                              (response) => response.statusCode == 200);
+
+                                      if (allRequestsSucceeded) {
+                                        Fluttertoast.showToast(
+                                          msg: "Leave Added Successfully",
+                                          gravity: ToastGravity.BOTTOM,
+                                        );
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg: "Some leave requests failed",
+                                          gravity: ToastGravity.BOTTOM,
+                                          backgroundColor: AppColors.secondaryColor,
+                                        );
+                                      }
+                                    } catch (e) {
+                                      Fluttertoast.showToast(
+                                        msg: "Failed to add leave: $e",
+                                        gravity: ToastGravity.BOTTOM,
+                                        backgroundColor: AppColors.secondaryColor,
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    padding: const EdgeInsets.all(15),
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(left: 5.0,right: 5.0),
+                                    child: Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 20),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            const apiUrl =
-                                'http://62.171.184.216:9595/api/admin/leave/addleave?CorporateId=ptsoffice';
-
-                            final fromDate = fromDateController.text;
-                            final toDate = toDateController.text;
-                            final reason =
-                            selectedLeaveType!.isNotEmpty ? selectedLeaveType : "Annual";
-                            final leaveId =
-                            selectedLeaveTypeId != 0 ? selectedLeaveTypeId : 1;
-                            final leaveDuration = durationSelectedValue;
-                            final status = "string";
-                            final applicationDate = _formatDate(DateTime.now());
-
-                            List<Future<http.Response>> requests = [];
-
-                            for (final employee in selectedEmployees) {
-                              final leaveRequestList = {
-                                "employeeId": employee.empId.toString(),
-                                "fromDate": fromDate,
-                                "toDate": toDate,
-                                "reason": reason,
-                                "leaveId": leaveId,
-                                "leaveDuration": leaveDuration,
-                                "status": status,
-                                "applicationDate": applicationDate,
-                                "remark": employee.remarks,
-                              };
-
-                              final request = http.post(
-                                Uri.parse(apiUrl),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                },
-                                body: json.encode([leaveRequestList]),
-                              );
-                              requests.add(request);
-                            }
-
-                            try {
-                              final responses = await Future.wait(requests);
-
-                              bool allRequestsSucceeded = responses.every((response) =>
-                              response.statusCode == 200);
-
-                              if (allRequestsSucceeded) {
-                                Fluttertoast.showToast(
-                                  msg: "Leave Added Successfully",
-                                  gravity: ToastGravity.BOTTOM,
-                                );
-                              } else {
-                                Fluttertoast.showToast(
-                                  msg: "Some leave requests failed",
-                                  gravity: ToastGravity.BOTTOM,
-                                  backgroundColor: Colors.red,
-                                );
-                              }
-                            } catch (e) {
-                              Fluttertoast.showToast(
-                                msg: "Failed to add leave: $e",
-                                gravity: ToastGravity.BOTTOM,
-                                backgroundColor: Colors.red,
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: const EdgeInsets.all(15),
+                      // const Text(
+                      //   "Selected Employees:",
+                      //   style: TextStyle(
+                      //     fontWeight: FontWeight.bold,
+                      //     fontSize: 18,
+                      //   ),
+                      // ),
+                      Container(
+                        decoration:
+                        BoxDecoration(border: Border.all(color: Colors.black)),
+                        child: DataTable(
+                          headingRowColor: const MaterialStatePropertyAll(
+                           AppColors.primaryColor
                           ),
-                          child: const Text(
-                            "Submit",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      )
-
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Selected Employees:",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              Container(
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.black)),
-                child: DataTable(
-                  headingRowColor: const MaterialStatePropertyAll(
-                    Color(0xFFE26142),
-                  ),
-                  columns: const [
-                    DataColumn(
-                        label: Text(
-                      "ID",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                    DataColumn(
-                        label: Text(
-                      "Name",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                    DataColumn(
-                        label: Text(
-                      "Remarks",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                  ],
-                  rows: selectedEmployees
-                      .map((employee) => DataRow(
+                          columns: const [
+                            DataColumn(
+                                label: Text(
+                                  "ID",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                            DataColumn(
+                                label: Text(
+                                  "Name",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                            DataColumn(
+                                label: Text(
+                                  "Remarks",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                          ],
+                          rows: selectedEmployees
+                              .map((employee) => DataRow(
                             cells: [
                               DataCell(Text(employee.empId.toString())),
                               DataCell(Text(employee.empName.toString())),
                               DataCell(Text(employee.remarks)),
                             ],
                           ))
-                      .toList(),
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          }
+        else {
+          return Scaffold(
+            body: Center(
+                child: CircularProgressIndicator()),
+          );
+        }
+
+      },
     );
   }
 

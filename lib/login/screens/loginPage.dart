@@ -5,6 +5,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../No_internet/no_internet.dart';
 import '../../admin/adminDashboard/screen/adminMain.dart';
 import '../../employee/empDashboard/models/user_repository.dart';
 import '../../employee/empDashboard/screens/employeeMain.dart';
@@ -33,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   static const String KEY_LOGIN = "Login";
   final UserRepository userRepository =
       UserRepository(); // Create an instance of UserRepository
+  String? corporateId; // Declare as nullable
 
   void _handleAdminLogin(
     String enteredCorporateID,
@@ -49,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (employeeData.isNotEmpty) {
+         _saveAdminUsernameToSharedPreferences(enteredUsername);
         _loginAsAdmin();
       } else {
         _showErrorSnackbar(context, "User not found!");
@@ -56,6 +59,10 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       _showErrorSnackbar(context, "User not found!");
     }
+  }
+  void _saveAdminUsernameToSharedPreferences(String username) async {
+    final sharedPref = await SharedPreferences.getInstance();
+    sharedPref.setString('admin_username', username);
   }
 
   void _handleEmployeeLogin(
@@ -76,7 +83,6 @@ class _LoginPageState extends State<LoginPage> {
         final cardNo = employeeData[0].cardNo;
         final empCode = employeeData[0].empCode;
         final employeeId=employeeData[0].empId;
-        print("--------------employeeId:$employeeId");
         _saveCardNoToSharedPreferences(cardNo, empCode,employeeId);
         _loginAsEmployee();
       } else {
@@ -135,6 +141,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onLoginButtonPressed() async {
+
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isButtonPressed = true;
@@ -164,20 +171,31 @@ class _LoginPageState extends State<LoginPage> {
 
       if (_selectedUserType == UserType.employee) {
         // Execute employee-related functions
+        corporateId = _CoorporateIdController.text;
+
         _handleEmployeeLogin(
-          enteredCorporateID,
+          corporateId!,
           enteredUsername,
           enteredPassword,
           enteredRole,
         );
+        var sharedPref = await SharedPreferences.getInstance();
+        sharedPref.setBool('isLoggedIn', true);
+        sharedPref.setBool('isEmployee', true);
+
       } else if (_selectedUserType == UserType.admin) {
         // Execute admin-related functions
+        corporateId = _CoorporateIdController.text;
+
         _handleAdminLogin(
-          enteredCorporateID,
+          corporateId!,
           enteredUsername,
           enteredPassword,
           enteredRole,
         );
+        var sharedPref = await SharedPreferences.getInstance();
+        sharedPref.setBool('isLoggedIn', true);
+        sharedPref.setBool('isEmployee', false);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -198,12 +216,33 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
+  bool isInternetLost = false;
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InternetBloc, InternetStates>(
       listener: (context, state) {
         // TODO: implement listener
+        if (state is InternetLostState) {
+          // Set the flag to true when internet is lost
+          isInternetLost = true;
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.push(
+              context,
+              PageTransition(
+                child: NoInternet(),
+                type: PageTransitionType.rightToLeft,
+              ),
+            );
+          });
+        } else if (state is InternetGainedState) {
+          // Check if internet was previously lost
+          if (isInternetLost) {
+            // Navigate back to the original page when internet is regained
+            Navigator.pop(context);
+          }
+          isInternetLost = false; // Reset the flag
+        }
       },
       builder: (context, state) {
         if (state is InternetGainedState) {
@@ -465,57 +504,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           );
-        } else if (state is InternetLostState) {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Color(0xFFE26142),
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else {
-          return Expanded(
-            child: Scaffold(
-              body: Container(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "No Internet Connection!",
-                        style: TextStyle(
-                          color: Color(0xFFE26142),
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Lottie.asset('assets/no_wifi.json'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+        }
+
+        else {
+          return Scaffold(
+            body: Center(
+                child: CircularProgressIndicator()),
           );
         }
       },

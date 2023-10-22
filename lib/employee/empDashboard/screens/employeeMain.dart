@@ -29,10 +29,12 @@ class EmpMainPage extends StatefulWidget {
 class _EmpMainPageState extends State<EmpMainPage> {
   final EmpDashboardkBloc dashBloc = EmpDashboardkBloc();
   EmpProfileModel? empProfile;
+  late EmpProfileRepository _profileRepository;
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('Login', false);
+    prefs.setBool('isLoggedIn', false);
+    prefs.setBool('isEmployee', false);
 
     Navigator.pushReplacement(
       context,
@@ -53,14 +55,15 @@ class _EmpMainPageState extends State<EmpMainPage> {
 
   @override
   void initState() {
-    fetchProfileData();
     super.initState();
+    // Initialize the repository here
+    _profileRepository = EmpProfileRepository();
+    fetchProfileData();
   }
 
   Future<void> fetchProfileData() async {
     try {
-      final repository = EmpProfileRepository();
-      final profileData = await repository.getData();
+      final profileData = await _profileRepository.getData();
       if (profileData.isNotEmpty) {
         setState(() {
           empProfile = profileData[0];
@@ -93,9 +96,13 @@ class _EmpMainPageState extends State<EmpMainPage> {
                     child: Column(
                       children: [
                         UserAccountsDrawerHeader(
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                           accountName: Text(empProfile?.empName ?? ""),
-                          accountEmail: Text("youremail@example.com"),
-                          currentAccountPicture: CircleAvatar(
+                          accountEmail: Text(empProfile?.emailAddress ?? ""),
+                          currentAccountPicture: const CircleAvatar(
                             backgroundImage: AssetImage(
                               "assets/icons/userr.png",
                             ),

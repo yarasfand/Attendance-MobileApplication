@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,6 +32,43 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
     // Initialize the BlocProvider when the page is created
     _initProfileBloc();
   }
+
+  Future<bool?> _onBackPressed(BuildContext context) async {
+    bool? exitConfirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Exit'),
+        content: Text('Are you sure you want to exit the app?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (exitConfirmed == true) {
+      exitApp();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+  void exitApp() {
+    SystemNavigator.pop();
+  }
+
 
   // Method to initialize the BlocProvider
   void _initProfileBloc() {
@@ -71,6 +109,13 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
               body: SingleChildScrollView(
                 child: Column(
                   children: [
+                    //ASK WETHER TO EXIT APP OR NOT
+                    WillPopScope(
+                      onWillPop: () async {
+                        return _onBackPressed(context).then((value) => value ?? false);
+                      },
+                      child: const SizedBox(),
+                    ),
                     const SizedBox(
                       height: 30,
                     ),

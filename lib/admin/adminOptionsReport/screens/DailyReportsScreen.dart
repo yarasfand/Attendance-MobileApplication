@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
+import '../../../No_internet/no_internet.dart';
 import '../models/AdminDailyReportsModel.dart';
 import '../models/AdminDailyReportsRepository.dart';
 
@@ -44,68 +49,106 @@ class _DailyReportsScreenState extends State<DailyReportsScreen> {
       // Handle the error
     }
   }
+  bool isInternetLost = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Daily Reports"),
-      ),
-      body: Column(
-        children: <Widget>[
-          ElevatedButton(
-            onPressed: () => _selectDate(context),
-            child: Text("Select Date"),
+    return BlocConsumer<InternetBloc, InternetStates>(
+  listener: (context, state) {
+    // TODO: implement listener
+    if (state is InternetLostState) {
+      // Set the flag to true when internet is lost
+      isInternetLost = true;
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.push(
+          context,
+          PageTransition(
+            child: NoInternet(),
+            type: PageTransitionType.rightToLeft,
           ),
-          Center(
-            child: Text("Selected Date: ${selectedDate.toLocal()}"),
+        );
+      });
+    } else if (state is InternetGainedState) {
+      // Check if internet was previously lost
+      if (isInternetLost) {
+        // Navigate back to the original page when internet is regained
+        Navigator.pop(context);
+      }
+      isInternetLost = false; // Reset the flag
+    }
+  },
+  builder: (context, state) {
+    if (state is InternetGainedState)
+      {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text("Daily Reports"),
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: dailyReports.length,
-              itemBuilder: (context, index) {
-                final report = dailyReports[index];
-                return Card(
-                  margin: EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title: Text("Employee ID: ${report.empId}",
-                        style: GoogleFonts.openSans(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    subtitle: Column(
-                      children: [
-                        Text(
-                            "Shift Start Time: ${report.shiftStartTime ?? 'N/A'}",
-                            style: GoogleFonts.openSans(fontSize: 16)),
-                        Text(
-                            "Shift End Time: ${report.shiftEndTime ?? 'N/A'}",
-                            style: GoogleFonts.openSans(fontSize: 16)),
-                        Container(
-                          padding: EdgeInsets.all(8.0),
-                          alignment: Alignment.bottomRight,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue, // Status capsule background color
-                              borderRadius: BorderRadius.circular(12.0), // Rounded corners
+          body: Column(
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () => _selectDate(context),
+                child: Text("Select Date"),
+              ),
+              Center(
+                child: Text("Selected Date: ${selectedDate.toLocal()}"),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: dailyReports.length,
+                  itemBuilder: (context, index) {
+                    final report = dailyReports[index];
+                    return Card(
+                      margin: EdgeInsets.all(8.0),
+                      child: ListTile(
+                        title: Text("Employee ID: ${report.empId}",
+                            style: GoogleFonts.openSans(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        subtitle: Column(
+                          children: [
+                            Text(
+                                "Shift Start Time: ${report.shiftStartTime ?? 'N/A'}",
+                                style: GoogleFonts.openSans(fontSize: 16)),
+                            Text(
+                                "Shift End Time: ${report.shiftEndTime ?? 'N/A'}",
+                                style: GoogleFonts.openSans(fontSize: 16)),
+                            Container(
+                              padding: EdgeInsets.all(8.0),
+                              alignment: Alignment.bottomRight,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.blue, // Status capsule background color
+                                  borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                                ),
+                                padding:
+                                EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                                child: Text(
+                                  "Status: ${report.status}",
+                                  style: GoogleFonts.openSans(
+                                      fontSize: 16, color: Colors.white),
+                                ),
+                              ),
                             ),
-                            padding:
-                            EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-                            child: Text(
-                              "Status: ${report.status}",
-                              style: GoogleFonts.openSans(
-                                  fontSize: 16, color: Colors.white),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
+      }
+    else {
+      return Scaffold(
+        body: Center(
+            child: CircularProgressIndicator()),
+      );
+    }
+
+  },
+);
   }
 
   Future<void> _selectDate(BuildContext context) async {

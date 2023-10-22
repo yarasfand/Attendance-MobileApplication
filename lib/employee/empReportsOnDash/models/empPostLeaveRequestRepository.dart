@@ -29,6 +29,7 @@ class SubmissionRepository {
 
     if (response.statusCode == 200) {
       // Request was successful
+      print(response.body);
       print("Response submitted");
     }
     else {

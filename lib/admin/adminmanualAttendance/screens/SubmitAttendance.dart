@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppBar_constant.dart';
+import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
+import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
+import '../../../No_internet/no_internet.dart';
 import '../../adminReportsFiles/models/getActiveEmployeesModel.dart';
 import '../bloc/manual_punch_bloc.dart';
 import '../bloc/manual_punch_event.dart';
 import '../models/punchDataModel.dart';
 import '../models/punchRepository.dart';
 
-class SubmitAttendance extends StatefulWidget {
-  final List<GetActiveEmpModel> selectedEmployees;
-
-  SubmitAttendance({required this.selectedEmployees});
-
-  @override
-  _SubmitAttendanceState createState() => _SubmitAttendanceState();
-}
 
 void _showToast(BuildContext context) {
   Fluttertoast.showToast(
@@ -29,177 +27,257 @@ void _showToast(BuildContext context) {
   );
 }
 
+class SubmitAttendance extends StatefulWidget {
+  final List<GetActiveEmpModel> selectedEmployees;
+
+  SubmitAttendance({required this.selectedEmployees});
+
+  @override
+  _SubmitAttendanceState createState() => _SubmitAttendanceState();
+}
+
 class _SubmitAttendanceState extends State<SubmitAttendance> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay? selectedInTime;
   TimeOfDay? selectedOutTime;
+  bool isInternetLost = false;
+
+  void _showToast(BuildContext context) {
+    Fluttertoast.showToast(
+      msg: 'Attendance Submitted',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ManualPunchBloc(repository: ManualPunchRepository()),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Submit Attendance'),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Card(
-                elevation: 4.0,
-                margin: const EdgeInsets.all(16.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      const Text(
-                        'Select Date and Time:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Calendar for date selection
-                      ListTile(
-                        title: const Text('Select Date:'),
-                        trailing: Text(
-                          "${selectedDate.toLocal()}".split(' ')[0],
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        onTap: () => _selectDate(context),
-                      ),
-                      const SizedBox(height: 10),
-                      _buildTimePicker(
-                        title: 'In Time',
-                        selectedTime: selectedInTime,
-                        onTimeSelected: (time) {
-                          setState(() {
-                            selectedInTime = time;
-                          });
-                        },
-                      ),
-                      _buildTimePicker(
-                        title: 'Out Time',
-                        selectedTime: selectedOutTime,
-                        onTimeSelected: (time) {
-                          setState(() {
-                            selectedOutTime = time;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
+    return BlocConsumer<InternetBloc, InternetStates>(
+      listener: (context, state) {
+        if (state is InternetLostState) {
+          isInternetLost = true;
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.push(
+              context,
+              PageTransition(
+                child: NoInternet(),
+                type: PageTransitionType.rightToLeft,
               ),
-              Container(
-                margin: EdgeInsets.all(10),
-                decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    headingRowColor: MaterialStatePropertyAll(Color(0xFFE26142)),
-                    columns: const [
-                      DataColumn(label: Text('ID',style: TextStyle(color:Colors.white),)),
-                      DataColumn(label: Text('Name',style: TextStyle(color:Colors.white),)),
-                      DataColumn(label: Text('Remarks',style: TextStyle(color:Colors.white),)),
-                    ],
-                    rows: widget.selectedEmployees.map((employee) {
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(employee.empCode ?? '')),
-                          DataCell(Text(employee.empName ?? '')),
-                          DataCell(Text(employee.remarks ?? '')),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
+            );
+          });
+        } else if (state is InternetGainedState) {
+          if (isInternetLost) {
+            Navigator.pop(context);
+          }
+          isInternetLost = false;
+        }
+      },
+      builder: (context, state) {
+        if (state is InternetGainedState) {
+          return BlocProvider(
+            create: (context) => ManualPunchBloc(repository: ManualPunchRepository()),
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text('Submit Attendance', style: AppBarStyles.appBarTextStyle),
+                backgroundColor: AppBarStyles.appBarBackgroundColor,
+                iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+                centerTitle: true,
               ),
-              const SizedBox(height: 20), // Add some spacing
-              ElevatedButton(
-                onPressed: () {
-                  final List<PunchData> requestDataList = [];
+              body: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Card(
 
-                  // Loop through selected employees to create separate entries for each
-                  for (final employee in widget.selectedEmployees) {
-                    // Format the selected date and time
-                    final formattedDate =
-                        DateFormat("yyyy-MM-dd").format(selectedDate);
-                    final formattedInTime = selectedInTime != null
-                        ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
+                      elevation: 4.0,
+                      margin: const EdgeInsets.all(16.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                              'Select Date and Time',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            // Select Date
+                            ElevatedButton(
+                              onPressed: () => _selectDate(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.secondaryColor, // Button background color
+                                padding: EdgeInsets.all(16), // Padding around the button
+                              ),
+                              child: Text(
+                                "${selectedDate.toLocal()}".split(' ')[0],
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white, // Text color
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // In Time
+                            ElevatedButton(
+                              onPressed: () => _selectTime(context, selectedInTime, (time) {
+                                setState(() {
+                                  selectedInTime = time;
+                                });
+                              }),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.secondaryColor,
+                                padding: EdgeInsets.all(16),
+                              ),
+                              child: Text(
+                                selectedInTime != null
+                                    ? selectedInTime!.format(context)
+                                    : 'Select In Time',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // Out Time
+                            ElevatedButton(
+                              onPressed: () => _selectTime(context, selectedOutTime, (time) {
+                                setState(() {
+                                  selectedOutTime = time;
+                                });
+                              }),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.brightWhite,
+                                padding: EdgeInsets.all(16),
+                              ),
+                              child: Text(
+                                selectedOutTime != null
+                                    ? selectedOutTime!.format(context)
+                                    : 'Select Out Time',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+
+
+                    Container(
+                      margin: EdgeInsets.all(10),
+                      decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          headingRowColor: MaterialStatePropertyAll(AppColors.primaryColor),
+                          columns: const [
+                            DataColumn(label: Text('ID', style: TextStyle(color: Colors.white))),
+                            DataColumn(label: Text('Name', style: TextStyle(color: Colors.white))),
+                            DataColumn(label: Text('Remarks', style: TextStyle(color: Colors.white))),
+                          ],
+                          rows: widget.selectedEmployees.map((employee) {
+                            return DataRow(
+                              cells: [
+                                DataCell(Text(employee.empCode ?? '')),
+                                DataCell(Text(employee.empName ?? '')),
+                                DataCell(Text(employee.remarks ?? '')),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        final List<PunchData> requestDataList = [];
+
+                        for (final employee in widget.selectedEmployees) {
+                          final formattedDate =
+                          DateFormat("yyyy-MM-dd").format(selectedDate);
+                          final formattedInTime = selectedInTime != null
+                              ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
                             selectedDate.year,
                             selectedDate.month,
                             selectedDate.day,
                             selectedInTime!.hour,
                             selectedInTime!.minute,
                           ))
-                        : '2023-10-10T09:00:00';
+                              : '2023-10-10T09:00:00';
 
-                    final formattedOutTime = selectedOutTime != null
-                        ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
+                          final formattedOutTime = selectedOutTime != null
+                              ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
                             selectedDate.year,
                             selectedDate.month,
                             selectedDate.day,
                             selectedOutTime!.hour,
                             selectedOutTime!.minute,
                           ))
-                        : '2023-10-10T10:00:00';
+                              : '2023-10-10T10:00:00';
 
-                    // Create a separate PunchData object for In Time
-                    final inTime = PunchData(
-                      cardNo: employee.empCode ?? '',
-                      punchDatetime: formattedInTime,
-                      pDay: "N",
-                      isManual: "Y",
-                      payCode: "1999",
-                      machineNo: "1",
-                      datetime1: formattedOutTime,
-                      viewInfo: 0,
-                      showData: 0,
-                      remark: employee.remarks ?? '',
-                    );
+                          final inTime = PunchData(
+                            cardNo: employee.empCode ?? '',
+                            punchDatetime: formattedInTime,
+                            pDay: "N",
+                            isManual: "Y",
+                            payCode: "1999",
+                            machineNo: "1",
+                            datetime1: formattedOutTime,
+                            viewInfo: 0,
+                            showData: 0,
+                            remark: employee.remarks ?? '',
+                          );
 
-                    // Create a separate PunchData object for Out Time
-                    final outTime = PunchData(
-                      cardNo: employee.empCode ?? '',
-                      punchDatetime: formattedOutTime,
-                      pDay: "N",
-                      isManual: "Y",
-                      payCode: "1999",
-                      machineNo: "1",
-                      datetime1: formattedInTime,
-                      viewInfo: 0,
-                      showData: 0,
-                      remark: employee.remarks ?? '',
-                    );
+                          final outTime = PunchData(
+                            cardNo: employee.empCode ?? '',
+                            punchDatetime: formattedOutTime,
+                            pDay: "N",
+                            isManual: "Y",
+                            payCode: "1999",
+                            machineNo: "1",
+                            datetime1: formattedInTime,
+                            viewInfo: 0,
+                            showData: 0,
+                            remark: employee.remarks ?? '',
+                          );
 
-                    // Add both In Time and Out Time entries to the list
-                    requestDataList.add(inTime);
-                    requestDataList.add(outTime);
-                  }
+                          requestDataList.add(inTime);
+                          requestDataList.add(outTime);
+                        }
 
-                  // Dispatch the ManualPunchSubmitEvent to trigger the submission logic
-                  context.read<ManualPunchBloc>().add(
-                        ManualPunchSubmitEvent(
-                          requestDataList: requestDataList,
-                        ),
-                      );
-                  _showToast(context);
-                },
-                child: const Text('Submit Attendance'),
+                        context.read<ManualPunchBloc>().add(
+                          ManualPunchSubmitEvent(
+                            requestDataList: requestDataList,
+                          ),
+                        );
+                        _showToast(context);
+                      },
+                      child: const Text('Submit Attendance'),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        } else {
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+      },
     );
   }
 
@@ -244,10 +322,10 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
   }
 
   Future<void> _selectTime(
-    BuildContext context,
-    TimeOfDay? selectedTime,
-    Function(TimeOfDay) onTimeSelected,
-  ) async {
+      BuildContext context,
+      TimeOfDay? selectedTime,
+      Function(TimeOfDay) onTimeSelected,
+      ) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: selectedTime ?? TimeOfDay.now(),

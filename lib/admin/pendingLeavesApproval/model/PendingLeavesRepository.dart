@@ -9,6 +9,7 @@ class PendingLeavesRepository {
     final response = await http.get(Uri.parse(apiUrl));
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
+      print('Received JSON Data: $jsonList');
       List<PendingLeavesModel> pendingLeavesList = jsonList
           .map((data) => PendingLeavesModel.fromJson(data))
           .toList();

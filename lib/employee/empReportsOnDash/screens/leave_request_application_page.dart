@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../bloc/empLeaveRequestApiFiles/emp_leave_request_bloc.dart';
@@ -21,6 +22,7 @@ class LeaveRequestForm extends StatefulWidget {
 
 class _LeaveRequestFormState extends State<LeaveRequestForm> {
   final _reasonController = TextEditingController();
+  final _reasonTextController = TextEditingController();
   final _leaveDurationController = TextEditingController();
   late String _currentTime;
 
@@ -90,58 +92,17 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Leave Form",
+          style: AppBarStyles.appBarTextStyle,
+        ),
+        backgroundColor: AppColors.primaryColor,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+      ),
       body: Column(
         children: <Widget>[
-          Container(
-            height: MediaQuery.of(context).size.height / 3,
-            color: AppColors.primaryColor,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                const SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        // Handle the back button press here
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'Leave Details',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 48), // For proper alignment
-                  ],
-                ),
-                Card(
-                  color: AppColors.offWhite,
-                  child: Container(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      _currentTime, // Display the current date and time
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           Expanded(
             child: BlocProvider(
               create: (context) {
@@ -181,7 +142,8 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                       child: Center(
                         child: Container(
                           color: AppColors.brightWhite,
-                          width: MediaQuery.of(context).size.width / 1.2, // Adjust the width as needed
+                          width: MediaQuery.of(context).size.width /
+                              1.2, // Adjust the width as needed
                           child: Card(
                             color: AppColors.brightWhite,
                             elevation: 5,
@@ -192,7 +154,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                                   Text(
                                     'Leave Request Form',
                                     style: GoogleFonts.openSans(
-                                      textStyle: TextStyle(
+                                      textStyle: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -211,10 +173,12 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                                           onTap: () => _selectFromDate(context),
                                           decoration: const InputDecoration(
                                             hintText: 'Select Date',
-                                            suffixIcon: Icon(Icons.calendar_today),
+                                            suffixIcon:
+                                                Icon(Icons.calendar_today),
                                           ),
                                           controller: TextEditingController(
-                                            text: "${_fromDate.toLocal()}".split(' ')[0],
+                                            text: "${_fromDate.toLocal()}"
+                                                .split(' ')[0],
                                           ),
                                         ),
                                       ),
@@ -233,10 +197,12 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                                           onTap: () => _selectToDate(context),
                                           decoration: const InputDecoration(
                                             hintText: 'Select Date',
-                                            suffixIcon: Icon(Icons.calendar_today),
+                                            suffixIcon:
+                                                Icon(Icons.calendar_today),
                                           ),
                                           controller: TextEditingController(
-                                            text: "${_toDate.toLocal()}".split(' ')[0],
+                                            text: "${_toDate.toLocal()}"
+                                                .split(' ')[0],
                                           ),
                                         ),
                                       ),
@@ -244,7 +210,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                                   ),
                                   const SizedBox(height: 16),
                                   const Text(
-                                    'Reason',
+                                    'Leave Type',
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   DropdownButtonFormField<String>(
@@ -262,10 +228,29 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                                     onChanged: (value) {
                                       setState(() {
                                         _selectedReason = value!;
-                                        _reasonController.text = _selectedReason;
-                                        selectedTypeId = _reasonToLTypeId[value] ?? 0;
+                                        _reasonController.text =
+                                            _selectedReason;
+                                        selectedTypeId =
+                                            _reasonToLTypeId[value] ?? 0;
                                       });
                                     },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Reason for Leave',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  TextField(
+                                    controller: _reasonTextController,
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter your reason for leave',
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Leave Duration',
+                                    style: TextStyle(fontSize: 16),
                                   ),
                                   const SizedBox(height: 16),
                                   const Text(
@@ -295,30 +280,35 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30.0), // Adjust the value as needed
-                                      ), backgroundColor: Colors.blue,
+                                        borderRadius: BorderRadius.circular(
+                                            30.0), // Adjust the value as needed
+                                      ),
+                                      backgroundColor: Colors.blue,
                                       padding: EdgeInsets.all(16.0),
-                                      minimumSize: Size(200, 40), // Change the button color as needed
+                                      minimumSize: Size(200,
+                                          40), // Change the button color as needed
                                     ),
                                     onPressed: () async {
                                       final selectedLeaveDuration =
                                           _leaveDurationController.text;
-                                      final selectedReason = _reasonController.text;
+                                      final selectedTextReason = _reasonTextController.text; // Get the reason from the text field
+                                      final selectedReason = _reasonController.text; // Get the reason from the text field
+                                      print("Selected Reason: $selectedReason ");
                                       final selectedTypeId =
                                           _reasonToLTypeId[selectedReason] ?? 0;
 
                                       final submissionModel = SubmissionModel(
                                         employeeId: empId.toString(),
                                         fromDate:
-                                        "${_fromDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
+                                            "${_fromDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
                                         toDate:
-                                        "${_toDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
-                                        reason: selectedReason,
+                                            "${_toDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
+                                        reason: selectedTextReason,
                                         leaveId: selectedTypeId,
                                         leaveDuration: selectedLeaveDuration,
                                         status: 'UnApproved',
                                         applicationDate:
-                                        "${DateTime.now().toIso8601String().split('T')[0]}T00:00:00Z",
+                                            "${DateTime.now().toIso8601String().split('T')[0]}T00:00:00Z",
                                         remark: '',
                                       );
 
@@ -334,19 +324,22 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                                         submissionModel.remark,
                                       ));
 
-                                      await Future.delayed(const Duration(seconds: 2));
+                                      await Future.delayed(
+                                          const Duration(seconds: 2));
 
-                                      if (_postRequestBloc.state is SubmissionSuccess) {
+                                      if (_postRequestBloc.state
+                                          is SubmissionSuccess) {
                                         print("Successful");
                                         Fluttertoast.showToast(
                                           msg: "Request submitted successfully",
                                         );
-                                      } else if (_postRequestBloc.state is SubmissionError) {
+                                      } else if (_postRequestBloc.state
+                                          is SubmissionError) {
                                         print("Not Successful");
 
                                         Fluttertoast.showToast(
                                           msg:
-                                          "Error: ${(_postRequestBloc.state as SubmissionError).error}",
+                                              "Error: ${(_postRequestBloc.state as SubmissionError).error}",
                                         );
                                       }
                                     },
@@ -365,8 +358,6 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                         ),
                       ),
                     );
-
-
                   } else if (state is EmpLeaveRequestErrorState) {
                     return Text("Error: ${state.message}");
                   } else {

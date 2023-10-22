@@ -5,9 +5,12 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import '../../../No_internet/no_internet.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../adminReportsFiles/models/getActiveEmployeesModel.dart';
@@ -139,18 +142,41 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
       );
     }
   }
+  bool isInternetLost = false;
 
   @override
   Widget build(BuildContext context) {
     final adminGeofenceBloc = BlocProvider.of<AdminGeoFenceBloc>(context);
     return BlocConsumer<InternetBloc, InternetStates>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is InternetLostState) {
+            // Set the flag to true when internet is lost
+            isInternetLost = true;
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.push(
+                context,
+                PageTransition(
+                  child: NoInternet(),
+                  type: PageTransitionType.rightToLeft,
+                ),
+              );
+            });
+          } else if (state is InternetGainedState) {
+            // Check if internet was previously lost
+            if (isInternetLost) {
+              // Navigate back to the original page when internet is regained
+              Navigator.pop(context);
+            }
+            isInternetLost = false; // Reset the flag
+          }
+
+        },
         builder: (context, state) {
           if (state is InternetGainedState) {
             if (currentLat != null && currentLong != null && !locationError) {
               return Scaffold(
                 appBar: AppBar(
-                  backgroundColor: AppColors.primaryColor,
+                  backgroundColor: AppBarStyles.appBarBackgroundColor,
                   elevation: 0,
                   title: const Center(
                     child: Padding(
@@ -158,11 +184,11 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                           EdgeInsets.only(right: 55.0), // Add right padding
                       child: Text(
                         "GEOFENCING",
-                        style: TextStyle(color: Colors.white),
+                        style: AppBarStyles.appBarTextStyle,
                       ),
                     ),
                   ),
-                  iconTheme: IconThemeData(color: Colors.white),
+                  iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
                 ),
                 body: Stack(
                   children: [
@@ -241,10 +267,11 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                           EdgeInsets.only(right: 55.0), // Add right padding
                       child: Text(
                         "GEOFENCING",
-                        style: TextStyle(color: Colors.white),
+                        style: AppBarStyles.appBarTextStyle,
                       ),
                     ),
                   ),
+                  iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
                 ),
                 body: const Center(
                   child: Column(
@@ -260,33 +287,8 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                 ),
               );
             }
-          } else if (state is InternetLostState) {
-            return Expanded(
-              child: Scaffold(
-                body: Container(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "No Internet Connection!",
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Lottie.asset('assets/no_wifi.json'),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          } else {
+          }
+          else {
             checkLocationPermissionAndFetchLocation();
             return Scaffold(
               appBar: AppBar(
@@ -297,10 +299,11 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                     padding: EdgeInsets.only(right: 55.0), // Add right padding
                     child: Text(
                       "GEOFENCING",
-                      style: TextStyle(color: Colors.white),
+                      style: AppBarStyles.appBarTextStyle,
                     ),
                   ),
                 ),
+                iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
               ),
               body: const Center(
                 child: Column(

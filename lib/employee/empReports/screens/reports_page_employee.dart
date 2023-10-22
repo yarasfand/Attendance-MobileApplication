@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/employee/empReports/screens/salary_report_page.dart';
@@ -12,6 +13,43 @@ import 'monthly_report_page.dart';
 class EmpReportsPage extends StatelessWidget {
 
   const EmpReportsPage({super.key});
+
+  Future<bool?> _onBackPressed(BuildContext context) async {
+    bool? exitConfirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Exit'),
+        content: Text('Are you sure you want to exit the app?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (exitConfirmed == true) {
+      exitApp();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+  void exitApp() {
+    SystemNavigator.pop();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +64,13 @@ class EmpReportsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              //ASK WETHER TO EXIT APP OR NOT
+              WillPopScope(
+                onWillPop: () async {
+                  return _onBackPressed(context).then((value) => value ?? false);
+                },
+                child: const SizedBox(),
+              ),
               buildCard(
                 context,
                 "Daily Report",

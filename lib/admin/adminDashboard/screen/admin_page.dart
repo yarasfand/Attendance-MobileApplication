@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -88,6 +89,41 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  Future<bool?> _onBackPressed(BuildContext context) async {
+    bool? exitConfirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Exit'),
+        content: Text('Are you sure you want to exit the app?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (exitConfirmed == true) {
+      exitApp();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void exitApp() {
+    SystemNavigator.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<AdminCloudStorageInfo> demoMyFiles = createDemoMyFiles(adminData);
@@ -101,6 +137,14 @@ class _AdminPageState extends State<AdminPage> {
               padding: const EdgeInsets.all(defaultPadding),
               child: Column(
                 children: [
+                  // TO ASK WANT TO GO BACK OR NOT
+                  WillPopScope(
+                    onWillPop: () async {
+                      return _onBackPressed(context)
+                          .then((value) => value ?? false);
+                    },
+                    child: const SizedBox(),
+                  ),
                   const SizedBox(height: defaultPadding),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,35 +229,17 @@ class _AdminPageState extends State<AdminPage> {
                               const AdminStorageDetails(),
                             const SizedBox(height: defaultPadding),
                             if (AdminResponsive.isMobile(context))
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                               Column(
                                 children: [
-                                  const Column(
-                                    children: [
-                                      Text(
-                                        "Contact Details",
-                                        style: TextStyle(
-                                            color: Colors.black, fontSize: 10),
-                                      ),
-                                      Text(
-                                        "FOR SUPPORT: 123456789",
-                                        style: TextStyle(
-                                            color: Colors.black, fontSize: 10),
-                                      ),
-                                      Text(
-                                        "POWERED BY: PIONEER 2023",
-                                        style: TextStyle(
-                                            color: Colors.black, fontSize: 10),
-                                      ),
-                                    ],
-                                  ),
-                                  FloatingActionButton.extended(
-                                    onPressed: () {
-                                      // Save data
-                                    },
-                                    label: const Icon(Icons.message_outlined),
-                                  ),
+                                  // Text(
+                                  //   "POWERED BY: PIONEER 2023",
+                                  //   style: TextStyle(
+                                  //       color: Colors.black, fontSize: 10),
+                                  // ),
+                                  SizedBox(
+                                      height: 60,
+                                      width: 60,
+                                      child: Image.asset('assets/images/pioneer_logo_app.png')),
                                 ],
                               ),
                             const SizedBox(
@@ -254,7 +280,8 @@ class _AdminPageState extends State<AdminPage> {
               ),
             ),
           );
-        } else {
+        }
+        else {
           return Expanded(
             child: Scaffold(
               body: Container(

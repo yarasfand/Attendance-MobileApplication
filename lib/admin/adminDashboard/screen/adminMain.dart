@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
-import 'package:project/admin/pendingLeavesApproval/screens/PendingLeavesPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants/AppColor_constants.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
@@ -10,7 +9,8 @@ import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
 import '../../adminGeofence/screens/GeoFenceMainPage.dart';
-import '../../adminGeofence/screens/adminGeofencing.dart';
+import '../../adminProfile/models/AdminProfileModel.dart';
+import '../../adminProfile/models/AdminProfileRepository.dart';
 import '../../adminProfile/screens/adminProfilePage.dart';
 import '../../adminReports/screens/adminReports_page.dart';
 import '../bloc/admin_dash_bloc.dart';
@@ -28,10 +28,15 @@ class AdminMainPage extends StatefulWidget {
 
 class _MainPageState extends State<AdminMainPage> {
   final AdminDashBloc dashBloc = AdminDashBloc();
+  final AdminProfileRepository profileRepository =
+  AdminProfileRepository('http://62.171.184.216:9595');
+  late String corporateId;
+  late String username;
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('Login', false); // Set the login status to false
+    prefs.setBool('isLoggedIn', false);
+    prefs.setBool('isEmployee', false);
 
     Navigator.pushReplacement(
       context,
@@ -42,122 +47,149 @@ class _MainPageState extends State<AdminMainPage> {
               create: (context) => SignInBloc(),
               child: LoginPage(),
             ),
-          ); // Navigate back to LoginPage
+          );
         },
       ),
     );
   }
 
   AdminDrawerItem item = AdminDrawerItems.home;
+  AdminProfileModel? profileData;
 
   @override
   void initState() {
     super.initState();
+    loadSharedPrefs().then((_) {
+      fetchAdminProfileData(corporateId, username);
+    });
+  }
+
+
+  Future<void> fetchAdminProfileData(String corporateId, String username) async {
+    try {
+      print("Fetching profile data with corporateId: $corporateId, username: $username");
+      final data = await profileRepository.fetchAdminProfile(corporateId, username);
+      print("Profile data retrieved: $data");
+      setState(() {
+        profileData = data;
+      });
+    }
+    catch (e) {
+      print('Error fetching admin profile: $e');
+    }
+  }
+
+  Future<void> loadSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    corporateId = prefs.getString('corporate_id') ?? '';
+    username = prefs.getString('admin_username') ?? '';
+    print(corporateId);
+    print(username);
   }
 
   @override
-  Widget build(BuildContext context) =>
-      BlocConsumer<InternetBloc, InternetStates>(
-          listener: (context, state) {},
-          builder: (context, state) {
-            if (state is InternetGainedState) {
-              return Scaffold(
-                appBar: PreferredSize(
-                  preferredSize: AppBar().preferredSize,
-                  child: AdminAppBar(
-                    pageHeading: _getPageInfo(item),
-                  ),
-                ),
-                drawer:ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(40.0), // Adjust as needed
-                    bottomRight: Radius.circular(40.0), // Adjust as needed
-                  ),
-                  child: Drawer(
-                    child: Column(
-                      children: [
-                        UserAccountsDrawerHeader(
-                          accountName: Text("Name"),
-                          accountEmail: Text("youremail@example.com"),
-                          currentAccountPicture: CircleAvatar(
-                            backgroundImage: AssetImage(
-                              "assets/icons/userr.png",
-                            ),
-                          ),
-                        ),
-                        Container(
-                          child: MyDrawer(
-                            onSelectedItems: (selectedItem) {
-                              setState(() {
-                                item = selectedItem;
-                                Navigator.of(context).pop();
-                              });
-
-                              switch (item) {
-                                case AdminDrawerItems.home:
-                                  dashBloc.add(NavigateToHomeEvent());
-                                  break;
-
-                                case AdminDrawerItems.geofence:
-                                  dashBloc.add(NavigateToGeofenceEvent());
-                                  break;
-
-                                case AdminDrawerItems.reports:
-                                  dashBloc.add(NavigateToReportsEvent());
-                                  break;
-
-                                case AdminDrawerItems.profile:
-                                  dashBloc.add(NavigateToProfileEvent());
-                                  break;
-
-                                case AdminDrawerItems.logout:
-                                  dashBloc.add(NavigateToLogoutEvent());
-                                  break;
-
-                                default:
-                                  dashBloc.add(NavigateToHomeEvent());
-                                  break;
-                              }
-                            },
-                          ),
-                        ),
-                      ],
+  Widget build(BuildContext context) => BlocConsumer<InternetBloc, InternetStates>(
+    listener: (context, state) {},
+    builder: (context, state) {
+      if (state is InternetGainedState) {
+        return Scaffold(
+          appBar: PreferredSize(
+            preferredSize: AppBar().preferredSize,
+            child: AdminAppBar(
+              pageHeading: _getPageInfo(item),
+            ),
+          ),
+          drawer: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(40.0),
+              bottomRight: Radius.circular(40.0),
+            ),
+            child: Drawer(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    UserAccountsDrawerHeader(
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      accountName: Text(profileData?.userName ?? 'Loading...'),
+                      accountEmail: Text(profileData?.email ?? 'Loading...'),
+                      currentAccountPicture: const CircleAvatar(
+                        backgroundImage: AssetImage("assets/icons/userr.png"),
+                      ),
                     ),
-                  ),
-                ),
-                backgroundColor: Colors.white,
-                body: getDrawerPage(),
-              );
-            } else if (state is InternetLostState) {
-              return Scaffold(
-                body: Container(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "No Internet Connection!",
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Lottie.asset('assets/no_wifi.json'),
-                      ],
+                    MyDrawer(
+                      onSelectedItems: (selectedItem) {
+                        setState(() {
+                          item = selectedItem;
+                          Navigator.of(context).pop();
+                        });
+
+                        switch (item) {
+                          case AdminDrawerItems.home:
+                            dashBloc.add(NavigateToHomeEvent());
+                            break;
+
+                          case AdminDrawerItems.geofence:
+                            dashBloc.add(NavigateToGeofenceEvent());
+                            break;
+
+                          case AdminDrawerItems.reports:
+                            dashBloc.add(NavigateToReportsEvent());
+                            break;
+
+                          case AdminDrawerItems.profile:
+                            dashBloc.add(NavigateToProfileEvent());
+                            break;
+
+                          case AdminDrawerItems.logout:
+                            dashBloc.add(NavigateToLogoutEvent());
+                            break;
+
+                          default:
+                            dashBloc.add(NavigateToHomeEvent());
+                            break;
+                        }
+                      },
                     ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          backgroundColor: Colors.white,
+          body: getDrawerPage(),
+        );
+      } else if (state is InternetLostState) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "No Internet Connection!",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              );
-            } else {
-              return Scaffold(
-                body: Container(),
-              );
-            }
-          });
+                const SizedBox(
+                  height: 20,
+                ),
+                Lottie.asset('assets/no_wifi.json'),
+              ],
+            ),
+          ),
+        );
+      } else {
+        return Scaffold(
+          body: Container(),
+        );
+      }
+    },
+  );
 
   Widget getDrawerPage() {
     return BlocBuilder<AdminDashBloc, AdminDashboardkState>(
@@ -166,11 +198,11 @@ class _MainPageState extends State<AdminMainPage> {
           if (state is NavigateToProfileState) {
             return AdminProfilePage();
           } else if (state is NavigateToGeofenceState) {
-            return GeoFenceMainPage();
+            return const GeoFenceMainPage();
           } else if (state is NavigateToHomeState) {
-            return AdminDashboard();
+            return const AdminDashboard();
           } else if (state is NavigateToReportsState) {
-            return AdminReportsPage();
+            return const AdminReportsPage();
           } else if (state is NavigateToLogoutState) {
             return AlertDialog(
               title: const Text("Confirm Logout"),
@@ -184,21 +216,19 @@ class _MainPageState extends State<AdminMainPage> {
                       MaterialPageRoute(
                         builder: (context) => const AdminMainPage(),
                       ),
-                    ); // Close the dialog
-                    // Close the dialog
+                    );
                   },
                 ),
                 TextButton(
                   child: const Text('Logout'),
                   onPressed: () {
-                    // Add the logic to perform logout here
-                    _logout(context); // Close the dialog
+                    _logout(context);
                   },
                 ),
               ],
             );
           } else {
-            return AdminDashboard();
+            return const AdminDashboard();
           }
         });
   }
@@ -208,7 +238,7 @@ class _MainPageState extends State<AdminMainPage> {
       case AdminDrawerItems.home:
         return "HOME";
       case AdminDrawerItems.geofence:
-        return "GEOFENCE";
+        return "GEOFENCE HUB";
       case AdminDrawerItems.profile:
         return "PROFILE";
       case AdminDrawerItems.reports:

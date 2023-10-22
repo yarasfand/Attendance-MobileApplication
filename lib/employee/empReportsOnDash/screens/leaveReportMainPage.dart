@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 
 import 'leave_history_page.dart';
@@ -9,13 +10,11 @@ class LeaveRequestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'Leave Request',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: AppBarStyles.appBarTextStyle
         ),
         iconTheme: const IconThemeData(
           color: Colors.white,
