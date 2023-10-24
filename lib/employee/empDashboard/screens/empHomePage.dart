@@ -73,11 +73,9 @@ class _HomePageState extends State<EmpDashHome> {
     }
   }
 
-
   void exitApp() {
     SystemNavigator.pop();
   }
-
 
   Future<void> _retrieveCorporateID() async {
     final sharedPref = await SharedPreferences.getInstance();
@@ -204,7 +202,8 @@ class _HomePageState extends State<EmpDashHome> {
                                 //ASK WETHER TO EXIT APP OR NOT
                                 WillPopScope(
                                   onWillPop: () async {
-                                    return _onBackPressed(context).then((value) => value ?? false);
+                                    return _onBackPressed(context)
+                                        .then((value) => value ?? false);
                                   },
                                   child: const SizedBox(),
                                 ),
@@ -228,7 +227,7 @@ class _HomePageState extends State<EmpDashHome> {
                                             ),
                                             child: ClipOval(
                                               child: Image.asset(
-                                                "assets/icons/man.png",
+                                                "assets/icons/userr.png",
                                                 width: 100,
                                                 height: 45,
                                               ),
@@ -401,7 +400,9 @@ class _HomePageState extends State<EmpDashHome> {
                                               Navigator.push(
                                                   context,
                                                   PageTransition(
-                                                      child: ReportsMainPage(),
+                                                      child: ReportsMainPage(
+                                                        viaDrawer: false,
+                                                      ),
                                                       type: PageTransitionType
                                                           .rightToLeft));
                                             },

@@ -32,6 +32,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
   double? currentLat;
   double? currentLong;
   bool locationError = false;
+  String Street = "";
   String fullAddress = "";
   String countryName = "";
 
@@ -61,7 +62,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
       geofenceRadius = double.parse(locationData!.radius!);
     }
 
-    print("This are ${getLat} ${getLong} ${geofenceRadius}");
+    print("This are ${getLat} ${getLong} ${geofenceRadius} ");
   }
 
   Future<void> checkLocationPermission() async {
@@ -89,7 +90,11 @@ class _EmployeeMapState extends State<EmployeeMap> {
         currentLong!,
       );
 
+      print("This is the distanceeeeeeeee! ${distance} ");
+
       if (distance <= geofenceRadius!) {
+        print(
+            "${geofenceLatitude} ${geofenceLongitude} ${currentLat} ${currentLong} ${distance}");
         //inRadius();
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -155,9 +160,20 @@ class _EmployeeMapState extends State<EmployeeMap> {
           textColor: Colors.white,
         );
       }
+    } else if (geofenceLatitude == null || geofenceLongitude == null) {
+      Fluttertoast.showToast(
+        msg:
+        'Oops...Geofence Not Started by office.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } else {
       Fluttertoast.showToast(
-        msg: 'Failed to mark attendance. Please check your Internet Connection/Location.',
+        msg:
+            'Failed to mark attendance. Please check your internet connection.',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
@@ -253,7 +269,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
         permission == LocationPermission.always) {
       try {
         final data = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
+          desiredAccuracy: LocationAccuracy.best,
         );
         if (mounted) {
           currentLat = data.latitude;
@@ -272,13 +288,13 @@ class _EmployeeMapState extends State<EmployeeMap> {
   }
 
   /*
-  void inRadius() {
+  void _geoFenceNotStart() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Congrats'),
-          content: const Text('Your Attendance Is MARKED'),
+          title: const Text('Oops..'),
+          content: const Text('Geofence Not Started by office'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -291,6 +307,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
       },
     );
   }
+
 
   void outRadius() {
     showDialog(
@@ -346,21 +363,23 @@ class _EmployeeMapState extends State<EmployeeMap> {
       final placemarks = await placemarkFromCoordinates(lat, long);
       if (mounted && placemarks.isNotEmpty) {
         setState(() {
-          if (placemarks[0].street != null) {
-            fullAddress = placemarks[0].street!;
+          if (placemarks[3].street != null) {
+            Street = placemarks[2].street!;
           }
-          if (placemarks[0].subLocality != null) {
-            sublocaity = placemarks[0].subLocality!;
+          if (placemarks[3].subLocality != null) {
+            sublocaity = placemarks[3].subLocality!;
           }
           final List<String> countryNameParts = [];
-          if (placemarks[0].locality != null) {
-            countryNameParts.add(placemarks[0].locality!);
+          if (placemarks[4].locality != null) {
+            countryNameParts.add(placemarks[4].locality!);
           }
           if (placemarks[0].country != null) {
             countryNameParts.add(placemarks[0].country!);
           }
           countryName = countryNameParts.join(', ');
         });
+        fullAddress = "${Street} ${sublocaity} ${countryName}";
+        print("${fullAddress}");
       }
     } catch (e) {
       print('Error getting address: $e');
@@ -423,7 +442,8 @@ class _EmployeeMapState extends State<EmployeeMap> {
           centerTitle: true,
         ),
         body: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: EdgeInsets.fromLTRB(
+              15, MediaQuery.of(context).size.height / 8.5, 15, 15),
           child: ListView(
             children: [
               Stack(
@@ -440,34 +460,32 @@ class _EmployeeMapState extends State<EmployeeMap> {
                     ),
                   ),
 
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10.0),
+                  ClipOval(
                     child: selectedImage != null
                         ? Image.file(
                             selectedImage!,
                             fit: BoxFit.cover,
-                            width: MediaQuery.of(context).size.height / 5,
-                            height: MediaQuery.of(context).size.height / 5,
+                            width: MediaQuery.of(context).size.height / 4.5,
+                            height: MediaQuery.of(context).size.height / 4.5,
                           )
                         : Image.asset(
-                            "assets/icons/man.png",
+                            "assets/icons/userr.png",
                             width: MediaQuery.of(context).size.height / 5,
                             height: MediaQuery.of(context).size.height / 5,
                           ),
                   ),
                 ],
               ),
-              if (fullAddress.isNotEmpty)
+              if (Street.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(left: 25.0, right: 25.0),
                   child: Card(
-                    elevation: 4, // Add elevation for a raised appearance
+                    elevation: 4,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(25.0),
                     ),
                     // Use LinearGradient for a gradient background
-                    color: Colors
-                        .transparent, // Set the card background to transparent
+
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -478,7 +496,7 @@ class _EmployeeMapState extends State<EmployeeMap> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "Street: $fullAddress",
+                            "Street: $Street",
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -490,23 +508,22 @@ class _EmployeeMapState extends State<EmployeeMap> {
                               "Sublocality: $sublocaity",
                               style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
                                 color: Colors.black,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           Text(
                             "Country: $countryName",
                             style: const TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
                               color: Colors.black,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 7),
-                          const SizedBox(height: 7),
                           Container(
                             padding: const EdgeInsets.all(
-                                5.0), // Adjust padding as needed
+                                2.0), // Adjust padding as needed
                             decoration: BoxDecoration(
                               // Background color for the date capsule
                               borderRadius: BorderRadius.circular(8.0),

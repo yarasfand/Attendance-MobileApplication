@@ -65,8 +65,8 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
       final geofenceModel = AdminGeoFenceModel(
         empId: employee.empId ?? 0,
         empName: employee.empName,
-        lat: currentLat.toString(),
-        lon: currentLong.toString(),
+        lat: sendLat.toString(),
+        lon: sendLong.toString(),
         radius: sendRadius.toString(),
         emailAddress: null,
         fatherName: null,
@@ -142,6 +142,13 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
       );
     }
   }
+
+  void popPage() {
+    Future.delayed(Duration(seconds: 3), () {
+      Navigator.pop(context);
+    });
+  }
+
   bool isInternetLost = false;
 
   @override
@@ -149,176 +156,155 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
     final adminGeofenceBloc = BlocProvider.of<AdminGeoFenceBloc>(context);
     return BlocConsumer<InternetBloc, InternetStates>(
         listener: (context, state) {
-          if (state is InternetLostState) {
-            // Set the flag to true when internet is lost
-            isInternetLost = true;
-            Future.delayed(Duration(seconds: 2), () {
-              Navigator.push(
-                context,
-                PageTransition(
-                  child: NoInternet(),
-                  type: PageTransitionType.rightToLeft,
-                ),
-              );
-            });
-          } else if (state is InternetGainedState) {
-            // Check if internet was previously lost
-            if (isInternetLost) {
-              // Navigate back to the original page when internet is regained
-              Navigator.pop(context);
-            }
-            isInternetLost = false; // Reset the flag
-          }
-
-        },
-        builder: (context, state) {
-          if (state is InternetGainedState) {
-            if (currentLat != null && currentLong != null && !locationError) {
-              return Scaffold(
-                appBar: AppBar(
-                  backgroundColor: AppBarStyles.appBarBackgroundColor,
-                  elevation: 0,
-                  title: const Center(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.only(right: 55.0), // Add right padding
-                      child: Text(
-                        "GEOFENCING",
-                        style: AppBarStyles.appBarTextStyle,
-                      ),
-                    ),
-                  ),
-                  iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
-                ),
-                body: Stack(
-                  children: [
-                    OpenStreetMapSearchAndPick(
-                      center: LatLong(currentLat!, currentLong!),
-                      buttonColor: AppColors.primaryColor,
-                      buttonText: 'Get This Point',
-                      onPicked: (pickedData) {
-                        getAddress(pickedData.latLong.latitude,
-                            pickedData.latLong.longitude);
-                        setState(() {
-                          sendLat = pickedData.latLong.latitude;
-                          sendLong = pickedData.latLong.longitude;
-                          _submitGeofenceDataForSelectedEmployees();
-                          saveLocationToSharedPreferences(sendLat!, sendLong!);
-                        });
-                        showSnackbar(context, "Cordinates Are Saved");
-                      },
-                      locationPinIconColor: AppColors.secondaryColor,
-                      locationPinText: "${address}",
-                    ),
-                    Positioned(
-                      top: (MediaQuery.of(context).size.height / 2) -
-                          90 -
-                          10, // Adjust position as needed
-                      left: (MediaQuery.of(context).size.width / 2) - 30 - 20,
-                      child: Container(
-                        width: 100, // Adjust the radius as needed
-                        height: 100, // Adjust the radius as needed
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primaryColor.withOpacity(0.25),
-                          border: Border.all(
-                            color: AppColors.secondaryColor,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: (MediaQuery.of(context).size.height / 2.5) ,// Adjust position as needed
-                      left: (MediaQuery.of(context).size.width / 1.24),
-                      child: Container(
-                        child: SfSlider.vertical(
-                          min: 100.0,
-                          max: 300.0,
-                          value: sendRadius,
-                          interval: 50,
-                          showTicks: true,
-                          showLabels: true,
-                          inactiveColor: AppColors.darkGrey,
-                          activeColor: AppColors.primaryColor,
-                          enableTooltip: true,
-                          minorTicksPerInterval: 1,
-                          onChanged: (dynamic value) {
-                            setState(() {
-                              sendRadius = value;
-                              print(sendRadius);
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            } else {
-              checkLocationPermissionAndFetchLocation();
-              return Scaffold(
-                appBar: AppBar(
-                  backgroundColor: AppColors.primaryColor,
-                  elevation: 0,
-                  title: const Center(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.only(right: 55.0), // Add right padding
-                      child: Text(
-                        "GEOFENCING",
-                        style: AppBarStyles.appBarTextStyle,
-                      ),
-                    ),
-                  ),
-                  iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
-                ),
-                body: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text("Fetching Location..."),
-                      SizedBox(height: 16),
-                      Text("Turn On Location..."),
-                    ],
-                  ),
-                ),
-              );
-            }
-          }
-          else {
-            checkLocationPermissionAndFetchLocation();
-            return Scaffold(
-              appBar: AppBar(
-                backgroundColor: AppColors.primaryColor,
-                elevation: 0,
-                title: const Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 55.0), // Add right padding
-                    child: Text(
-                      "GEOFENCING",
-                      style: AppBarStyles.appBarTextStyle,
-                    ),
-                  ),
-                ),
-                iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
-              ),
-              body: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text("Fetching Location..."),
-                    SizedBox(height: 16),
-                    Text("Turn On Location..."),
-                  ],
-                ),
-              ),
-            );
-          }
+      if (state is InternetLostState) {
+        // Set the flag to true when internet is lost
+        isInternetLost = true;
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.push(
+            context,
+            PageTransition(
+              child: NoInternet(),
+              type: PageTransitionType.rightToLeft,
+            ),
+          );
         });
+      } else if (state is InternetGainedState) {
+        // Check if internet was previously lost
+        if (isInternetLost) {
+          // Navigate back to the original page when internet is regained
+          Navigator.pop(context);
+        }
+        isInternetLost = false; // Reset the flag
+      }
+    }, builder: (context, state) {
+      if (state is InternetGainedState) {
+        if (currentLat != null && currentLong != null && !locationError) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppBarStyles.appBarBackgroundColor,
+              elevation: 0,
+              title: const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 55.0), // Add right padding
+                  child: Text(
+                    "GEOFENCING",
+                    style: AppBarStyles.appBarTextStyle,
+                  ),
+                ),
+              ),
+              iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+            ),
+            body: Stack(
+              children: [
+                OpenStreetMapSearchAndPick(
+                  center: LatLong(currentLat!, currentLong!),
+                  buttonColor: AppColors.primaryColor,
+                  buttonText: 'Get This Point',
+                  onPicked: (pickedData) {
+                    getAddress(pickedData.latLong.latitude,
+                        pickedData.latLong.longitude);
+                    setState(() {
+                      sendLat = pickedData.latLong.latitude;
+                      sendLong = pickedData.latLong.longitude;
+                      _submitGeofenceDataForSelectedEmployees();
+                      saveLocationToSharedPreferences(sendLat!, sendLong!);
+                    });
+                    showSnackbar(context, "Cordinates Are Saved");
+                    popPage();
+                  },
+                  locationPinIconColor: AppColors.secondaryColor,
+                  locationPinText: "${address}",
+                ),
+                Positioned(
+                  top: (MediaQuery.of(context).size.height /
+                      2.5), // Adjust position as needed
+                  left: (MediaQuery.of(context).size.width / 1.24),
+                  child: Container(
+                    child: SfSlider.vertical(
+                      min: 100.0,
+                      max: 300.0,
+                      value: sendRadius,
+                      interval: 50,
+                      showTicks: true,
+                      showLabels: true,
+                      inactiveColor: AppColors.darkGrey,
+                      activeColor: AppColors.primaryColor,
+                      enableTooltip: true,
+                      minorTicksPerInterval: 1,
+                      onChanged: (dynamic value) {
+                        setState(() {
+                          sendRadius = value;
+                          print(sendRadius);
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          checkLocationPermissionAndFetchLocation();
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppColors.primaryColor,
+              elevation: 0,
+              title: const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 55.0), // Add right padding
+                  child: Text(
+                    "GEOFENCING",
+                    style: AppBarStyles.appBarTextStyle,
+                  ),
+                ),
+              ),
+              iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+            ),
+            body: const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text("Fetching Location..."),
+                  SizedBox(height: 16),
+                  Text("Turn On Location..."),
+                ],
+              ),
+            ),
+          );
+        }
+      } else {
+        checkLocationPermissionAndFetchLocation();
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: AppColors.primaryColor,
+            elevation: 0,
+            title: const Center(
+              child: Padding(
+                padding: EdgeInsets.only(right: 55.0), // Add right padding
+                child: Text(
+                  "GEOFENCING",
+                  style: AppBarStyles.appBarTextStyle,
+                ),
+              ),
+            ),
+            iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+          ),
+          body: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text("Fetching Location..."),
+                SizedBox(height: 16),
+                Text("Turn On Location..."),
+              ],
+            ),
+          ),
+        );
+      }
+    });
   }
 }

@@ -14,6 +14,7 @@ import '../../empProfilePage/models/empProfileModel.dart';
 import '../../empProfilePage/models/empProfileRepository.dart';
 import '../../empProfilePage/screens/profilepage.dart';
 import '../../empReports/screens/reports_page_employee.dart';
+import '../../empReportsOnDash/screens/ReportsMainPage.dart';
 import '../bloc/employeeDashboardBloc/EmpDashboardk_bloc.dart';
 import 'empDashHome.dart';
 import 'empDrawer.dart';
@@ -56,7 +57,6 @@ class _EmpMainPageState extends State<EmpMainPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize the repository here
     _profileRepository = EmpProfileRepository();
     fetchProfileData();
   }
@@ -87,60 +87,53 @@ class _EmpMainPageState extends State<EmpMainPage> {
                     pageHeading: _getPageInfo(item),
                   ),
                 ),
-                drawer: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(40.0), // Adjust as needed
-                    bottomRight: Radius.circular(40.0), // Adjust as needed
-                  ),
-                  child: Drawer(
-                    child: Column(
-                      children: [
-                        UserAccountsDrawerHeader(
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryColor,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          accountName: Text(empProfile?.empName ?? ""),
-                          accountEmail: Text(empProfile?.emailAddress ?? ""),
-                          currentAccountPicture: const CircleAvatar(
-                            backgroundImage: AssetImage(
-                              "assets/icons/userr.png",
-                            ),
+                drawer: Drawer(
+                  child: Column(
+                    children: [
+                      UserAccountsDrawerHeader(
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryColor,
+                        ),
+                        accountName: Text(empProfile?.empName ?? ""),
+                        accountEmail: Text(empProfile?.emailAddress ?? ""),
+                        currentAccountPicture: const CircleAvatar(
+                          backgroundImage: AssetImage(
+                            "assets/icons/userr.png",
                           ),
                         ),
-                        Container(
-                          child: EmpDrawer(
-                            onSelectedItems: (selectedItem) {
-                              setState(() {
-                                Navigator.of(context).pop();
-                                item = selectedItem;
-                              });
-                              switch (item) {
-                                case EmpDrawerItems.home:
-                                  dashBloc.add(NavigateToHomeEvent());
-                                  break;
+                      ),
+                      Container(
+                        child: EmpDrawer(
+                          onSelectedItems: (selectedItem) {
+                            setState(() {
+                              Navigator.of(context).pop();
+                              item = selectedItem;
+                            });
+                            switch (item) {
+                              case EmpDrawerItems.home:
+                                dashBloc.add(NavigateToHomeEvent());
+                                break;
 
-                                case EmpDrawerItems.reports:
-                                  dashBloc.add(NavigateToReportsEvent());
-                                  break;
+                              case EmpDrawerItems.reports:
+                                dashBloc.add(NavigateToReportsEvent());
+                                break;
 
-                                case EmpDrawerItems.profile:
-                                  dashBloc.add(NavigateToProfileEvent());
-                                  break;
+                              case EmpDrawerItems.profile:
+                                dashBloc.add(NavigateToProfileEvent());
+                                break;
 
-                                case EmpDrawerItems.logout:
-                                  dashBloc.add(NavigateToLogoutEvent());
-                                  break;
+                              case EmpDrawerItems.logout:
+                                dashBloc.add(NavigateToLogoutEvent());
+                                break;
 
-                                default:
-                                  dashBloc.add(NavigateToHomeEvent());
-                                  break;
-                              }
-                            },
-                          ),
+                              default:
+                                dashBloc.add(NavigateToHomeEvent());
+                                break;
+                            }
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
                 backgroundColor: Colors.white,
@@ -186,7 +179,7 @@ class _EmpMainPageState extends State<EmpMainPage> {
         } else if (state is NavigateToHomeState) {
           return EmpDashboard();
         } else if (state is NavigateToReportsState) {
-          return EmpReportsPage();
+          return ReportsMainPage(viaDrawer: true,);
         } else if (state is NavigateToLogoutState) {
           return AlertDialog(
             title: const Text("Confirm Logout"),

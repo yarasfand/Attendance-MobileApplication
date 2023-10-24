@@ -29,7 +29,7 @@ class AdminMainPage extends StatefulWidget {
 class _MainPageState extends State<AdminMainPage> {
   final AdminDashBloc dashBloc = AdminDashBloc();
   final AdminProfileRepository profileRepository =
-  AdminProfileRepository('http://62.171.184.216:9595');
+      AdminProfileRepository('http://62.171.184.216:9595');
   late String corporateId;
   late String username;
 
@@ -64,17 +64,18 @@ class _MainPageState extends State<AdminMainPage> {
     });
   }
 
-
-  Future<void> fetchAdminProfileData(String corporateId, String username) async {
+  Future<void> fetchAdminProfileData(
+      String corporateId, String username) async {
     try {
-      print("Fetching profile data with corporateId: $corporateId, username: $username");
-      final data = await profileRepository.fetchAdminProfile(corporateId, username);
+      print(
+          "Fetching profile data with corporateId: $corporateId, username: $username");
+      final data =
+          await profileRepository.fetchAdminProfile(corporateId, username);
       print("Profile data retrieved: $data");
       setState(() {
         profileData = data;
       });
-    }
-    catch (e) {
+    } catch (e) {
       print('Error fetching admin profile: $e');
     }
   }
@@ -88,108 +89,100 @@ class _MainPageState extends State<AdminMainPage> {
   }
 
   @override
-  Widget build(BuildContext context) => BlocConsumer<InternetBloc, InternetStates>(
-    listener: (context, state) {},
-    builder: (context, state) {
-      if (state is InternetGainedState) {
-        return Scaffold(
-          appBar: PreferredSize(
-            preferredSize: AppBar().preferredSize,
-            child: AdminAppBar(
-              pageHeading: _getPageInfo(item),
-            ),
-          ),
-          drawer: ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(40.0),
-              bottomRight: Radius.circular(40.0),
-            ),
-            child: Drawer(
-              child: SingleChildScrollView(
+  Widget build(BuildContext context) =>
+      BlocConsumer<InternetBloc, InternetStates>(
+        listener: (context, state) {},
+        builder: (context, state) {
+          if (state is InternetGainedState) {
+            return Scaffold(
+              appBar: PreferredSize(
+                preferredSize: AppBar().preferredSize,
+                child: AdminAppBar(
+                  pageHeading: _getPageInfo(item),
+                ),
+              ),
+              drawer: Drawer(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      UserAccountsDrawerHeader(
+                        accountName:
+                            Text(profileData?.userName ?? 'Loading...'),
+                        accountEmail: Text(profileData?.email ?? 'Loading...'),
+                        currentAccountPicture: const CircleAvatar(
+                          backgroundImage: AssetImage("assets/icons/userr.png"),
+                        ),
+                      ),
+                      MyDrawer(
+                        onSelectedItems: (selectedItem) {
+                          setState(() {
+                            item = selectedItem;
+                            Navigator.of(context).pop();
+                          });
+
+                          switch (item) {
+                            case AdminDrawerItems.home:
+                              dashBloc.add(NavigateToHomeEvent());
+                              break;
+
+                            case AdminDrawerItems.geofence:
+                              dashBloc.add(NavigateToGeofenceEvent());
+                              break;
+
+                            case AdminDrawerItems.reports:
+                              dashBloc.add(NavigateToReportsEvent());
+                              break;
+
+                            case AdminDrawerItems.profile:
+                              dashBloc.add(NavigateToProfileEvent());
+                              break;
+
+                            case AdminDrawerItems.logout:
+                              dashBloc.add(NavigateToLogoutEvent());
+                              break;
+
+                            default:
+                              dashBloc.add(NavigateToHomeEvent());
+                              break;
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              backgroundColor: Colors.white,
+              body: getDrawerPage(),
+            );
+          } else if (state is InternetLostState) {
+            return Scaffold(
+              body: Center(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    UserAccountsDrawerHeader(
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      accountName: Text(profileData?.userName ?? 'Loading...'),
-                      accountEmail: Text(profileData?.email ?? 'Loading...'),
-                      currentAccountPicture: const CircleAvatar(
-                        backgroundImage: AssetImage("assets/icons/userr.png"),
+                    const Text(
+                      "No Internet Connection!",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    MyDrawer(
-                      onSelectedItems: (selectedItem) {
-                        setState(() {
-                          item = selectedItem;
-                          Navigator.of(context).pop();
-                        });
-
-                        switch (item) {
-                          case AdminDrawerItems.home:
-                            dashBloc.add(NavigateToHomeEvent());
-                            break;
-
-                          case AdminDrawerItems.geofence:
-                            dashBloc.add(NavigateToGeofenceEvent());
-                            break;
-
-                          case AdminDrawerItems.reports:
-                            dashBloc.add(NavigateToReportsEvent());
-                            break;
-
-                          case AdminDrawerItems.profile:
-                            dashBloc.add(NavigateToProfileEvent());
-                            break;
-
-                          case AdminDrawerItems.logout:
-                            dashBloc.add(NavigateToLogoutEvent());
-                            break;
-
-                          default:
-                            dashBloc.add(NavigateToHomeEvent());
-                            break;
-                        }
-                      },
+                    const SizedBox(
+                      height: 20,
                     ),
+                    Lottie.asset('assets/no_wifi.json'),
                   ],
                 ),
               ),
-            ),
-          ),
-          backgroundColor: Colors.white,
-          body: getDrawerPage(),
-        );
-      } else if (state is InternetLostState) {
-        return Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "No Internet Connection!",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Lottie.asset('assets/no_wifi.json'),
-              ],
-            ),
-          ),
-        );
-      } else {
-        return Scaffold(
-          body: Container(),
-        );
-      }
-    },
-  );
+            );
+          } else {
+            return Scaffold(
+              body: Container(),
+            );
+          }
+        },
+      );
 
   Widget getDrawerPage() {
     return BlocBuilder<AdminDashBloc, AdminDashboardkState>(

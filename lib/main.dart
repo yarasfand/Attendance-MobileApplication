@@ -227,9 +227,9 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
             useMaterial3: true,
             tabBarTheme: const TabBarTheme(
-              labelColor: Colors.white, // Text color for the selected tab
+              labelColor: Colors.white,
               unselectedLabelColor:
-                  Colors.grey, // Text color for unselected tabs
+                  Colors.grey,
             ),
           ),
           home: AppStartup(),
