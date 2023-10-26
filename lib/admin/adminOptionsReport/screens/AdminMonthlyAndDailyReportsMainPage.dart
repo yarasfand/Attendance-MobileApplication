@@ -42,19 +42,12 @@ class AdminMonthlyAndDailyReportsMainPage extends StatelessWidget {
         if(state is InternetGainedState)
           {
             return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Leave Page',
-                  style: AppBarStyles.appBarTextStyle
-                ),
-                centerTitle: true,
-                backgroundColor: AppColors.primaryColor,
-                iconTheme: IconThemeData(color: AppColors.brightWhite),
-              ),
+
               body: Column(
                 children: [
                   Expanded(
                     child: Container(
+                      margin: EdgeInsets.all(30),
                       width: double.infinity, // Make the width full
                       child: GestureDetector(
                         onTap: () => Navigator.push(
@@ -72,6 +65,7 @@ class AdminMonthlyAndDailyReportsMainPage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Container(
+                      margin: EdgeInsets.all(30),
                       width: double.infinity, // Make the width full
                       child: GestureDetector(
                         onTap: () => Navigator.push(
@@ -119,8 +113,8 @@ class LeaveCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              height: 150,
-              width: 150,
+              height: 100,
+              width: 100,
               child: image, // Use the provided image here
             ),
             const SizedBox(height: 20),

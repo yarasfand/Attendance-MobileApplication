@@ -4,6 +4,7 @@ class EmpProfileModel {
   final String shiftCode;
   final String emailAddress;
   final DateTime dateofJoin;
+  final dynamic profilePic; // New field for the profile picture
 
   EmpProfileModel({
     required this.empName,
@@ -11,6 +12,7 @@ class EmpProfileModel {
     required this.shiftCode,
     required this.emailAddress,
     required this.dateofJoin,
+    required this.profilePic, // Added profilePic to the constructor
   });
 
   factory EmpProfileModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class EmpProfileModel {
       dateofJoin: json['dateofJoin'] != null
           ? DateTime.tryParse(json['dateofJoin'] ?? '') ?? DateTime.now()
           : DateTime.now(),
+      profilePic: json['profilePic'] ?? '', // Parse profilePic from JSON
     );
   }
 }

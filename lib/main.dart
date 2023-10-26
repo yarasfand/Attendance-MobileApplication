@@ -54,6 +54,7 @@ import 'employee/empReportsOnDash/models/empLeaveRequestRepository.dart';
 import 'employee/empReportsOnDash/models/empPostLeaveRequestRepository.dart';
 import 'introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'introduction/utilities/api_integration_files/api_intigration_bloc.dart';
+import 'login/bloc/loginBloc/loginbloc.dart';
 
 void main() {
   runApp(MyApp());
@@ -65,6 +66,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
+        BlocProvider<SignInBloc>(
+          create: (context) => SignInBloc(), // Create your SignInBloc here
+        ),
         RepositoryProvider<UserRepository>(
           create: (_) => UserRepository(),
         ),
@@ -202,9 +206,7 @@ class MyApp extends StatelessWidget {
               return AdminProfileBloc(
                   AdminProfileRepository('http://62.171.184.216:9595'));
             },
-            child: AdminProfilePage(
-
-            ),
+            child: AdminProfilePage(),
           ),
           BlocProvider(
             create: (context) => AdminEditProfileBloc(
@@ -228,8 +230,7 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             tabBarTheme: const TabBarTheme(
               labelColor: Colors.white,
-              unselectedLabelColor:
-                  Colors.grey,
+              unselectedLabelColor: Colors.grey,
             ),
           ),
           home: AppStartup(),

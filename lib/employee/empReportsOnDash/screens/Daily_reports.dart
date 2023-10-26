@@ -14,11 +14,18 @@ class DailyReportsPage extends StatefulWidget {
   State<DailyReportsPage> createState() => _DailyReportsPageState();
 }
 
+String formatDateTime(DateTime dateTime) {
+  final formatter = DateFormat("dd MMMM yyyy", 'en_US');
+  return formatter.format(dateTime);
+}
+
 class _DailyReportsPageState extends State<DailyReportsPage> {
   DateTime _selectedDate = DateTime.now();
   final DailyReportsRepository _repository = DailyReportsRepository();
   List<DailyReportsModel> _dailyReports = [];
   String empCode = "";
+  bool isLoading = false; // Add a loading indicator variable
+  String formattedSelectedDate = ""; // Add this property
 
   String formatDateTime(DateTime dateTime) {
     final formatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -34,19 +41,24 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
     );
 
     if (picked != null && picked != _selectedDate) {
+      final outputFormatter = DateFormat("d MMMM y", 'en_US');
+      final formattedDate = outputFormatter.format(picked);
+
       setState(() {
         _selectedDate = picked;
+        formattedSelectedDate = formattedDate; // Update formattedSelectedDate
       });
 
-      _fetchAndDisplayReports(_selectedDate);
+      final formattedDateTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(picked);
+      _fetchAndDisplayReports(formattedDateTime);
     }
   }
 
-  void _fetchAndDisplayReports(DateTime selectedDate) async {
+  void _fetchAndDisplayReports(String formattedDate) async {
     try {
-      final formattedDate = formatDateTime(selectedDate);
-
-      final DateTime reportDateTime = DateTime.parse(formattedDate);
+      setState(() {
+        isLoading = true;
+      });
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String? corporateId = prefs.getString('corporate_id');
@@ -54,24 +66,41 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
       empCode = prefs.getString('empCode')!;
 
       if (corporateId != null && employeeId != null) {
+        final DateFormat inputFormatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        final DateTime parsedDateTime = inputFormatter.parse(formattedDate);
+
+        final DateFormat outputFormatter = DateFormat("dd MMMM yyyy", 'en_US');
+        String formattedSelectedDate = outputFormatter.format(parsedDateTime);
+
         final response = await _repository.getDailyReports(
           corporateId: corporateId,
           employeeId: employeeId,
-          reportDate: reportDateTime,
+          reportDate: parsedDateTime,
         );
 
         if (response is List<DailyReportsModel>) {
           setState(() {
             _dailyReports = response;
+            formattedSelectedDate = formattedSelectedDate; // Store the formatted date
+            isLoading = false;
           });
         } else {
           print('API response is not a List of DailyReportsModel');
+          setState(() {
+            isLoading = false;
+          });
         }
       } else {
         print('Corporate ID or Employee ID is null');
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
       print('Error fetching reports: $e');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -93,62 +122,70 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
       ),
       body: Column(
         children: [
-          ClipPath(
-            clipper: WaveClipper(),
-            child: Container(
-              color: AppColors.primaryColor,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+          Card(
+            elevation: 5,
+            color: AppColors.secondaryColor,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-                    Center(
-                      child: Text(
-                        '${_selectedDate.toLocal()}'.split(' ')[0],
-                        style: GoogleFonts.openSans(
-                          textStyle: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
+                  Center(
+                    child: Text(
+                      formattedSelectedDate,
+                      style: GoogleFonts.openSans(
+                        textStyle: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                  ),
 
-                        ElevatedButton(
-                          onPressed: () {
-                            _selectFromDate(context);
-                          },
-                          child: const Text('Select Date'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            _fetchAndDisplayReports(_selectedDate);
-                          },
-                          child: const Text('Fetch Reports'),
-                        ),
-                      ],
-                    )
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _selectFromDate(context);
+                        },
+                        child: const Text('Select Date'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          String formattedDate = formatDateTime(_selectedDate);
 
-                  ],
-                ),
+                          _fetchAndDisplayReports(formattedDate);
+                        },
+                        child: const Text('Fetch Reports'),
+                      ),
+                    ],
+                  )
+
+                ],
               ),
             ),
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView.builder(
-                itemCount: _dailyReports.length,
-                itemBuilder: (context, index) {
-                  final report = _dailyReports[index];
-                  return DailyInfoCard(report: report, empCode: empCode);
-                },
+            child: Visibility(
+              visible: !isLoading, // Show data when not loading
+
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ListView.builder(
+                  itemCount: _dailyReports.length,
+                  itemBuilder: (context, index) {
+                    final report = _dailyReports[index];
+                    return DailyInfoCard(report: report, empCode: empCode);
+                  },
+                ),
+              ),
+              replacement: Center(
+                // Show loading indicator when loading
+                child: CircularProgressIndicator(),
               ),
             ),
           ),
@@ -242,6 +279,15 @@ class DailyInfoCard extends StatelessWidget {
               title: 'Hours Worked',
               value: report.hoursWorked.toString() ?? 'N/A',
             ),
+            DailyInfoSubCard(
+              title: 'Punch InTime',
+              value: formatTime(report.in1) ?? 'N/A',
+            ),
+            DailyInfoSubCard(
+              title: 'Punch OutTime',
+              value: formatTime(report.out2) ?? 'N/A',
+            ),
+
 
           ],
         ),

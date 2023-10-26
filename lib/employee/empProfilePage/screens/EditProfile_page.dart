@@ -85,10 +85,22 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
     if (pickedFile != null) {
       final imageBytes = await pickedFile.readAsBytes();
       base64Image = base64Encode(imageBytes);
+      if (imageBytes.length > 5 * 1024 ) {
+        Fluttertoast.showToast(
+          msg: 'Image Size Must be less than 5 Mb!..!',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.redAccent,
+          textColor: Colors.white,
+        );
+      } else {
+        base64Image = base64Encode(imageBytes);
 
-      setState(() {
-        _profilePicture = File(pickedFile.path);
-      });
+        setState(() {
+          _profilePicture = File(pickedFile.path);
+        });
+      }
     }
   }
 
@@ -175,6 +187,11 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
     _loadUserData();
   }
 
+  Future<Map<String, String>> fetchData() async {
+    await retrieveFromSharedPreferences();
+    return await fetchPlaceholderValues();
+  }
+
   Future<void> _loadUserData() async {
     await retrieveFromSharedPreferences();
     fetchAndPopulateData();
@@ -208,17 +225,34 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit Profile",style: TextStyle(color: AppColors.brightWhite),),
+        title: Text(
+          "Edit Profile",
+          style: TextStyle(color: AppColors.brightWhite),
+        ),
         centerTitle: true,
         iconTheme: IconThemeData(color: AppColors.brightWhite),
         backgroundColor: AppColors.primaryColor,
       ),
       body: FutureBuilder(
-          future: _loadUserData(),
+          future: fetchData(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
+              // While waiting for data, show a loading indicator
               return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              // Handle error, for example, show an error message
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData) {
+              // Handle case where no data is available
+              return Center(child: Text('No data available'));
             } else {
+              final apiData = snapshot.data!;
+
+              empNameController.text = apiData['empName'] ?? '';
+              fatherNameController.text = apiData['fatherName'] ?? '';
+              pwdController.text = apiData['pwd'] ?? '';
+              emailAddressController.text = apiData['emailAddress'] ?? '';
+              phoneNoController.text = apiData['phoneNo'] ?? '';
               return BlocProvider(
                 create: (context) => EmpEditProfileBloc(
                     empEditProfileRepository: EmpEditProfileRepository()),
@@ -231,7 +265,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                         BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                           child: Container(
-                            color: Colors.black.withOpacity(0), // Adjust opacity as needed
+                            color: Colors.black
+                                .withOpacity(0), // Adjust opacity as needed
                           ),
                         ),
                         Card(
@@ -244,7 +279,12 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                colors: [AppColors.primaryColor,AppColors.secondaryColor, AppColors.lightBlue,Colors.white], // Adjust colors as needed
+                                colors: [
+                                  AppColors.primaryColor,
+                                  AppColors.secondaryColor,
+                                  AppColors.lightBlue,
+                                  Colors.white
+                                ], // Adjust colors as needed
                               ),
                               borderRadius: BorderRadius.circular(10),
                               boxShadow: [
@@ -302,8 +342,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   // Use the controller here
                                   decoration: InputDecoration(
                                     labelText: 'Full Name',
-                                    labelStyle:
-                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                    labelStyle: GoogleFonts.poppins(
+                                        color: AppColors.brightWhite),
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -321,8 +361,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   controller: fatherNameController,
                                   decoration: InputDecoration(
                                     labelText: "Father's Name",
-                                    labelStyle:
-                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                    labelStyle: GoogleFonts.poppins(
+                                        color: AppColors.brightWhite),
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -338,8 +378,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   controller: pwdController,
                                   decoration: InputDecoration(
                                     labelText: 'Password',
-                                    labelStyle:
-                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                    labelStyle: GoogleFonts.poppins(
+                                        color: AppColors.brightWhite),
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         isPasswordVisible
@@ -369,8 +409,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   controller: emailAddressController,
                                   decoration: InputDecoration(
                                     labelText: 'Email Address',
-                                    labelStyle:
-                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                    labelStyle: GoogleFonts.poppins(
+                                        color: AppColors.brightWhite),
                                   ),
                                   keyboardType: TextInputType.emailAddress,
                                   validator: (value) {
@@ -387,8 +427,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   controller: phoneNoController,
                                   decoration: InputDecoration(
                                     labelText: 'Phone Number',
-                                    labelStyle:
-                                        GoogleFonts.poppins(color: AppColors.brightWhite),
+                                    labelStyle: GoogleFonts.poppins(
+                                        color: AppColors.brightWhite),
                                   ),
                                   keyboardType: TextInputType.phone,
                                   validator: (value) {
@@ -471,7 +511,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                             }
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor:AppColors.primaryColor,
+                                            backgroundColor:
+                                                AppColors.primaryColor,
                                           ),
                                           child: Text(
                                             'Save',

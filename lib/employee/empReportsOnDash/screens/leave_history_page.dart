@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:project/constants/AppBar_constant.dart';
 
 import '../../../constants/AppColor_constants.dart';
 import '../models/LeaveHistory_repository.dart';
@@ -48,57 +49,12 @@ class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(children: <Widget>[
-      Container(
-        height: MediaQuery.of(context).size.height / 3,
-        color: AppColors.primaryColor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    // Handle the back button press here
-                    Navigator.pop(context);
-                  },
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Leave Details',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 48), // For proper alignment
-              ],
-            ),
-            Card(
-              color: AppColors.offWhite,
-              child: Container(
-                padding: EdgeInsets.all(5),
-                child: Text(
-                  _currentTime, // Display the current date and time
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      appBar: AppBar(title: Text("Leave Details",style: AppBarStyles.appBarTextStyle,),
+      centerTitle: true,
+      backgroundColor: AppColors.primaryColor,
+      iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
       ),
+        body: Column(children: <Widget>[
       Expanded(
         child: SingleChildScrollView(
           child: FutureBuilder(

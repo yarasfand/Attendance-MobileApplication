@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project/introduction/screens/screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -20,6 +21,11 @@ class _IntroScreenState extends State<IntroScreen> {
         currentPageIndex = _controller.page?.round() ?? 0;
       });
     });
+  }
+
+  Future<void> setIntroScreenVisited() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('intro_screen_visited', true);
   }
 
   @override
@@ -45,8 +51,9 @@ class _IntroScreenState extends State<IntroScreen> {
               bottom: 20,
               right: 20,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   // Do something when on the last page
+                  await setIntroScreenVisited();
                 },
                 child: const Text('Next'),
               ),

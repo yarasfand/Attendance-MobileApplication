@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -90,15 +93,20 @@ class _EmpMainPageState extends State<EmpMainPage> {
                 drawer: Drawer(
                   child: Column(
                     children: [
-                      UserAccountsDrawerHeader(
-                        decoration: const BoxDecoration(
-                          color: AppColors.primaryColor,
-                        ),
-                        accountName: Text(empProfile?.empName ?? ""),
-                        accountEmail: Text(empProfile?.emailAddress ?? ""),
-                        currentAccountPicture: const CircleAvatar(
-                          backgroundImage: AssetImage(
-                            "assets/icons/userr.png",
+                      GestureDetector(
+                        onTap: () => fetchProfileData(),
+                        child: UserAccountsDrawerHeader(
+                          decoration: const BoxDecoration(
+                            color: AppColors.primaryColor,
+                          ),
+                          accountName: Text(empProfile?.empName ?? ""),
+                          accountEmail: Text(empProfile?.emailAddress ?? ""),
+                          currentAccountPicture:CircleAvatar(
+                            backgroundImage: empProfile?.profilePic != null && empProfile?.profilePic.isNotEmpty
+                                ? Image.memory(
+                              Uint8List.fromList(base64Decode(empProfile!.profilePic)),
+                            ).image
+                                : AssetImage('assets/icons/userr.png'),
                           ),
                         ),
                       ),

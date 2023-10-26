@@ -4,14 +4,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/admin/adminProfile/models/AdminProfileRepository.dart';
-import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../No_internet/no_internet.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
+import '../../../login/bloc/loginBloc/loginbloc.dart';
+import '../../../login/screens/loginPage.dart';
+import '../../adminDashboard/screen/adminMain.dart';
 import '../bloc/admin_profile_bloc.dart';
 import '../bloc/admin_profile_event.dart';
 import '../bloc/admin_profile_state.dart';
@@ -27,16 +30,31 @@ class AdminProfilePage extends StatefulWidget {
 
 class _AdminProfilePageState extends State<AdminProfilePage> {
   late AdminProfileBloc adminProfileBloc;
+  UserProfile userProfile = UserProfile('Loading...', 'Loading...');
+
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', false);
+    prefs.setBool('isEmployee', false);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return Builder(
+            builder: (context) => BlocProvider(
+              create: (context) => SignInBloc(),
+              child: LoginPage(),
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    adminProfileBloc =
-        AdminProfileBloc(AdminProfileRepository('http://62.171.184.216:9595'));
-    adminProfileBloc.add(FetchAdminProfile(
-      corporateId: 'ptsoffice',
-      employeeId: 'ptsadmin',
-    ));
   }
 
   @override
@@ -84,7 +102,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
     final DateTime? joinedDate = DateTime.tryParse(dateString);
     return joinedDate != null
         ? DateFormat.yMMMd().format(joinedDate)
-        : '---'; // Format the date as "Apr 3, 2023" or display "---" if null
+        : '---';
   }
 
   void _launchDialer(String phoneNumber) async {
@@ -128,13 +146,24 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
 
   bool isInternetLost = false;
 
+  Future<void> _fetchProfileData() async {
+    adminProfileBloc.add(FetchAdminProfile(
+      corporateId: 'ptsoffice',
+      employeeId: 'ptsadmin',
+    ));
+  }
   @override
   Widget build(BuildContext context) {
+    adminProfileBloc = AdminProfileBloc(
+        AdminProfileRepository('http://62.171.184.216:9595'));
+    adminProfileBloc.add(FetchAdminProfile(
+      corporateId: 'ptsoffice',
+      employeeId: 'ptsadmin',
+    ));
+
     return BlocConsumer<InternetBloc, InternetStates>(
       listener: (context, state) {
-        // TODO: implement listener
         if (state is InternetLostState) {
-          // Set the flag to true when internet is lost
           isInternetLost = true;
           Future.delayed(Duration(seconds: 2), () {
             Navigator.push(
@@ -146,12 +175,10 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
             );
           });
         } else if (state is InternetGainedState) {
-          // Check if internet was previously lost
           if (isInternetLost) {
-            // Navigate back to the original page when internet is regained
             Navigator.pop(context);
           }
-          isInternetLost = false; // Reset the flag
+          isInternetLost = false;
         }
       },
       builder: (context, state) {
@@ -166,14 +193,13 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                   );
                 } else if (state is AdminProfileLoaded) {
                   final adminProfile = state.adminProfile;
-                  final joinedDate =
-                      formatDate(adminProfile.onDate); // Format the date
+                  final joinedDate = formatDate(adminProfile.onDate);
+                  userProfile = UserProfile(adminProfile.userName ?? '---', adminProfile.email ?? '---');
 
                   return SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // TO ASK WANT TO GO BACK OR NOT
                         WillPopScope(
                           onWillPop: () async {
                             return _onBackPressed(context)
@@ -192,7 +218,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                 const Center(
                                   child: CircleAvatar(
                                     backgroundImage:
-                                        AssetImage('assets/icons/userr.png'),
+                                    AssetImage('assets/icons/userr.png'),
                                     radius: 70,
                                   ),
                                 ),
@@ -232,30 +258,30 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                   child: Center(
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      MainAxisAlignment.center,
                                       children: [
                                         Container(
                                           margin: const EdgeInsets.all(16),
                                           child: Center(
                                             child: Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.center,
+                                              MainAxisAlignment.center,
                                               children: [
                                                 Card(
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            50),
+                                                    BorderRadius.circular(
+                                                        50),
                                                   ),
                                                   child: Container(
                                                     decoration: BoxDecoration(
                                                       color: Colors.red,
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
+                                                      BorderRadius.circular(
+                                                          50),
                                                     ),
                                                     padding:
-                                                        const EdgeInsets.all(5),
+                                                    const EdgeInsets.all(5),
                                                     child: IconButton(
                                                       icon: const Icon(
                                                           Icons.call,
@@ -271,18 +297,18 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                                 Card(
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            50),
+                                                    BorderRadius.circular(
+                                                        50),
                                                   ),
                                                   child: Container(
                                                     decoration: BoxDecoration(
                                                       color: Colors.blue,
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
+                                                      BorderRadius.circular(
+                                                          50),
                                                     ),
                                                     padding:
-                                                        const EdgeInsets.all(5),
+                                                    const EdgeInsets.all(5),
                                                     child: IconButton(
                                                       icon: const Icon(
                                                           Icons.message,
@@ -297,18 +323,18 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                                 Card(
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            50),
+                                                    BorderRadius.circular(
+                                                        50),
                                                   ),
                                                   child: Container(
                                                     decoration: BoxDecoration(
                                                       color: Colors.green,
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
+                                                      BorderRadius.circular(
+                                                          50),
                                                     ),
                                                     padding:
-                                                        const EdgeInsets.all(5),
+                                                    const EdgeInsets.all(5),
                                                     child: IconButton(
                                                       icon: const Icon(
                                                           Icons.mail,
@@ -348,13 +374,19 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                               children: [
                                 const SizedBox(height: 10),
                                 GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        PageTransition(
-                                            child: const AdminEditProfilePage(),
-                                            type: PageTransitionType
-                                                .rightToLeft));
+                                  onTap: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        child: const AdminEditProfilePage(),
+                                        type: PageTransitionType.rightToLeft,
+                                      ),
+                                    );
+                                    if (result == true) {
+                                      // Refresh the admin profile data when the user returns from EditProfile
+                                      _fetchProfileData();
+
+                                    }
                                   },
                                   child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -376,28 +408,12 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                     ],
                                   ),
                                 ),
+
+
                                 const SizedBox(height: 20),
-                                const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.info,
-                                      color: Colors.green,
-                                      size: 32,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Information',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+
                                 const SizedBox(height: 20),
-                                const Row(
+                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
@@ -406,12 +422,15 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                       size: 32,
                                     ),
                                     SizedBox(width: 10),
-                                    Text(
-                                      'Logout',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500,
+                                    GestureDetector(
+                                      onTap: () => _logout(context),
+                                      child: Text(
+                                        'Logout',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
                                   ],

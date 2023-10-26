@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/MonthlyReports_repository.dart';
 
 class MonthlyReportsPage extends StatefulWidget {
@@ -110,7 +109,8 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
                   return CustomLoadingIndicator();
                 } else if (snapshot.hasError) {
                   return Center(
-                      child: Text('Error: ${snapshot.error.toString()}'));
+                    child: Text('Error: ${snapshot.error.toString()}'),
+                  );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(child: Text('No monthly reports available.'));
                 } else {
@@ -150,12 +150,14 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       // Map MonthlyReportsModel objects to the desired format
       final mappedReports = reportsData
           .map((report) => {
-                'shiftstarttime': report.shiftStartTime,
-                'shiftendtime': report.shiftEndTime,
-                'status': report.status,
-                'hoursworked':report.hoursWorked,
-                // Add other fields as needed
-              })
+        'shiftstarttime': report.shiftStartTime,
+        'shiftendtime': report.shiftEndTime,
+        'status': report.status,
+        'hoursworked': report.hoursWorked,
+        'in1': report.in1,
+        'out2': report.out2,
+        // Add other fields as needed
+      })
           .toList();
 
       return mappedReports;
@@ -202,6 +204,8 @@ class MonthlyReportsListView extends StatelessWidget {
         final shiftEndTime = report['shiftendtime'];
         final status = report['status'];
         final hoursWorked = report['hoursworked'];
+        final inTime = report['in1'];
+        final outTime = report['out2'];
 
         return Card(
           margin: EdgeInsets.all(16.0),
@@ -209,55 +213,133 @@ class MonthlyReportsListView extends StatelessWidget {
             borderRadius: BorderRadius.circular(16.0),
           ),
           elevation: 5,
-          color: AppColors.secondaryColor, // Background color
           child: ListTile(
             contentPadding: EdgeInsets.all(16.0),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Shift Start Time: ${shiftStartTime != null ? DateFormat('dd MMMM y, hh:mm a').format(DateTime.parse(shiftStartTime)) : 'N/A'}",
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "     Shift",
+                      style: GoogleFonts.poppins(
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(width: 100),
+                    Text(
+                      "Punch Time",
+                      style: GoogleFonts.poppins(
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+
+                  ],
                 ),
-                SizedBox(
-                  height: 10,
+                Row(
+                  children: [
+                    Text(
+                      "Start    |",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "   End",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(width: 80),
+                    Text(
+                      "In    |",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+
+                    Text(
+                      "   Out",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+
+                  ],
                 ),
-                Text(
-                  "Shift End Time: ${shiftEndTime != null ? DateFormat('dd MMMM y, hh:mm a').format(DateTime.parse(shiftEndTime)) : 'N/A'}",
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "${shiftStartTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftStartTime)) : '   ---'}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text("      |   "),
+                    Text(
+                      "${shiftEndTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftEndTime)) : '  ---'}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(width: 72,),
+                    Text(
+                      "${inTime != null ? DateFormat('hh:mm').format(DateTime.parse(inTime)) : '      ---'}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text("    | "),
+                    SizedBox(width: 5,),
+                    Text(
+                      "${outTime != null ? DateFormat('hh:mm').format(DateTime.parse(outTime)) : '  ---'}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black,
+                      ),
+                    ),
+
+                  ],
                 ),
-                Text(
-                  "Hours Worked: $hoursWorked",
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Worked: ${hoursWorked}",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    SizedBox(width: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green, // Status color
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: Text(
+                        "${status != null ? status : 'N/A'}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-            subtitle: Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.green, // Status color
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Text(
-                  "Status: ${status != null ? status : 'N/A'}",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
             ),
           ),
         );
@@ -275,8 +357,7 @@ class CustomLoadingIndicator extends StatelessWidget {
         height: 30.0, // Customize the size as needed
         child: CircularProgressIndicator(
           strokeWidth: 3.0, // Customize the thickness of the circle
-          valueColor:
-              AlwaysStoppedAnimation<Color>(Colors.blue), // Customize the color
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue), // Customize the color
         ),
       ),
     );

@@ -140,6 +140,7 @@ class _LoginPageState extends State<LoginPage> {
             type: PageTransitionType.rightToLeft));
   }
 
+
   void _onLoginButtonPressed() async {
 
     if (_formKey.currentState!.validate()) {
@@ -150,6 +151,7 @@ class _LoginPageState extends State<LoginPage> {
       await Future.delayed(const Duration(seconds: 1));
       var sharedPref = await SharedPreferences.getInstance();
       sharedPref.setBool(KEY_LOGIN, true);
+
 
       final enteredCorporateID = _CoorporateIdController.text;
       final enteredUsername = _UserController.text;

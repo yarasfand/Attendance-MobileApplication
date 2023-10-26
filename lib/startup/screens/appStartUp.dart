@@ -5,6 +5,7 @@ import 'package:project/admin/adminDashboard/screen/adminMain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../introduction/screens/introScreen.dart';
+import '../../login/screens/loginPage.dart';
 
 class AppStartup extends StatelessWidget {
   @override
@@ -13,7 +14,7 @@ class AppStartup extends StatelessWidget {
       future: getUserData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator
+          return CircularProgressIndicator(); // Show a loading indicator
         } else {
           if (snapshot.hasData) {
             final userData = snapshot.data;
@@ -24,7 +25,24 @@ class AppStartup extends StatelessWidget {
                 return AdminMainPage(); // User is an admin, show the admin page
               }
             } else {
-              return IntroScreen(); // User is not logged in, show the intro screen
+              // Check if the user has visited the login page
+              return FutureBuilder<bool>(
+                future: hasVisitedLoginPage(),
+                builder: (context, loginSnapshot) {
+                  if (loginSnapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else {
+                    final hasVisitedLogin = loginSnapshot.data ?? false;
+                    if (hasVisitedLogin) {
+                      // User has visited the login page, proceed to the LoginPage
+                      return LoginPage();
+                    } else {
+                      // User hasn't visited the login page, show the IntroScreen
+                      return IntroScreen();
+                    }
+                  }
+                },
+              );
             }
           }
           // Handle error or no user data scenario
@@ -32,6 +50,11 @@ class AppStartup extends StatelessWidget {
         }
       },
     );
+  }
+
+  Future<bool> hasVisitedLoginPage() async {
+    final sharedPref = await SharedPreferences.getInstance();
+    return sharedPref.getBool('intro_screen_visited') ?? false;
   }
 
   Future<UserData> getUserData() async {

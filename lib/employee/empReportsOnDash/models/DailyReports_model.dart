@@ -4,6 +4,8 @@ class DailyReportsModel {
   final DateTime? shiftEndTime;
   final DateTime? lunchStartTime;
   final DateTime? lunchEndTime;
+  final DateTime? in1;
+  final DateTime? out2;
   final int? hoursWorked;
   final String? status;
 
@@ -15,6 +17,8 @@ class DailyReportsModel {
     this.lunchEndTime,
     this.hoursWorked,
     this.status,
+    this.in1,
+    this.out2
   });
 
   factory DailyReportsModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,8 @@ class DailyReportsModel {
       shiftEndTime: _parseDateTime(json['shiftendtime']),
       lunchStartTime: _parseDateTime(json['lunchstarttime']),
       lunchEndTime: _parseDateTime(json['lunchendtime']),
+      in1: _parseDateTime(json['in1']),
+      out2: _parseDateTime(json['out2']),
       hoursWorked: json['hoursworked'],
       status: json['status'],
     );
