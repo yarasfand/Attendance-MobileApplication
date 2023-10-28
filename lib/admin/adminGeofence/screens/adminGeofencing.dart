@@ -312,7 +312,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                 child: Padding(
                   padding: EdgeInsets.only(right: 55.0), // Add right padding
                   child: Text(
-                    "Employee List",
+                    "GEOFENCE",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

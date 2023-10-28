@@ -75,7 +75,7 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
         if (state is InternetGainedState) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Pending Leaves',style: AppBarStyles.appBarTextStyle,),
+              title: const Text('GEOFENCE PUNCHES',style: AppBarStyles.appBarTextStyle,),
               backgroundColor: AppBarStyles.appBarBackgroundColor,
               iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
               centerTitle: true,

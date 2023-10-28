@@ -187,7 +187,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                 child: Padding(
                   padding: EdgeInsets.only(right: 55.0), // Add right padding
                   child: Text(
-                    "GEOFENCING",
+                    "GEOFENCE",
                     style: AppBarStyles.appBarTextStyle,
                   ),
                 ),
@@ -199,7 +199,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                 OpenStreetMapSearchAndPick(
                   center: LatLong(currentLat!, currentLong!),
                   buttonColor: AppColors.primaryColor,
-                  buttonText: 'Get This Point',
+                  buttonText: 'Set Geofence',
                   onPicked: (pickedData) {
                     getAddress(pickedData.latLong.latitude,
                         pickedData.latLong.longitude);

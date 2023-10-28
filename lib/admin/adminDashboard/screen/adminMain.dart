@@ -269,7 +269,7 @@ class _MainPageState extends State<AdminMainPage> {
       case AdminDrawerItems.home:
         return "HOME";
       case AdminDrawerItems.geofence:
-        return "GEOFENCE HUB";
+        return "GEOFENCE";
       case AdminDrawerItems.profile:
         return "PROFILE";
       case AdminDrawerItems.reports:
