@@ -8,8 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../constants/globalObjects.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
+import '../../empDashboard/screens/empHomePage.dart';
 import '../bloc/emProfileApiFiles/emp_profile_api_bloc.dart';
 import '../models/empProfileModel.dart';
 import '../models/empProfileRepository.dart';
@@ -25,8 +27,8 @@ class EmpProfilePage extends StatefulWidget {
 }
 
 class _EmpProfilePageState extends State<EmpProfilePage> {
-  LoginPage select= LoginPage();
-
+  LoginPageState select= LoginPageState();
+  var initProfile = HomePageState();
 
   late EmpProfileApiBloc _profileApiBloc;
   Future<void> _logout(BuildContext context) async {
@@ -54,6 +56,7 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
     super.initState();
     // Initialize the BlocProvider when the page is created
     _initProfileBloc();
+    initProfile.fetchProfileData();
   }
 
   Future<bool?> _onBackPressed(BuildContext context) async {
@@ -156,12 +159,12 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
                                 CircleAvatar(
                                   radius:
                                       70.0, // Increase the radius to make it larger
-                                  backgroundImage: employeeProfile.profilePic !=
+                                  backgroundImage: GlobalObjects.empProfilePic !=
                                               null &&
-                                          employeeProfile.profilePic.isNotEmpty
+                                      GlobalObjects.empProfilePic!.isNotEmpty
                                       ? Image.memory(
                                           Uint8List.fromList(base64Decode(
-                                              employeeProfile.profilePic)),
+                                              GlobalObjects.empProfilePic!)),
                                         ).image
                                       : const AssetImage(
                                           'assets/icons/userr.png'),

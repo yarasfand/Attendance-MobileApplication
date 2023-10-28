@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:project/employee/empDashboard/screens/empAppbar.dart';
 import 'package:project/employee/empDashboard/screens/empHomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,18 +58,21 @@ class _EmpMainPageState extends State<EmpMainPage> {
   }
 
   EmpDrawerItem item = EmpDrawerItems.home;
+  var initProfile = HomePageState();
 
   @override
   void initState() {
     super.initState();
     _profileRepository = EmpProfileRepository();
     fetchProfileData();
+    initProfile.fetchProfileData();
   }
 
   Future<void> fetchProfileData() async {
     try {
       final profileData = await _profileRepository.getData();
       if (profileData.isNotEmpty) {
+
         setState(() {
           empProfile = profileData[0];
         });
@@ -95,17 +99,16 @@ class _EmpMainPageState extends State<EmpMainPage> {
                   child: Column(
                     children: [
                       GestureDetector(
-                        onTap: () => fetchProfileData(),
                         child: UserAccountsDrawerHeader(
                           decoration: const BoxDecoration(
                             color: AppColors.primaryColor,
                           ),
-                          accountName: Text(empProfile?.empName ?? ""),
-                          accountEmail: Text(empProfile?.emailAddress ?? ""),
+                          accountName: Text(GlobalObjects.empName ?? ""),
+                          accountEmail: Text( GlobalObjects.empMail ?? ""),
                           currentAccountPicture:CircleAvatar(
-                            backgroundImage: empProfile?.profilePic != null && empProfile?.profilePic.isNotEmpty
+                            backgroundImage: GlobalObjects.empProfilePic != null && GlobalObjects.empProfilePic!.isNotEmpty
                                 ? Image.memory(
-                              Uint8List.fromList(base64Decode(empProfile!.profilePic)),
+                              Uint8List.fromList(base64Decode(GlobalObjects.empProfilePic!)),
                             ).image
                                 : AssetImage('assets/icons/userr.png'),
                           ),

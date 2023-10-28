@@ -97,9 +97,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
           textColor: Colors.white,
         );
       } else {
-        base64Image = base64Encode(imageBytes);
-
         setState(() {
+          base64Image = base64Encode(imageBytes);
           _profilePicture = File(pickedFile.path);
         });
         Fluttertoast.showToast(
@@ -132,9 +131,9 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
           textColor: Colors.white,
         );
       } else {
-        base64Image = base64Encode(imageBytes);
-
         setState(() {
+          GlobalObjects.empProfilePic =
+          base64Image = base64Encode(imageBytes);
           _profilePicture = File(pickedFile.path);
         });
       }

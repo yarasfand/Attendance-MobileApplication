@@ -9,10 +9,12 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../empMap/screens/employeemap.dart';
+import '../../empProfilePage/models/empProfileModel.dart';
 import '../../empProfilePage/models/empProfileRepository.dart';
 import '../../empReportsOnDash/screens/ReportsMainPage.dart';
 import '../../empReportsOnDash/screens/leaveReportMainPage.dart';
@@ -27,10 +29,10 @@ class EmpDashHome extends StatefulWidget {
   const EmpDashHome({Key? key}) : super(key: key);
 
   @override
-  State<EmpDashHome> createState() => _HomePageState();
+  State<EmpDashHome> createState() => HomePageState();
 }
 
-class _HomePageState extends State<EmpDashHome> {
+class HomePageState extends State<EmpDashHome> {
   String? savedCorporateID;
   String? savedEmpCode;
   late bool locationError = true;
@@ -38,6 +40,7 @@ class _HomePageState extends State<EmpDashHome> {
   double? long;
   EmpProfileRepository _profileRepository = EmpProfileRepository();
   String? profileImageUrl;
+
 
   @override
   void initState() {
@@ -52,15 +55,17 @@ class _HomePageState extends State<EmpDashHome> {
     try {
       final profileData = await _profileRepository.getData();
       if (profileData.isNotEmpty) {
-        // Assuming you want to get the first profile from the list
-        final empProfile = profileData.first;
 
-        // Get the profile image URL from the selected profile
+        EmpProfileModel? empProfile = profileData.first;
         final profileImage = empProfile.profilePic;
 
         if (profileImage != null && profileImage.isNotEmpty) {
           setState(() {
+            EmpProfileModel? empProfile = profileData.first;
             profileImageUrl = profileImage;
+            GlobalObjects.empProfilePic = empProfile.profilePic;
+            GlobalObjects.empName = empProfile.empName;
+            GlobalObjects.empMail = empProfile.emailAddress;
           });
         }
         // Update your UI with other profile data here
@@ -106,15 +111,15 @@ class _HomePageState extends State<EmpDashHome> {
   }
 
   Widget buildProfileImage() {
-    if (profileImageUrl != null) {
+    if (GlobalObjects.empProfilePic != null) {
       return ClipOval(
         child: Image.memory(
-          Uint8List.fromList(base64Decode(profileImageUrl!)),
+          Uint8List.fromList(base64Decode(GlobalObjects.empProfilePic!)),
           width: 100,
           height: 45,
         ),
       );
-    } else if (profileImageUrl == null) {
+    } else if (GlobalObjects.empProfilePic == null) {
       return Image.asset(
         'assets/icons/userrr.png',
         width: 100,
