@@ -25,6 +25,9 @@ class EmpProfilePage extends StatefulWidget {
 }
 
 class _EmpProfilePageState extends State<EmpProfilePage> {
+  LoginPage select= LoginPage();
+
+
   late EmpProfileApiBloc _profileApiBloc;
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

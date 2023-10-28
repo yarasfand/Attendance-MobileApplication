@@ -71,7 +71,7 @@ class AdminStorageDetails extends StatelessWidget {
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>  AdminMonthlyAndDailyReportsMainPage(),
+                  builder: (context) =>  AdminMonthlyAndDailyReportsMainPage(viaDrawer: false,),
                 )),
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/report.png",

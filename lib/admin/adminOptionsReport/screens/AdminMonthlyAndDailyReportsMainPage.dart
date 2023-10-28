@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/admin/adminOptionsReport/screens/AdminDailyReportsEmployeListPage.dart';
@@ -11,6 +12,44 @@ import 'AdminReportsEmployeeListPage.dart';
 
 class AdminMonthlyAndDailyReportsMainPage extends StatelessWidget {
   bool isInternetLost = false;
+  late final bool viaDrawer;
+
+  AdminMonthlyAndDailyReportsMainPage({required this.viaDrawer});
+
+  Future<bool?> _onBackPressed(BuildContext context) async {
+    bool? exitConfirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Exit'),
+        content: Text('Are you sure you want to exit the app?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (exitConfirmed == true) {
+      exitApp();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void exitApp() {
+    SystemNavigator.pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,59 +78,78 @@ class AdminMonthlyAndDailyReportsMainPage extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if(state is InternetGainedState)
-          {
-            return Scaffold(
-
-              body: Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      margin: EdgeInsets.all(30),
-                      width: double.infinity, // Make the width full
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                              const AdminDailyReportEmployeeListPage(),
-                            )),
-                        child: LeaveCard(
-                          title: 'DAILY REPORTS',
-                          image: Image.asset('assets/icons/submission.png'),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: EdgeInsets.all(30),
-                      width: double.infinity, // Make the width full
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                              const AdminReportEmployeeListPage(),
-                            )),
-                        child: LeaveCard(
-                          title: 'MONTHLY REPORTS',
-                          image: Image.asset('assets/icons/approval.png'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        else {
+        if (state is InternetGainedState) {
           return Scaffold(
-            body: Center(
-                child: CircularProgressIndicator()),
+            appBar: viaDrawer
+                ? null
+                : AppBar(
+                    title: const Text(
+                      'REPORTS',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    iconTheme: const IconThemeData(
+                      color: Colors.white,
+                    ),
+                    centerTitle: true,
+                    backgroundColor: AppColors.primaryColor,
+                  ),
+            body: Column(
+              children: [
+                viaDrawer
+                    ? WillPopScope(
+                        onWillPop: () async {
+                          return _onBackPressed(context)
+                              .then((value) => value ?? false);
+                        },
+                        child: const SizedBox(),
+                      )
+                    : SizedBox(),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.all(30),
+                    width: double.infinity, // Make the width full
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const AdminDailyReportEmployeeListPage(),
+                          )),
+                      child: LeaveCard(
+                        title: 'DAILY REPORTS',
+                        image: Image.asset('assets/icons/submission.png'),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.all(30),
+                    width: double.infinity, // Make the width full
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const AdminReportEmployeeListPage(),
+                          )),
+                      child: LeaveCard(
+                        title: 'MONTHLY REPORTS',
+                        image: Image.asset('assets/icons/approval.png'),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
           );
         }
-
       },
     );
   }

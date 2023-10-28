@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:camera/camera.dart';
@@ -85,7 +87,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
     if (pickedFile != null) {
       final imageBytes = await pickedFile.readAsBytes();
       base64Image = base64Encode(imageBytes);
-      if (imageBytes.length > 5 * 1024) {
+      if (imageBytes.length < 5 * 1024 * 1024) {
         Fluttertoast.showToast(
           msg: 'Image Size Must be less than 5 Mb!..!',
           toastLength: Toast.LENGTH_SHORT,
@@ -100,6 +102,14 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
         setState(() {
           _profilePicture = File(pickedFile.path);
         });
+        Fluttertoast.showToast(
+          msg: 'Picture Is Uploaded!',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
       }
     }
   }
@@ -112,7 +122,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
     if (pickedFile != null) {
       final imageBytes = await pickedFile.readAsBytes();
       base64Image = base64Encode(imageBytes);
-      if (imageBytes.length > 5 * 1024) {
+      if ((imageBytes.length < 5 * 1024)) {
         Fluttertoast.showToast(
           msg: 'Image Size Must be less than 5 Mb!..!',
           toastLength: Toast.LENGTH_SHORT,
@@ -493,7 +503,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                               _formKey.currentState!.save();
                                               final dataToSubmit =
                                                   EmpEditProfileModel(
-                                                empId: 3,
+                                                empId: GlobalObjects.empId,
                                                 empName: empNameController.text,
                                                 fatherName:
                                                     fatherNameController.text,

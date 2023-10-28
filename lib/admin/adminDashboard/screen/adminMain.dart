@@ -233,7 +233,7 @@ class _MainPageState extends State<AdminMainPage> {
           } else if (state is NavigateToHomeState) {
             return const AdminDashboard();
           } else if (state is NavigateToReportsState) {
-            return  AdminMonthlyAndDailyReportsMainPage();
+            return  AdminMonthlyAndDailyReportsMainPage(viaDrawer: true,);
           } else if (state is NavigateToLogoutState) {
             return AlertDialog(
               title: const Text("Confirm Logout"),

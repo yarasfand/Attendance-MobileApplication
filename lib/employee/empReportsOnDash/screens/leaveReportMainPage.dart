@@ -13,7 +13,7 @@ class LeaveRequestPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'Leave Request',
+          'LEAVE REQUEST',
           style: AppBarStyles.appBarTextStyle
         ),
         iconTheme: const IconThemeData(

@@ -1,12 +1,12 @@
 
 class EmpEditProfileModel {
-  final int empId;
+  final int? empId;
   final String empName;
   final String fatherName;
   final String pwd;
   final String emailAddress;
   final String phoneNo;
-  final dynamic profilePic; // Use dynamic for nullable values
+  final dynamic profilePic;
 
   EmpEditProfileModel({
     required this.empId,

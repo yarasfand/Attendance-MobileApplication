@@ -35,6 +35,7 @@ class _EmpMainPageState extends State<EmpMainPage> {
   EmpProfileModel? empProfile;
   late EmpProfileRepository _profileRepository;
 
+
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', false);

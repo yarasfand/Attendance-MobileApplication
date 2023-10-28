@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../No_internet/no_internet.dart';
 import '../../admin/adminDashboard/screen/adminMain.dart';
@@ -14,17 +15,22 @@ import '../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../bloc/loginBloc/loginEvents.dart';
 import '../bloc/loginBloc/loginStates.dart';
 import '../bloc/loginBloc/loginbloc.dart';
+import '../../constants/globalObjects.dart';
 import 'halfCircleClipper.dart';
 
 class LoginPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
 enum UserType { employee, admin }
 
-class _LoginPageState extends State<LoginPage> {
-  UserType? _selectedUserType = UserType.employee; // Default selection
+class LoginPageState extends State<LoginPage> {
+
+  Object? abc=GlobalObjects.obj;
+
+
+  UserType? _selectedUserType = UserType.employee;
   final _passwordController = TextEditingController();
   final _CoorporateIdController = TextEditingController();
   final _UserController = TextEditingController();
@@ -36,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
       UserRepository(); // Create an instance of UserRepository
   String? corporateId; // Declare as nullable
 
-  void _handleAdminLogin(
+  void handleAdminLogin(
     String enteredCorporateID,
     String enteredUsername,
     String enteredPassword,
@@ -128,6 +134,10 @@ class _LoginPageState extends State<LoginPage> {
     sharedPrefEmp.setString('cardNo', cardNo);
     sharedPrefEmp.setString('empCode', empCode);
     sharedPrefEmp.setInt('employee_id', employeeId);
+   GlobalObjects.empCode = empCode;
+   GlobalObjects.empId = employeeId;
+   print("${GlobalObjects.empCode} ${GlobalObjects.empId}");
+    print(sharedPrefEmp.getInt('employee_id'));
   }
 
   void _loginAsAdmin() async {
@@ -189,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
         // Execute admin-related functions
         corporateId = _CoorporateIdController.text;
 
-        _handleAdminLogin(
+        handleAdminLogin(
           corporateId!,
           enteredUsername,
           enteredPassword,
