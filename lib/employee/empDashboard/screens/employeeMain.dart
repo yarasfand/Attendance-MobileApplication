@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -22,6 +21,7 @@ import '../bloc/employeeDashboardBloc/EmpDashboardk_bloc.dart';
 import 'empDashHome.dart';
 import 'empDrawer.dart';
 import 'empDrawerItems.dart';
+import 'generalAppBar.dart';
 
 class EmpMainPage extends StatefulWidget {
   const EmpMainPage({Key? key}) : super(key: key);
@@ -86,7 +86,7 @@ class _EmpMainPageState extends State<EmpMainPage> {
               return Scaffold(
                 appBar: PreferredSize(
                   preferredSize: AppBar().preferredSize,
-                  child: EmpAppBar(
+                  child: GenAppBar(
                     pageHeading: _getPageInfo(item),
                   ),
                 ),

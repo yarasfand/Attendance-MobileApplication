@@ -85,7 +85,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
     if (pickedFile != null) {
       final imageBytes = await pickedFile.readAsBytes();
       base64Image = base64Encode(imageBytes);
-      if (imageBytes.length > 5 * 1024 ) {
+      if (imageBytes.length > 5 * 1024) {
         Fluttertoast.showToast(
           msg: 'Image Size Must be less than 5 Mb!..!',
           toastLength: Toast.LENGTH_SHORT,
@@ -112,10 +112,22 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
     if (pickedFile != null) {
       final imageBytes = await pickedFile.readAsBytes();
       base64Image = base64Encode(imageBytes);
+      if (imageBytes.length > 5 * 1024) {
+        Fluttertoast.showToast(
+          msg: 'Image Size Must be less than 5 Mb!..!',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.redAccent,
+          textColor: Colors.white,
+        );
+      } else {
+        base64Image = base64Encode(imageBytes);
 
-      setState(() {
-        _profilePicture = File(pickedFile.path);
-      });
+        setState(() {
+          _profilePicture = File(pickedFile.path);
+        });
+      }
     }
   }
 

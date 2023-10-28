@@ -17,7 +17,7 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 55),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 55),
         child: buildDrawerItems(context),
       ),
     );

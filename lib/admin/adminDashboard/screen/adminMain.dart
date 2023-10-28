@@ -130,12 +130,7 @@ class _MainPageState extends State<AdminMainPage> {
                   pageHeading: _getPageInfo(item),
                 ),
               ),
-              drawer: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(40.0),
-                  bottomRight: Radius.circular(40.0),
-                ),
-                child: Drawer(
+              drawer:Drawer(
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -146,8 +141,7 @@ class _MainPageState extends State<AdminMainPage> {
                           child: UserAccountsDrawerHeader(
                             decoration: BoxDecoration(
                               color: AppColors.primaryColor,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                             ),
                             accountName: Text(userProfile.name),
                             accountEmail: Text(userProfile.email),
                             currentAccountPicture: const CircleAvatar(
@@ -193,7 +187,7 @@ class _MainPageState extends State<AdminMainPage> {
                       ],
                     ),
                   ),
-                ),
+
               ),
               backgroundColor: Colors.white,
               body: getDrawerPage(),
