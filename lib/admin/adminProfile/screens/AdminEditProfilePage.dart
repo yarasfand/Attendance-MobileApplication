@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppBar_constant.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../No_internet/no_internet.dart';
@@ -29,7 +30,6 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
     if (_formKey.currentState!.validate()) {
       final adminEditProfile = AdminEditProfile(
         userLoginId: 'ptsadmin',
-        // You may use a user ID from your app
         userName: _usernameController.text,
         userPassword: _passwordController.text,
         email: _emailController.text,
@@ -40,11 +40,11 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
       await _editProfileRepository.updateAdminProfile(adminEditProfile);
 
       if (success) {
-
+        GlobalObjects.adminMail = adminEditProfile.email;
+        GlobalObjects.empName = adminEditProfile.userName;
         Fluttertoast.showToast(msg: "Changes have been applied");
         Navigator.pop(context, true);
       } else {
-        // Handle error, e.g., show an error message
         Fluttertoast.showToast(msg: "Failed to update profile!");
         Navigator.pop(context, false); // Pass true to indicate a successful update
 

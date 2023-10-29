@@ -4,12 +4,9 @@ import 'package:http/http.dart' as http;
 import 'AdminProfileModel.dart';
 
 class AdminProfileRepository {
-  final String baseUrl;
-
-  AdminProfileRepository(this.baseUrl);
 
   Future<AdminProfileModel?> fetchAdminProfile(String corporateId, String employeeId) async {
-    final url = Uri.parse('$baseUrl/api/admin/dashboard/profile?CorporateId=$corporateId&employeeId=$employeeId');
+    final url = Uri.parse('http://62.171.184.216:9595/api/admin/dashboard/profile?CorporateId=$corporateId&employeeId=$employeeId');
 
     try {
       final response = await http.get(url);

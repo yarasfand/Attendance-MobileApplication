@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -132,8 +132,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
         );
       } else {
         setState(() {
-          GlobalObjects.empProfilePic =
-          base64Image = base64Encode(imageBytes);
+          GlobalObjects.empProfilePic = base64Image = base64Encode(imageBytes);
           _profilePicture = File(pickedFile.path);
         });
       }
@@ -242,6 +241,43 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
         .add(SubmitEmpEditProfileData(dataToSubmit));
   }
 
+  Widget buildEditProfilePicture() {
+    if (_profilePicture != null) {
+      return ClipOval(
+        child: Image.file(
+          _profilePicture!,
+          width: 200,
+          height: 200,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else if (GlobalObjects.empProfilePic != null && _profilePicture == null) {
+      try {
+        final imageBytes = base64Decode(GlobalObjects.empProfilePic!);
+        if (imageBytes.isNotEmpty) {
+          return ClipOval(
+            child: Image.memory(
+              Uint8List.fromList(imageBytes),
+              width: 200,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+          );
+        }
+      } catch (e) {
+        print('Error decoding image: $e');
+      }
+    }
+    return ClipOval(
+      child: Image.asset(
+        'assets/icons/userrr.png',
+        width: 200,
+        height: 200,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
   // Inside your build method:
   Widget build(BuildContext context) {
     return Scaffold(
@@ -279,7 +315,8 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                     empEditProfileRepository: EmpEditProfileRepository()),
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.fromLTRB(
+                        0, MediaQuery.of(context).size.height / 10, 0, 0),
                     child: Form(
                       key: _formKey,
                       child: Stack(children: [
@@ -297,16 +334,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                           child: Container(
                             padding: EdgeInsets.all(15),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  AppColors.primaryColor,
-                                  AppColors.secondaryColor,
-                                  AppColors.lightBlue,
-                                  Colors.white
-                                ], // Adjust colors as needed
-                              ),
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
                               boxShadow: [
                                 BoxShadow(
@@ -322,31 +350,30 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    _pickProfilePicture(); // Call the function to pick a profile picture
+                                    _pickProfilePicture();
                                   },
                                   child: Center(
                                     child: Container(
-                                      width: 150,
-                                      height: 150,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.blue,
-                                          width: 2,
+                                        width: 150,
+                                        height: 150,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.blue,
+                                            width: 2,
+                                          ),
                                         ),
-                                      ),
-                                      child: _profilePicture != null
-                                          ? ClipOval(
-                                              child: Image.file(
-                                                _profilePicture!,
-                                                width: 200,
-                                                height: 200,
-                                                fit: BoxFit
-                                                    .cover, // This ensures the image covers the entire circular area
-                                              ),
-                                            )
-                                          : const Icon(Icons.add_a_photo),
-                                    ),
+                                        child: Stack(
+                                          children: [
+                                            buildEditProfilePicture(),
+                                            const Center(
+                                              child: Icon(Icons.edit,
+                                                  size: 25.0,
+                                                  color:
+                                                      AppColors.primaryColor),
+                                            ),
+                                          ],
+                                        )),
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -355,7 +382,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   style: GoogleFonts.poppins(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.offWhite,
+                                    color: AppColors.black,
                                   ),
                                 ),
                                 TextFormField(
@@ -364,7 +391,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   decoration: InputDecoration(
                                     labelText: 'Full Name',
                                     labelStyle: GoogleFonts.poppins(
-                                        color: AppColors.brightWhite),
+                                        color: AppColors.black),
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -383,7 +410,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   decoration: InputDecoration(
                                     labelText: "Father's Name",
                                     labelStyle: GoogleFonts.poppins(
-                                        color: AppColors.brightWhite),
+                                        color: AppColors.black),
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -400,7 +427,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   decoration: InputDecoration(
                                     labelText: 'Password',
                                     labelStyle: GoogleFonts.poppins(
-                                        color: AppColors.brightWhite),
+                                        color: AppColors.black),
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         isPasswordVisible
@@ -431,7 +458,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   decoration: InputDecoration(
                                     labelText: 'Email Address',
                                     labelStyle: GoogleFonts.poppins(
-                                        color: AppColors.brightWhite),
+                                        color: AppColors.black),
                                   ),
                                   keyboardType: TextInputType.emailAddress,
                                   validator: (value) {
@@ -449,7 +476,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                   decoration: InputDecoration(
                                     labelText: 'Phone Number',
                                     labelStyle: GoogleFonts.poppins(
-                                        color: AppColors.brightWhite),
+                                        color: AppColors.black),
                                   ),
                                   keyboardType: TextInputType.phone,
                                   validator: (value) {
@@ -469,7 +496,6 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                       EmpEditProfileState>(
                                     listener: (context, state) {
                                       if (state is EmpEditProfileSuccess) {
-                                        // Show a success toast message when data is submitted successfully
                                         Fluttertoast.showToast(
                                           msg: "Data submitted successfully!",
                                           toastLength: Toast.LENGTH_LONG,
@@ -518,6 +544,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
                                               await Future.delayed(
                                                   Duration(seconds: 1));
                                               setState(() {});
+
                                               Navigator.pop(context);
                                               Fluttertoast.showToast(
                                                 msg:

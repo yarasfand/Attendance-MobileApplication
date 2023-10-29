@@ -3,7 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -272,6 +274,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
     }).toList();
   }
 
+
   bool isInternetLost = false;
 
   @override
@@ -300,7 +303,6 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
           isInternetLost = false; // Reset the flag
         }
       },
-
       builder: (context, state) {
         if (state is InternetGainedState) {
           return Scaffold(
@@ -313,7 +315,7 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                   padding: EdgeInsets.only(right: 55.0), // Add right padding
                   child: Text(
                     "GEOFENCE",
-                    style: TextStyle(color: Colors.white),
+                    style: AppBarStyles.appBarTextStyle,
                   ),
                 ),
               ),
@@ -327,13 +329,20 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                       padding: const EdgeInsets.only(top: 50),
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AdminMapDisplay(
-                                  selectedEmployees: selectedEmployees),
-                            ),
-                          );
+                          if (selectedEmployees != null &&
+                              selectedEmployees.isNotEmpty) {
+                            // Selected employees are not null or empty
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AdminMapDisplay(
+                                    selectedEmployees: selectedEmployees),
+                              ),
+                            );
+                          } else {
+                            // No employees selected, show the alert
+                           GlobalObjects.checkForSelection(context);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,

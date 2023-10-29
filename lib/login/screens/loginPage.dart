@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constants/AppColor_constants.dart';
@@ -15,7 +14,6 @@ import '../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../bloc/loginBloc/loginEvents.dart';
 import '../bloc/loginBloc/loginStates.dart';
 import '../bloc/loginBloc/loginbloc.dart';
-import '../../constants/globalObjects.dart';
 import 'halfCircleClipper.dart';
 
 class LoginPage extends StatefulWidget {
@@ -27,8 +25,6 @@ enum UserType { employee, admin }
 
 class LoginPageState extends State<LoginPage> {
 
-  Object? abc=GlobalObjects.obj;
-
 
   UserType? _selectedUserType = UserType.employee;
   final _passwordController = TextEditingController();
@@ -39,8 +35,8 @@ class LoginPageState extends State<LoginPage> {
   late bool _isButtonPressed = false;
   static const String KEY_LOGIN = "Login";
   final UserRepository userRepository =
-      UserRepository(); // Create an instance of UserRepository
-  String? corporateId; // Declare as nullable
+      UserRepository();
+  String? corporateId;
 
   void handleAdminLogin(
     String enteredCorporateID,
@@ -58,6 +54,7 @@ class LoginPageState extends State<LoginPage> {
 
       if (employeeData.isNotEmpty) {
          _saveAdminUsernameToSharedPreferences(enteredUsername);
+
         _loginAsAdmin();
       } else {
         _showErrorSnackbar(context, "User not found!");
@@ -182,9 +179,7 @@ class LoginPageState extends State<LoginPage> {
       sharedPrefEmp.setString('password', enteredPassword);
 
       if (_selectedUserType == UserType.employee) {
-        // Execute employee-related functions
         corporateId = _CoorporateIdController.text;
-
         _handleEmployeeLogin(
           corporateId!,
           enteredUsername,
@@ -196,9 +191,10 @@ class LoginPageState extends State<LoginPage> {
         sharedPref.setBool('isEmployee', true);
 
       } else if (_selectedUserType == UserType.admin) {
-        // Execute admin-related functions
         corporateId = _CoorporateIdController.text;
 
+        GlobalObjects.adminCorpId = corporateId;
+        print(GlobalObjects.adminCorpId);
         handleAdminLogin(
           corporateId!,
           enteredUsername,
@@ -268,42 +264,52 @@ class LoginPageState extends State<LoginPage> {
                     child: Container(
                       height: MediaQuery.of(context).size.height * 0.5,
                       width: MediaQuery.of(context).size.width,
-                      color: AppColors.secondaryColor,
+                      color: AppColors.primaryColor,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+
                           const SizedBox(
                             height: 20,
                           ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Card(
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 8),
-                                    ),
-                                  ],
-                                ),
-                                child: Image.asset(
-                                  'assets/images/pioneer_logo_app.png',
-                                  fit: BoxFit.contain,
-                                  height: 150,
-                                  width: 300,
-                                ),
-                              ),
+                          // Align(
+                          //   alignment: Alignment.topLeft,
+                          //   child: Card(
+                          //     elevation: 4,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(12),
+                          //     ),
+                          //     child: ClipRRect(
+                          //       borderRadius: BorderRadius.circular(12),
+                          //       child: Container(
+                          //         decoration: const BoxDecoration(
+                          //           boxShadow: [
+                          //             BoxShadow(
+                          //               color: Colors.white,
+                          //               blurRadius: 4,
+                          //               offset: Offset(0, 8),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //         child: Image.asset(
+                          //           'assets/images/pioneer_logo_app.png',
+                          //           fit: BoxFit.contain,
+                          //           height: 50,
+                          //           width: 50,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          Text(
+                            "PIONEER TIME ATTENDANCE",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 25, // Adjust the size as needed
+                              color: Colors.white, // Adjust the color as needed
                             ),
                           )
+                          
                         ],
                       ),
                     ),

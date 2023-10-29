@@ -27,8 +27,18 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
   bool isLoading = false; // Add a loading indicator variable
   String formattedSelectedDate = ""; // Add this property
 
+  @override
+  void initState() {
+    super.initState();
+    formattedSelectedDate = showFormatDateTime(_selectedDate); // Format the current date
+    _fetchAndDisplayReports(formatDateTime(_selectedDate)); // Fetch data for the current date
+  }
   String formatDateTime(DateTime dateTime) {
     final formatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    return formatter.format(dateTime);
+  }
+  String showFormatDateTime(DateTime dateTime) {
+    final formatter = DateFormat("d MMMM y", 'en_US');
     return formatter.format(dateTime);
   }
 
@@ -230,7 +240,7 @@ class DailyInfoCard extends StatelessWidget {
       final formatter = DateFormat.jm(); // Display time in AM/PM format
       return formatter.format(time);
     }
-    return 'N/A';
+    return '---';
   }
 
   @override
@@ -261,31 +271,31 @@ class DailyInfoCard extends StatelessWidget {
             // Add Daily info sub-cards here
             DailyInfoSubCard(
               title: 'ID',
-              value: empCode ?? 'N/A',
+              value: empCode ?? '---',
             ),
             DailyInfoSubCard(
               title: 'Shift Start Time',
-              value: formatTime(report.shiftStartTime) ?? 'N/A',
+              value: formatTime(report.shiftStartTime) ?? '---',
             ),
             DailyInfoSubCard(
               title: 'Shift End Time',
-              value: formatTime(report.shiftEndTime) ?? 'N/A',
+              value: formatTime(report.shiftEndTime) ?? '---',
             ),
             DailyInfoSubCard(
               title: 'Status',
-              value: report.status ?? 'N/A',
+              value: report.status ?? '---',
             ),
             DailyInfoSubCard(
               title: 'Hours Worked',
-              value: report.hoursWorked.toString() ?? 'N/A',
+              value: report.hoursWorked.toString() ?? '---',
             ),
             DailyInfoSubCard(
               title: 'Punch InTime',
-              value: formatTime(report.in1) ?? 'N/A',
+              value: formatTime(report.in1) ?? '---',
             ),
             DailyInfoSubCard(
               title: 'Punch OutTime',
-              value: formatTime(report.out2) ?? 'N/A',
+              value: formatTime(report.out2) ?? '---',
             ),
 
 

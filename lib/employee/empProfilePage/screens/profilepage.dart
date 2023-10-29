@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/employee/empDashboard/screens/employeeMain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants/globalObjects.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
@@ -17,20 +18,22 @@ import '../models/empProfileModel.dart';
 import '../models/empProfileRepository.dart';
 import 'EditProfile_page.dart';
 
+typedef void RefreshDataCallback();
+
 class EmpProfilePage extends StatefulWidget {
-  EmpProfilePage({
-    super.key,
-  });
+  final RefreshDataCallback? onRefreshData;
+
+  EmpProfilePage({Key? key, this.onRefreshData}) : super(key: key);
 
   @override
-  State<EmpProfilePage> createState() => _EmpProfilePageState();
+  State<EmpProfilePage> createState() => EmpProfilePageState();
 }
 
-class _EmpProfilePageState extends State<EmpProfilePage> {
-  LoginPageState select= LoginPageState();
-  var initProfile = HomePageState();
+class EmpProfilePageState extends State<EmpProfilePage> {
+  LoginPageState select = LoginPageState();
 
   late EmpProfileApiBloc _profileApiBloc;
+
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', false);
@@ -51,12 +54,54 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
     );
   }
 
+  EmpProfileRepository _profileRepository = EmpProfileRepository();
+  String? profileImageUrl;
   @override
   void initState() {
+    print("init in emp profile called");
+
     super.initState();
     // Initialize the BlocProvider when the page is created
     _initProfileBloc();
-    initProfile.fetchProfileData();
+    fetchProfileData();
+  }
+
+  void updateProfileData() {
+    initEmpMainPage.fetchProfileData();
+  }
+
+// Call updateProfileData whenever data changes in your profile.
+
+  var initEmpMainPage = EmpMainPageState();
+
+  Future<void> fetchProfileData() async {
+    print("Now in fetch profile state");
+    updateProfileData();
+    try {
+      final profileData = await _profileRepository.getData();
+      if (profileData.isNotEmpty) {
+        EmpProfileModel? empProfile = profileData.first;
+        final profileImage = empProfile.profilePic;
+
+        if (profileImage != null && profileImage.isNotEmpty) {
+          setState(() {
+            EmpProfileModel? empProfile = profileData.first;
+            profileImageUrl = profileImage;
+            GlobalObjects.empProfilePic = empProfile.profilePic;
+            GlobalObjects.empName = empProfile.empName;
+            GlobalObjects.empMail = empProfile.emailAddress;
+          });
+        }
+        if (profileImage == null && profileImage.isEmpty) {
+          setState(() {
+            GlobalObjects.empProfilePic = null;
+          });
+        }
+        // Update your UI with other profile data here
+      }
+    } catch (e) {
+      print("Error fetching profile data: $e");
+    }
   }
 
   Future<bool?> _onBackPressed(BuildContext context) async {
@@ -105,6 +150,9 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
     print("Now in state of refresh User data");
     // Dispatch an event to fetch new data from the API
     _profileApiBloc.add(EmpProfileLoadingEvent());
+    if (widget.onRefreshData != null) {
+      widget.onRefreshData!();
+    }
   }
 
   @override
@@ -128,195 +176,199 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
             List<EmpProfileModel> userList = state.users;
             final employeeProfile = userList[0];
             return Scaffold(
-              backgroundColor: AppColors.offWhite,
+              backgroundColor: Colors.white,
               body: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    //ASK WETHER TO EXIT APP OR NOT
-                    WillPopScope(
-                      onWillPop: () async {
-                        return _onBackPressed(context)
-                            .then((value) => value ?? false);
-                      },
-                      child: const SizedBox(),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Card(
-                      elevation: 4.0,
-                      margin: const EdgeInsets.all(20.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      0, MediaQuery.of(context).size.height / 15, 0, 0),
+                  child: Column(
+                    children: [
+                      //ASK WETHER TO EXIT APP OR NOT
+                      WillPopScope(
+                        onWillPop: () async {
+                          return _onBackPressed(context)
+                              .then((value) => value ?? false);
+                        },
+                        child: const SizedBox(),
                       ),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(
-                                top: 20.0), // Add margin from the top
-                            child: Column(
-                              children: [
-                                CircleAvatar(
-                                  radius:
-                                      70.0, // Increase the radius to make it larger
-                                  backgroundImage: GlobalObjects.empProfilePic !=
-                                              null &&
-                                      GlobalObjects.empProfilePic!.isNotEmpty
-                                      ? Image.memory(
-                                          Uint8List.fromList(base64Decode(
-                                              GlobalObjects.empProfilePic!)),
-                                        ).image
-                                      : const AssetImage(
-                                          'assets/icons/userr.png'),
-                                ),
-                                const SizedBox(
-                                    width:
-                                        20), // Add spacing between the picture and text
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text(
-                                      employeeProfile.empName,
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20, // Increase font size
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      softWrap: true,
-                                    ),
-                                    Text(
-                                      "${employeeProfile.emailAddress}",
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 16, // Increase font size
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "Join Date: ${DateFormat('dd MMM yy').format(employeeProfile.dateofJoin)}",
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 16, // Increase font size
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Capsule structure for icons
-                          Container(
-                            margin: const EdgeInsets.only(
-                                top: 20.0,
-                                bottom:
-                                    20.0), // Add margin from the top and bottom
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors
-                                        .blue, // Change the color as needed
-                                  ),
-                                  child: Center(
-                                    child: IconButton(
-                                      icon: const Icon(FontAwesomeIcons.phone,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        // Add your call functionality here
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors
-                                        .grey, // Change the color as needed
-                                  ),
-                                  child: Center(
-                                    child: IconButton(
-                                      icon: const Icon(
-                                          FontAwesomeIcons.envelope,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        // Add your call functionality here
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors
-                                        .green, // Change the color as needed
-                                  ),
-                                  child: Center(
-                                    child: IconButton(
-                                      icon: const Icon(FontAwesomeIcons.message,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        // Add your call functionality here
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      const SizedBox(
+                        height: 30,
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      Card(
+                        elevation: 4.0,
+                        margin: const EdgeInsets.all(32.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(
+                                  top: 20.0), // Add margin from the top
+                              child: Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius:
+                                        70.0, // Increase the radius to make it larger
+                                    backgroundImage: GlobalObjects
+                                                    .empProfilePic !=
+                                                null &&
+                                            GlobalObjects
+                                                .empProfilePic!.isNotEmpty
+                                        ? Image.memory(
+                                            Uint8List.fromList(base64Decode(
+                                                GlobalObjects.empProfilePic!)),
+                                          ).image
+                                        : const AssetImage(
+                                            'assets/icons/userrr.png'),
+                                  ),
+                                  const SizedBox(
+                                      width:
+                                          20), // Add spacing between the picture and text
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                        employeeProfile.empName,
+                                        style: GoogleFonts.montserrat(
+                                          textStyle: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20, // Increase font size
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                      Text(
+                                        "${employeeProfile.emailAddress}",
+                                        style: GoogleFonts.montserrat(
+                                          textStyle: const TextStyle(
+                                            fontWeight: FontWeight.w300,
+                                            fontSize: 16, // Increase font size
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        "Join Date: ${DateFormat('dd MMM yy').format(employeeProfile.dateofJoin)}",
+                                        style: GoogleFonts.montserrat(
+                                          textStyle: const TextStyle(
+                                            fontWeight: FontWeight.w300,
+                                            fontSize: 16, // Increase font size
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Capsule structure for icons
+                            Container(
+                              margin: const EdgeInsets.only(
+                                  top: 20.0,
+                                  bottom:
+                                      20.0), // Add margin from the top and bottom
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors
+                                          .blue, // Change the color as needed
+                                    ),
+                                    child: Center(
+                                      child: IconButton(
+                                        icon: const Icon(FontAwesomeIcons.phone,
+                                            color: Colors.white),
+                                        onPressed: () {
+                                          // Add your call functionality here
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors
+                                          .grey, // Change the color as needed
+                                    ),
+                                    child: Center(
+                                      child: IconButton(
+                                        icon: const Icon(
+                                            FontAwesomeIcons.envelope,
+                                            color: Colors.white),
+                                        onPressed: () {
+                                          // Add your call functionality here
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors
+                                          .green, // Change the color as needed
+                                    ),
+                                    child: Center(
+                                      child: IconButton(
+                                        icon: const Icon(
+                                            FontAwesomeIcons.message,
+                                            color: Colors.white),
+                                        onPressed: () {
+                                          // Add your call functionality here
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
 
-                    const Divider(
-                      color: Colors.grey,
-                      height: 2,
-                      thickness: 1,
-                    ),
-                    // Menu
-                    _buildTileWidget(
-                      title: 'Edit Profile',
-                      icon: FontAwesomeIcons.pencil,
-                      onTap: () async {
-                        // Navigate to EmpEditProfilePage and pass the refreshData callback
-                        await Navigator.push(
-                          context,
-                          PageTransition(
-                            child: const EmpEditProfilePage(),
-                            type: PageTransitionType.rightToLeft,
-                          ),
-                        );
-                        refreshUserData();
-                      },
-                    ),
+                      _buildTileWidget(
+                        title: 'Edit Profile',
+                        icon: FontAwesomeIcons.pencil,
+                        onTap: () async {
+                          // Navigate to EmpEditProfilePage and pass the refreshData callback
+                          await Navigator.push(
+                            context,
+                            PageTransition(
+                              child: const EmpEditProfilePage(),
+                              type: PageTransitionType.rightToLeft,
+                            ),
+                          );
+                          fetchProfileData();
+                          refreshUserData();
+                        },
+                      ),
 
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    _buildTileWidget(
-                      title: 'Logout',
-                      icon: Icons.logout,
-                      onTap: () => _logout(context),
-                    ),
-                  ],
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      _buildTileWidget(
+                        title: 'Logout',
+                        icon: Icons.logout,
+                        onTap: () => _logout(context),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -374,29 +426,49 @@ class _EmpProfilePageState extends State<EmpProfilePage> {
     return GestureDetector(
         onTap: onTap,
         child: Center(
-          child: Container(
-            alignment: Alignment.bottomCenter,
-            margin: const EdgeInsets.all(15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: Colors.red,
-                ),
-                const SizedBox(width: 20),
-                Text(
-                  title,
-                  style: GoogleFonts.raleway(
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0, // Increase the font size
-                      color: Colors.black, // Change the text color
-                    ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 1 / 14,
+                  width: MediaQuery.of(context).size.width * 5 / 6,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.primaryColor,
+                          AppColors.secondaryColor,
+                        ]),
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    // ignore: prefer_const_literals_to_create_immutables
+                    children: [
+                      const Text(""),
+                      Text(
+                        "${title}",
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white),
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.white),
+                          child: Icon(
+                            icon,
+                            size: 25.0,
+                            color: AppColors.primaryColor,
+                          ))
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ));
   }

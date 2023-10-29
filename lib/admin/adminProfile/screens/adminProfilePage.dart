@@ -7,6 +7,7 @@ import 'package:project/admin/adminProfile/models/AdminProfileRepository.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../No_internet/no_internet.dart';
@@ -25,10 +26,10 @@ class AdminProfilePage extends StatefulWidget {
   AdminProfilePage({Key? key}) : super(key: key);
 
   @override
-  _AdminProfilePageState createState() => _AdminProfilePageState();
+  AdminProfilePageState createState() => AdminProfilePageState();
 }
 
-class _AdminProfilePageState extends State<AdminProfilePage> {
+class AdminProfilePageState extends State<AdminProfilePage> {
   late AdminProfileBloc adminProfileBloc;
   UserProfile userProfile = UserProfile('Loading...', 'Loading...');
 
@@ -55,6 +56,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   @override
   void initState() {
     super.initState();
+    fetchProfileData();
   }
 
   @override
@@ -100,9 +102,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
 
   String formatDate(String dateString) {
     final DateTime? joinedDate = DateTime.tryParse(dateString);
-    return joinedDate != null
-        ? DateFormat.yMMMd().format(joinedDate)
-        : '---';
+    return joinedDate != null ? DateFormat.yMMMd().format(joinedDate) : '---';
   }
 
   void _launchDialer(String phoneNumber) async {
@@ -146,18 +146,19 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
 
   bool isInternetLost = false;
 
-  Future<void> _fetchProfileData() async {
+  Future<void> fetchProfileData() async {
     adminProfileBloc.add(FetchAdminProfile(
-      corporateId: 'ptsoffice',
+      corporateId: GlobalObjects.adminCorpId ?? 'ptsoffice',
       employeeId: 'ptsadmin',
     ));
   }
+
   @override
   Widget build(BuildContext context) {
-    adminProfileBloc = AdminProfileBloc(
-        AdminProfileRepository('http://62.171.184.216:9595'));
+    adminProfileBloc =
+        AdminProfileBloc(AdminProfileRepository());
     adminProfileBloc.add(FetchAdminProfile(
-      corporateId: 'ptsoffice',
+      corporateId: GlobalObjects.adminCorpId ?? 'ptsoffice',
       employeeId: 'ptsadmin',
     ));
 
@@ -194,252 +195,220 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                 } else if (state is AdminProfileLoaded) {
                   final adminProfile = state.adminProfile;
                   final joinedDate = formatDate(adminProfile.onDate);
-                  userProfile = UserProfile(adminProfile.userName ?? '---', adminProfile.email ?? '---');
+                  userProfile = UserProfile(adminProfile.userName ?? '---',
+                      adminProfile.email ?? '---');
+
+                  GlobalObjects.adminName = adminProfile.userName;
+                  GlobalObjects.adminMail = adminProfile.email;
 
                   return SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        WillPopScope(
-                          onWillPop: () async {
-                            return _onBackPressed(context)
-                                .then((value) => value ?? false);
-                          },
-                          child: const SizedBox(),
-                        ),
-                        Card(
-                          color: Colors.white,
-                          margin: const EdgeInsets.all(16),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Center(
-                                  child: CircleAvatar(
-                                    backgroundImage:
-                                    AssetImage('assets/icons/userr.png'),
-                                    radius: 70,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          0, MediaQuery.of(context).size.height / 15, 0, 0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          WillPopScope(
+                            onWillPop: () async {
+                              return _onBackPressed(context)
+                                  .then((value) => value ?? false);
+                            },
+                            child: const SizedBox(),
+                          ),
+                          Card(
+                            elevation: 4.0,
+                            margin: const EdgeInsets.all(32.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Center(
+                                    child: CircleAvatar(
+                                      backgroundImage:
+                                          AssetImage('assets/icons/userr.png'),
+                                      radius: 70,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 16),
-                                Center(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        adminProfile.userName ?? '---',
-                                        style: GoogleFonts.roboto(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                          color: AppColors.primaryColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        adminProfile.email ?? '---',
-                                        style: GoogleFonts.roboto(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Joined $joinedDate',
-                                        style: GoogleFonts.roboto(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.all(16),
-                                  child: Center(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                  const SizedBox(height: 16),
+                                  Center(
+                                    child: Column(
                                       children: [
-                                        Container(
-                                          margin: const EdgeInsets.all(16),
-                                          child: Center(
-                                            child: Row(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                              children: [
-                                                Card(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        50),
-                                                  ),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.red,
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          50),
-                                                    ),
-                                                    padding:
-                                                    const EdgeInsets.all(5),
-                                                    child: IconButton(
-                                                      icon: const Icon(
-                                                          Icons.call,
-                                                          color: Colors.white),
-                                                      onPressed: () {
-                                                        _launchDialer(
-                                                            adminProfile
-                                                                .mobile);
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                                Card(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        50),
-                                                  ),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.blue,
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          50),
-                                                    ),
-                                                    padding:
-                                                    const EdgeInsets.all(5),
-                                                    child: IconButton(
-                                                      icon: const Icon(
-                                                          Icons.message,
-                                                          color: Colors.white),
-                                                      onPressed: () {
-                                                        _launchSms(adminProfile
-                                                            .mobile);
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                                Card(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        50),
-                                                  ),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.green,
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          50),
-                                                    ),
-                                                    padding:
-                                                    const EdgeInsets.all(5),
-                                                    child: IconButton(
-                                                      icon: const Icon(
-                                                          Icons.mail,
-                                                          color: Colors.white),
-                                                      onPressed: () {
-                                                        _launchEmail(
-                                                            adminProfile.email);
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                        Text(
+                                          adminProfile.userName ?? '---',
+                                          style: GoogleFonts.roboto(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: AppColors.primaryColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          adminProfile.email ?? '---',
+                                          style: GoogleFonts.roboto(
+                                            fontWeight: FontWeight.w300,
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Joined $joinedDate',
+                                          style: GoogleFonts.roboto(
+                                            fontWeight: FontWeight.w300,
+                                            fontSize: 16,
+                                            color: Colors.black,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const Divider(
-                          color: Colors.grey,
-                          thickness: 1.0,
-                          height: 20,
-                          indent: 16,
-                          endIndent: 16,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Container(
-                            color: Colors.white,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                const SizedBox(height: 10),
-                                GestureDetector(
-                                  onTap: () async {
-                                    final result = await Navigator.push(
-                                      context,
-                                      PageTransition(
-                                        child: const AdminEditProfilePage(),
-                                        type: PageTransitionType.rightToLeft,
+                                  Container(
+                                    margin: const EdgeInsets.all(16),
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.all(16),
+                                            child: Center(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Card(
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50),
+                                                    ),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.red,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                50),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(5),
+                                                      child: IconButton(
+                                                        icon: const Icon(
+                                                            Icons.call,
+                                                            color: Colors.white),
+                                                        onPressed: () {
+                                                          _launchDialer(
+                                                              adminProfile
+                                                                  .mobile);
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Card(
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50),
+                                                    ),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.blue,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                50),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(5),
+                                                      child: IconButton(
+                                                        icon: const Icon(
+                                                            Icons.message,
+                                                            color: Colors.white),
+                                                        onPressed: () {
+                                                          _launchSms(adminProfile
+                                                              .mobile);
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Card(
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50),
+                                                    ),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                50),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(5),
+                                                      child: IconButton(
+                                                        icon: const Icon(
+                                                            Icons.mail,
+                                                            color: Colors.white),
+                                                        onPressed: () {
+                                                          _launchEmail(
+                                                              adminProfile.email);
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    );
-                                    if (result == true) {
-                                      // Refresh the admin profile data when the user returns from EditProfile
-                                      _fetchProfileData();
-
-                                    }
-                                  },
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.edit,
-                                        color: Colors.blue,
-                                        size: 32,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Text(
-                                        'Edit Profile',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-
-
-                                const SizedBox(height: 20),
-
-                                const SizedBox(height: 20),
-                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.logout,
-                                      color: Colors.red,
-                                      size: 32,
-                                    ),
-                                    SizedBox(width: 10),
-                                    GestureDetector(
-                                      onTap: () => _logout(context),
-                                      child: Text(
-                                        'Logout',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        )
-                      ],
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Container(
+                              color: Colors.white,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  const SizedBox(height: 10),
+                                  _buildTileWidget(
+                                    title: 'Edit Profile',
+                                    icon: Icons.edit,
+                                    onTap: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        PageTransition(
+                                          child: const AdminEditProfilePage(),
+                                          type: PageTransitionType.rightToLeft,
+                                        ),
+                                      );
+                                      if (result == true) {
+                                        // Refresh the admin profile data when the user returns from EditProfile
+                                        fetchProfileData();
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  _buildTileWidget(
+                                    title: 'Logout',
+                                    icon: Icons.logout,
+                                    onTap: () => _logout(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   );
                 } else if (state is AdminProfileError) {
@@ -504,5 +473,60 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
         }
       },
     );
+  }
+
+  Widget _buildTileWidget({
+    required String title,
+    required IconData icon,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+        onTap: onTap,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 1 / 14,
+                  width: MediaQuery.of(context).size.width * 5 / 6,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.primaryColor,
+                          AppColors.secondaryColor,
+                        ]),
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    // ignore: prefer_const_literals_to_create_immutables
+                    children: [
+                      const Text(""),
+                      Text(
+                        "${title}",
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white),
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.white),
+                          child: Icon(
+                            icon,
+                            size: 25.0,
+                            color: AppColors.primaryColor,
+                          ))
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }

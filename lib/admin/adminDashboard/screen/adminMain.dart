@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/admin/adminOptionsReport/screens/AdminMonthlyAndDailyReportsMainPage.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
 import '../../../constants/AppColor_constants.dart';
@@ -41,8 +42,6 @@ class AdminMainPage extends StatefulWidget {
 
 class _MainPageState extends State<AdminMainPage> {
   final AdminDashBloc dashBloc = AdminDashBloc();
-  final AdminProfileRepository profileRepository =
-  AdminProfileRepository('http://62.171.184.216:9595');
   late String corporateId;
   late String username;
   late UserProfile userProfile;
@@ -67,34 +66,22 @@ class _MainPageState extends State<AdminMainPage> {
     );
   }
 
+
   AdminDrawerItem item = AdminDrawerItems.home;
   AdminProfileModel? profileData;
 
-  Future<void> refreshProfileData() async {
-    try {
-      final data = await profileRepository.fetchAdminProfile(corporateId, username);
-      setState(() {
-        userProfile.name = data!.userName;
-        userProfile.email = data.email;
-      });
-    } catch (e) {
-      print('Error fetching admin profile: $e');
-    }
-  }
 
   @override
   void initState() {
     super.initState();
 
     userProfile = UserProfile.instance(); // Get the singleton instance
-
-    // Load the user profile data
     loadSharedPrefs().then((_) {
       fetchAdminProfileData(corporateId, username);
     });
-    refreshProfileData();
   }
 
+   AdminProfileRepository profileRepository = AdminProfileRepository();
 
   Future<void> fetchAdminProfileData(
       String corporateId, String username) async {
@@ -102,8 +89,8 @@ class _MainPageState extends State<AdminMainPage> {
       final data =
       await profileRepository.fetchAdminProfile(corporateId, username);
       setState(() {
-        userProfile.name = data!.userName;
-        userProfile.email = data.email;
+        GlobalObjects.adminName = data!.userName;
+        GlobalObjects.adminMail = data.email;
       });
     } catch (e) {
       print('Error fetching admin profile: $e');
@@ -135,15 +122,13 @@ class _MainPageState extends State<AdminMainPage> {
                     child: Column(
                       children: [
                         GestureDetector(
-                          onTap: () {
-                            refreshProfileData();
-                          },
+
                           child: UserAccountsDrawerHeader(
                             decoration: BoxDecoration(
                               color: AppColors.primaryColor,
                              ),
-                            accountName: Text(userProfile.name),
-                            accountEmail: Text(userProfile.email),
+                            accountName: Text( GlobalObjects.adminName ?? ""),
+                            accountEmail: Text(GlobalObjects.adminMail ?? ""),
                             currentAccountPicture: const CircleAvatar(
                               backgroundImage: AssetImage("assets/icons/userr.png"),
                             ),

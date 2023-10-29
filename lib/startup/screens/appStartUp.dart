@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:project/employee/empDashboard/screens/employeeMain.dart';
 import 'package:project/admin/adminDashboard/screen/adminMain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../introduction/screens/introScreen.dart';
+import '../../introduction/screens/screen.dart';
 import '../../login/screens/loginPage.dart';
 
 class AppStartup extends StatelessWidget {
@@ -32,14 +31,24 @@ class AppStartup extends StatelessWidget {
                   if (loginSnapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   } else {
-                    final hasVisitedLogin = loginSnapshot.data ?? false;
-                    if (hasVisitedLogin) {
-                      // User has visited the login page, proceed to the LoginPage
-                      return LoginPage();
-                    } else {
-                      // User hasn't visited the login page, show the IntroScreen
-                      return IntroScreen();
-                    }
+                    // Check if the user has visited the login page
+                    return FutureBuilder<bool>(
+                      future: hasVisitedLoginPage(),
+                      builder: (context, loginSnapshot) {
+                        if (loginSnapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else {
+                          final hasVisitedLogin = loginSnapshot.data ?? false;
+                          if (!hasVisitedLogin) {
+                            // User hasn't visited the login page, show the IntroScreen
+                            return Screen1();
+                          } else {
+                            // User has visited the login page, do not show the IntroScreen
+                            return LoginPage();
+                          }
+                        }
+                      },
+                    );
                   }
                 },
               );
@@ -56,6 +65,7 @@ class AppStartup extends StatelessWidget {
     final sharedPref = await SharedPreferences.getInstance();
     return sharedPref.getBool('intro_screen_visited') ?? false;
   }
+
 
   Future<UserData> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

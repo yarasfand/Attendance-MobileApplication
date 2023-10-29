@@ -5,3 +5,4 @@ abstract class ProfileState {}
 
 class ProfileInitial extends ProfileState {}
 class NavigateToViewPageState extends ProfileState{}
+class DataChangesinApiState extends ProfileState{}

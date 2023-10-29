@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import '../../../constants/AppColor_constants.dart';
+
 class GenAppBar extends StatelessWidget {
   final Key? key;
   final String pageHeading;

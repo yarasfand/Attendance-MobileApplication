@@ -204,7 +204,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) {
               return AdminProfileBloc(
-                  AdminProfileRepository('http://62.171.184.216:9595'));
+                  AdminProfileRepository());
             },
             child: AdminProfilePage(),
           ),

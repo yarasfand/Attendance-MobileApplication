@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +15,7 @@ import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../empMap/screens/employeemap.dart';
 import '../../empProfilePage/models/empProfileModel.dart';
 import '../../empProfilePage/models/empProfileRepository.dart';
+import '../../empProfilePage/screens/profilepage.dart';
 import '../../empReportsOnDash/screens/ReportsMainPage.dart';
 import '../../empReportsOnDash/screens/leaveReportMainPage.dart';
 import '../bloc/empDashApiFiles/emp_dash_bloc.dart';
@@ -38,12 +38,12 @@ class HomePageState extends State<EmpDashHome> {
   late bool locationError = true;
   double? lat;
   double? long;
-  EmpProfileRepository _profileRepository = EmpProfileRepository();
-  String? profileImageUrl;
-
+  var initProfile = EmpProfilePageState();
 
   @override
   void initState() {
+    print("init in emp home called");
+
     super.initState();
     checkLocationPermission();
     checkLocationPermissionAndFetchLocation();
@@ -51,11 +51,13 @@ class HomePageState extends State<EmpDashHome> {
     fetchProfileData();
   }
 
+  EmpProfileRepository _profileRepository = EmpProfileRepository();
+  String? profileImageUrl;
+
   Future<void> fetchProfileData() async {
     try {
       final profileData = await _profileRepository.getData();
       if (profileData.isNotEmpty) {
-
         EmpProfileModel? empProfile = profileData.first;
         final profileImage = empProfile.profilePic;
 
@@ -66,9 +68,15 @@ class HomePageState extends State<EmpDashHome> {
             GlobalObjects.empProfilePic = empProfile.profilePic;
             GlobalObjects.empName = empProfile.empName;
             GlobalObjects.empMail = empProfile.emailAddress;
+            print(GlobalObjects.empProfilePic);
           });
         }
-        // Update your UI with other profile data here
+        if (profileImage == null) {
+          setState(() {
+            GlobalObjects.empProfilePic = null;
+          });
+        }
+
       }
     } catch (e) {
       print("Error fetching profile data: $e");
@@ -111,7 +119,7 @@ class HomePageState extends State<EmpDashHome> {
   }
 
   Widget buildProfileImage() {
-    if (GlobalObjects.empProfilePic != null) {
+    if (GlobalObjects.empProfilePic != null && GlobalObjects.empProfilePic!.isNotEmpty) {
       return ClipOval(
         child: Image.memory(
           Uint8List.fromList(base64Decode(GlobalObjects.empProfilePic!)),
@@ -127,7 +135,7 @@ class HomePageState extends State<EmpDashHome> {
       );
     } else {
       return Image.asset(
-        'assets/icons/userr.png',
+        'assets/icons/userrr.png',
         width: 100,
         height: 45,
       );

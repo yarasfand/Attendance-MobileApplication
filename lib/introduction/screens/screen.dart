@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../bloc/bloc_internet/internet_checking.dart';
 
@@ -14,6 +15,11 @@ class Screen1 extends StatefulWidget {
 class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   bool allPointsDisplayed = false;
 
+  // Function to set the shared preference value
+  Future<void> setIntroScreenVisited(bool visited) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('intro_screen_visited', visited);
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,7 +58,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
               const SizedBox(height: 20),
               // Text description
               const Text(
-                'Welcome to Pioneer Times',
+                'Welcome to Pioneer Times Biometric',
                 style: TextStyle(
                   fontSize: 25, // Increase the font size
                   fontWeight: FontWeight.bold,
@@ -114,7 +120,8 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                       AppColors.primaryColor,
                     ),
                   ),
-                  onPressed: () {
+                  onPressed: () async{
+                    await setIntroScreenVisited(true);
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
                         return const AfterIntro();

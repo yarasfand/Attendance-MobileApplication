@@ -1,13 +1,20 @@
 import 'package:flutter/Material.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import '../../../constants/AppColor_constants.dart';
 import 'empDrawerItems.dart';
 
 class EmpDrawerItem {
   final String title;
   final IconData icon;
+  final TextStyle titleStyle; // Add a TextStyle property for text style
 
-  const EmpDrawerItem({required this.title, required this.icon});
+  const EmpDrawerItem({
+    required this.title,
+    required this.icon,
+    this.titleStyle = AppBarStyles.appBarTextStyle, // Provide a default TextStyle
+  });
 }
+
 
 class EmpDrawer extends StatelessWidget {
   final ValueChanged<EmpDrawerItem> onSelectedItems;
@@ -21,16 +28,6 @@ class EmpDrawer extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            /*
-            Center(
-              // Center the image
-              child: Image.asset(
-                "assets/images/pioneer_logo_app.png",
-                height: screenHeight / 15,
-              ),
-            ),
-
-             */
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 25),
@@ -49,7 +46,7 @@ class EmpDrawer extends StatelessWidget {
                 contentPadding: EdgeInsets.fromLTRB(
                     0, MediaQuery.of(context).size.height / 22.5, 0, 0),
                 leading: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 45, 0), // Adjust the padding as needed
+                  padding: const EdgeInsets.fromLTRB(0, 0, 20, 0), // Adjust the padding as needed
                   child: Icon(item.icon, color: Colors.black87),
                 ),
                 title: Text(

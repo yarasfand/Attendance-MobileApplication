@@ -40,7 +40,7 @@ class MyDrawer extends StatelessWidget {
             (item) => ListTile(
               contentPadding: EdgeInsets.fromLTRB(0, optTopDiff, 0, 0),
               leading: Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, screenWidth / 10, 0),
+                padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                 child: Icon(item.icon, color: Colors.black87),
               ),
               title: Text(

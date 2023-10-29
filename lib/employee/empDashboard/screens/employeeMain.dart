@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:project/employee/empDashboard/screens/empAppbar.dart';
@@ -28,14 +29,12 @@ class EmpMainPage extends StatefulWidget {
   const EmpMainPage({Key? key}) : super(key: key);
 
   @override
-  State<EmpMainPage> createState() => _EmpMainPageState();
+  State<EmpMainPage> createState() => EmpMainPageState();
 }
 
-class _EmpMainPageState extends State<EmpMainPage> {
+class EmpMainPageState extends State<EmpMainPage> {
   final EmpDashboardkBloc dashBloc = EmpDashboardkBloc();
   EmpProfileModel? empProfile;
-  late EmpProfileRepository _profileRepository;
-
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -58,24 +57,34 @@ class _EmpMainPageState extends State<EmpMainPage> {
   }
 
   EmpDrawerItem item = EmpDrawerItems.home;
-  var initProfile = HomePageState();
 
   @override
   void initState() {
     super.initState();
-    _profileRepository = EmpProfileRepository();
+    profileRepository = EmpProfileRepository();
     fetchProfileData();
-    initProfile.fetchProfileData();
   }
 
+  EmpProfileRepository profileRepository = EmpProfileRepository();
+  String? profileImageUrl;
   Future<void> fetchProfileData() async {
     try {
-      final profileData = await _profileRepository.getData();
+      final profileData = await profileRepository.getData();
       if (profileData.isNotEmpty) {
+        EmpProfileModel? empProfile = profileData.first;
+        final profileImage = empProfile.profilePic;
 
         setState(() {
-          empProfile = profileData[0];
+          profileImageUrl = profileImage;
+          GlobalObjects.empProfilePic = empProfile.profilePic;
+          GlobalObjects.empName = empProfile.empName;
+          GlobalObjects.empMail = empProfile.emailAddress;
         });
+
+        print(GlobalObjects.empName);
+        print(GlobalObjects.empMail);
+
+        // Update your UI with other profile data here
       }
     } catch (e) {
       print("Error fetching profile data: $e");
@@ -83,115 +92,117 @@ class _EmpMainPageState extends State<EmpMainPage> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      BlocConsumer<InternetBloc, InternetStates>(
-          listener: (context, state) {},
-          builder: (context, state) {
-            if (state is InternetGainedState) {
-              return Scaffold(
-                appBar: PreferredSize(
-                  preferredSize: AppBar().preferredSize,
-                  child: GenAppBar(
-                    pageHeading: _getPageInfo(item),
+  Widget build(BuildContext context) => BlocConsumer<InternetBloc, InternetStates>(
+    listener: (context, state) {},
+    builder: (context, state) {
+      if (state is InternetGainedState) {
+        return Scaffold(
+          appBar: PreferredSize(
+            preferredSize: AppBar().preferredSize,
+            child: GenAppBar(
+              pageHeading: _getStyledTitle(item), // Use _getStyledTitle here
+            ),
+          ),
+          drawer: Drawer(
+            child: Column(
+              children: [
+                UserAccountsDrawerHeader(
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryColor,
+                  ),
+                  accountName: Text(GlobalObjects.empName ?? ""),
+                  accountEmail: Text(GlobalObjects.empMail ?? ""),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundImage: GlobalObjects.empProfilePic != null && GlobalObjects.empProfilePic!.isNotEmpty
+                        ? Image.memory(
+                      Uint8List.fromList(base64Decode(GlobalObjects.empProfilePic!)),
+                    ).image
+                        : AssetImage('assets/icons/userrr.png'),
                   ),
                 ),
-                drawer: Drawer(
-                  child: Column(
-                    children: [
-                      GestureDetector(
-                        child: UserAccountsDrawerHeader(
-                          decoration: const BoxDecoration(
-                            color: AppColors.primaryColor,
-                          ),
-                          accountName: Text(GlobalObjects.empName ?? ""),
-                          accountEmail: Text( GlobalObjects.empMail ?? ""),
-                          currentAccountPicture:CircleAvatar(
-                            backgroundImage: GlobalObjects.empProfilePic != null && GlobalObjects.empProfilePic!.isNotEmpty
-                                ? Image.memory(
-                              Uint8List.fromList(base64Decode(GlobalObjects.empProfilePic!)),
-                            ).image
-                                : AssetImage('assets/icons/userr.png'),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        child: EmpDrawer(
-                          onSelectedItems: (selectedItem) {
-                            setState(() {
-                              Navigator.of(context).pop();
-                              item = selectedItem;
-                            });
-                            switch (item) {
-                              case EmpDrawerItems.home:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
+                Container(
+                  child: EmpDrawer(
+                    onSelectedItems: (selectedItem) {
+                      setState(() {
+                        Navigator.of(context).pop();
+                        item = selectedItem;
+                      });
+                      switch (item) {
+                        case EmpDrawerItems.home:
+                          dashBloc.add(NavigateToHomeEvent());
+                          break;
 
-                              case EmpDrawerItems.reports:
-                                dashBloc.add(NavigateToReportsEvent());
-                                break;
+                        case EmpDrawerItems.reports:
+                          dashBloc.add(NavigateToReportsEvent());
+                          break;
 
-                              case EmpDrawerItems.profile:
-                                dashBloc.add(NavigateToProfileEvent());
-                                break;
+                        case EmpDrawerItems.profile:
+                          dashBloc.add(NavigateToProfileEvent());
+                          break;
 
-                              case EmpDrawerItems.logout:
-                                dashBloc.add(NavigateToLogoutEvent());
-                                break;
+                        case EmpDrawerItems.logout:
+                          dashBloc.add(NavigateToLogoutEvent());
+                          break;
 
-                              default:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
-                            }
-                          },
-                        ),
-                      ),
-                    ],
+                        default:
+                          dashBloc.add(NavigateToHomeEvent());
+                          break;
+                      }
+                    },
                   ),
                 ),
-                backgroundColor: Colors.white,
-                body: getDrawerPage(),
-              );
-            } else if (state is InternetLostState) {
-              return Scaffold(
-                body: Container(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "No Internet Connection!",
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Lottie.asset('assets/no_wifi.json'),
-                      ],
+              ],
+            ),
+          ),
+          backgroundColor: Colors.white,
+          body: getDrawerPage(),
+        );
+      } else if (state is InternetLostState) {
+        return Scaffold(
+          body: Container(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "No Internet Connection!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              );
-            } else {
-              return Scaffold(
-                body: Container(),
-              );
-            }
-          });
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Lottie.asset('assets/no_wifi.json'),
+                ],
+              ),
+            ),
+          ),
+        );
+      } else {
+        return Scaffold(
+          body: Container(),
+        );
+      }
+    },
+  );
 
   Widget getDrawerPage() {
     return BlocBuilder<EmpDashboardkBloc, EmpDashboardkState>(
       bloc: dashBloc,
       builder: (context, state) {
         if (state is NavigateToProfileState) {
-          return EmpProfilePage();
+          return EmpProfilePage(onRefreshData: () {
+            // Handle the refresh signal here in the drawer.
+            // Update the drawer's UI or reload the data as needed.
+            fetchProfileData(); // You can call the function to refresh the profile data here.
+          });
         } else if (state is NavigateToHomeState) {
           return EmpDashboard();
         } else if (state is NavigateToReportsState) {
-          return ReportsMainPage(viaDrawer: true,);
+          return ReportsMainPage(viaDrawer: true);
         } else if (state is NavigateToLogoutState) {
           return AlertDialog(
             title: const Text("Confirm Logout"),
@@ -223,7 +234,7 @@ class _EmpMainPageState extends State<EmpMainPage> {
     );
   }
 
-  String _getPageInfo(EmpDrawerItem item) {
+  String _getStyledTitle(EmpDrawerItem item) {
     switch (item) {
       case EmpDrawerItems.home:
         return "HOME";
@@ -232,9 +243,11 @@ class _EmpMainPageState extends State<EmpMainPage> {
       case EmpDrawerItems.profile:
         return "PROFILE";
       case EmpDrawerItems.logout:
-        return "";
+        return ""; // You can return an empty string if needed
       default:
         return "HOME"; // Set the default title
     }
   }
+
+
 }

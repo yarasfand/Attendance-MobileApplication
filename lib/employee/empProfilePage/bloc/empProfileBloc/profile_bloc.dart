@@ -11,11 +11,16 @@ part 'profile_state.dart';
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(ProfileInitial()) {
    on<NavigateToViewPageEvent>(navigateToViewPageEvent);
+   on<DataChangesinApiEvent>(dataChangesinApiEvent);
   }
 
 
   FutureOr<void> navigateToViewPageEvent(NavigateToViewPageEvent event, Emitter<ProfileState> emit) {
 
     emit(NavigateToViewPageState());
+  }
+  FutureOr<void> dataChangesinApiEvent(DataChangesinApiEvent event, Emitter<ProfileState> emit) {
+
+    emit(DataChangesinApiState());
   }
 }

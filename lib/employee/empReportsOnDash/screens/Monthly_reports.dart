@@ -73,7 +73,7 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       'December',
     ];
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: AppColors.brightWhite,
       appBar: AppBar(
         title: Text(
           'Monthly Reports',
@@ -150,14 +150,14 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       // Map MonthlyReportsModel objects to the desired format
       final mappedReports = reportsData
           .map((report) => {
-        'shiftstarttime': report.shiftStartTime,
-        'shiftendtime': report.shiftEndTime,
-        'status': report.status,
-        'hoursworked': report.hoursWorked,
-        'in1': report.in1,
-        'out2': report.out2,
-        // Add other fields as needed
-      })
+                'shiftstarttime': report.shiftStartTime,
+                'shiftendtime': report.shiftEndTime,
+                'status': report.status,
+                'hoursworked': report.hoursWorked,
+                'in1': report.in1,
+                'out2': report.out2,
+                // Add other fields as needed
+              })
           .toList();
 
       return mappedReports;
@@ -213,134 +213,174 @@ class MonthlyReportsListView extends StatelessWidget {
             borderRadius: BorderRadius.circular(16.0),
           ),
           elevation: 5,
-          child: ListTile(
-            contentPadding: EdgeInsets.all(16.0),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "     Shift",
-                      style: GoogleFonts.poppins(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(width: 100),
-                    Text(
-                      "Punch Time",
-                      style: GoogleFonts.poppins(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "Start    |",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "   End",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(width: 80),
-                    Text(
-                      "In    |",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                    Text(
-                      "   Out",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "${shiftStartTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftStartTime)) : '   ---'}",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text("      |   "),
-                    Text(
-                      "${shiftEndTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftEndTime)) : '  ---'}",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(width: 72,),
-                    Text(
-                      "${inTime != null ? DateFormat('hh:mm').format(DateTime.parse(inTime)) : '      ---'}",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text("    | "),
-                    SizedBox(width: 5,),
-                    Text(
-                      "${outTime != null ? DateFormat('hh:mm').format(DateTime.parse(outTime)) : '  ---'}",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Worked: ${hoursWorked}",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.green, // Status color
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Table(
+            children: [
+              TableRow(
+                children: [
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        "${status != null ? status : 'N/A'}",
+                        "Shift",
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.white,
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 16.0,
+                      ),
+                      child: Text(
+                        "Punch Time",
+                        style: GoogleFonts.poppins(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text(
+                        "Start",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      "In",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              TableRow(
+                children: [
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text(
+                        "${shiftStartTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftStartTime)) : '---'}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      "${inTime != null ? DateFormat('hh:mm').format(DateTime.parse(inTime)) : '---'}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text(
+                        "End",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      "Out",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text(
+                        "${shiftEndTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftEndTime)) : '---'}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      "${outTime != null ? DateFormat('hh:mm').format(DateTime.parse(outTime)) : '---'}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text(
+                        "Worked: ${hoursWorked}",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.green, // Status color
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                   margin: EdgeInsets.all(3),
+                    padding: EdgeInsets.all(5),
+                    child: Text(
+                      "Status: ${status != null ? status : '---'}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
@@ -357,7 +397,8 @@ class CustomLoadingIndicator extends StatelessWidget {
         height: 30.0, // Customize the size as needed
         child: CircularProgressIndicator(
           strokeWidth: 3.0, // Customize the thickness of the circle
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue), // Customize the color
+          valueColor:
+              AlwaysStoppedAnimation<Color>(Colors.blue), // Customize the color
         ),
       ),
     );

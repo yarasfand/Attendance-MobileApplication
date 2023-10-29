@@ -46,15 +46,13 @@ dependencies:
   camera: ^0.10.5+5
   syncfusion_flutter_sliders: ^22.2.12
   url_launcher: ^6.1.14
-  image_to_byte: ^1.0.0
-  image: ^4.1.3
-  flutter_image_compress: ^2.1.0
-
 
 flutter_native_splash:
-  color: "#FFD580"
-  image: "assets/images/pioneer_logo_app1.png"
-  branding: assets/images/pioneer_logo_app.png
+  android: true
+  ios: true
+
+  color: "#FFFFFF"
+  image: "assets/images/pioneer_logo_app.png"
 
 
 dev_dependencies:

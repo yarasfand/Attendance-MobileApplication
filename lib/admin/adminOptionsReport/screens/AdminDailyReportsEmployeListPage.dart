@@ -3,9 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../No_internet/no_internet.dart';
+import '../../../constants/AppBar_constant.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_bloc.dart';
 import '../../adminReportsFiles/bloc/getActiveEmployeeApiFiles/get_active_employee_event.dart';
@@ -312,8 +314,8 @@ class _AdminDailyReportEmployeeListPageState
               child: Padding(
                 padding: EdgeInsets.only(right: 55.0), // Add right padding
                 child: Text(
-                  "GEOFENCING",
-                  style: TextStyle(color: Colors.white),
+                  "REPORTS",
+                  style: AppBarStyles.appBarTextStyle,
                 ),
               ),
             ),
@@ -327,16 +329,21 @@ class _AdminDailyReportEmployeeListPageState
                     padding: const EdgeInsets.only(top: 50),
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return DailyReportsScreen(
-                              selectedEmployeeIds: selectedEmployees
-                                  .where((employee) => employee.empId != null)
-                                  .map((employee) => employee.empId!)
-                                  .toList(),
-                            );
-                          },
-                        ));
+                        if(selectedEmployees != null && selectedEmployees.isNotEmpty) {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return DailyReportsScreen(
+                                selectedEmployeeIds: selectedEmployees
+                                    .where((employee) => employee.empId != null)
+                                    .map((employee) => employee.empId!)
+                                    .toList(),
+                              );
+                            },
+                          ));
+                        }
+                        else{
+                          GlobalObjects.checkForSelection(context);
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         primary: Colors.blue,
