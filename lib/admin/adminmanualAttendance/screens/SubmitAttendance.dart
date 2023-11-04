@@ -42,6 +42,15 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
   TimeOfDay? selectedOutTime;
   bool isInternetLost = false;
 
+  ButtonStyle commonButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: AppColors.brightWhite, // Button background color
+    padding: const EdgeInsets.all(16), // Padding around the button
+    textStyle: const TextStyle(
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+      color: Colors.black, // Text color
+    ),
+  );
   void _showToast(BuildContext context) {
     Fluttertoast.showToast(
       msg: 'Attendance Submitted',
@@ -60,11 +69,11 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
       listener: (context, state) {
         if (state is InternetLostState) {
           isInternetLost = true;
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             Navigator.push(
               context,
               PageTransition(
-                child: NoInternet(),
+                child: const NoInternet(),
                 type: PageTransitionType.rightToLeft,
               ),
             );
@@ -82,9 +91,9 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
             create: (context) => ManualPunchBloc(repository: ManualPunchRepository()),
             child: Scaffold(
               appBar: AppBar(
-                title: Text('Submit Attendance', style: AppBarStyles.appBarTextStyle),
+                title: const Text('Punch Attendance', style: AppBarStyles.appBarTextStyle),
                 backgroundColor: AppBarStyles.appBarBackgroundColor,
-                iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+                iconTheme: const IconThemeData(color: AppBarStyles.appBarIconColor),
                 centerTitle: true,
               ),
               body: SingleChildScrollView(
@@ -99,7 +108,7 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: <Widget>[
-                            Text(
+                            const Text(
                               'Select Date and Time',
                               style: TextStyle(
                                 fontSize: 18,
@@ -110,63 +119,43 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
                             // Select Date
                             ElevatedButton(
                               onPressed: () => _selectDate(context),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.secondaryColor, // Button background color
-                                padding: EdgeInsets.all(16), // Padding around the button
-                              ),
+                              style: commonButtonStyle,
                               child: Text(
                                 "${selectedDate.toLocal()}".split(' ')[0],
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white, // Text color
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.blueAccent, // Text color
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            // In Time
+                            const SizedBox(height: 20),
+
                             ElevatedButton(
                               onPressed: () => _selectTime(context, selectedInTime, (time) {
                                 setState(() {
                                   selectedInTime = time;
                                 });
                               }),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.secondaryColor,
-                                padding: EdgeInsets.all(16),
-                              ),
+                              style: commonButtonStyle,
                               child: Text(
                                 selectedInTime != null
                                     ? selectedInTime!.format(context)
                                     : 'Select In Time',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
                               ),
                             ),
                             const SizedBox(height: 10),
-                            // Out Time
+
                             ElevatedButton(
                               onPressed: () => _selectTime(context, selectedOutTime, (time) {
                                 setState(() {
                                   selectedOutTime = time;
                                 });
                               }),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.brightWhite,
-                                padding: EdgeInsets.all(16),
-                              ),
+                              style: commonButtonStyle,
                               child: Text(
                                 selectedOutTime != null
                                     ? selectedOutTime!.format(context)
                                     : 'Select Out Time',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -177,12 +166,12 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
 
 
                     Container(
-                      margin: EdgeInsets.all(10),
+                      margin: const EdgeInsets.all(10),
                       decoration: BoxDecoration(border: Border.all(color: Colors.black)),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: DataTable(
-                          headingRowColor: MaterialStatePropertyAll(AppColors.primaryColor),
+                          headingRowColor: const MaterialStatePropertyAll(AppColors.primaryColor),
                           columns: const [
                             DataColumn(label: Text('ID', style: TextStyle(color: Colors.white))),
                             DataColumn(label: Text('Name', style: TextStyle(color: Colors.white))),
@@ -201,71 +190,81 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        final List<PunchData> requestDataList = [];
-
-                        for (final employee in widget.selectedEmployees) {
-                          final formattedDate =
-                          DateFormat("yyyy-MM-dd").format(selectedDate);
-                          final formattedInTime = selectedInTime != null
-                              ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
-                            selectedDate.year,
-                            selectedDate.month,
-                            selectedDate.day,
-                            selectedInTime!.hour,
-                            selectedInTime!.minute,
-                          ))
-                              : '2023-10-10T09:00:00';
-
-                          final formattedOutTime = selectedOutTime != null
-                              ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
-                            selectedDate.year,
-                            selectedDate.month,
-                            selectedDate.day,
-                            selectedOutTime!.hour,
-                            selectedOutTime!.minute,
-                          ))
-                              : '2023-10-10T10:00:00';
-
-                          final inTime = PunchData(
-                            cardNo: employee.empCode ?? '',
-                            punchDatetime: formattedInTime,
-                            pDay: "N",
-                            isManual: "Y",
-                            payCode: "1999",
-                            machineNo: "1",
-                            datetime1: formattedOutTime,
-                            viewInfo: 0,
-                            showData: 0,
-                            remark: employee.remarks ?? '',
-                          );
-
-                          final outTime = PunchData(
-                            cardNo: employee.empCode ?? '',
-                            punchDatetime: formattedOutTime,
-                            pDay: "N",
-                            isManual: "Y",
-                            payCode: "1999",
-                            machineNo: "1",
-                            datetime1: formattedInTime,
-                            viewInfo: 0,
-                            showData: 0,
-                            remark: employee.remarks ?? '',
-                          );
-
-                          requestDataList.add(inTime);
-                          requestDataList.add(outTime);
-                        }
-
-                        context.read<ManualPunchBloc>().add(
-                          ManualPunchSubmitEvent(
-                            requestDataList: requestDataList,
+                    Container(
+                      margin: const EdgeInsets.only(left:50,right: 50),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white, backgroundColor: AppColors.primaryColor, // Change the text color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50), // Adjust the button's border radius
                           ),
-                        );
-                        _showToast(context);
-                      },
-                      child: const Text('Submit Attendance'),
+                          padding: const EdgeInsets.all(16), // Add padding around the button text
+                        ),
+                        onPressed: () {
+                          final List<PunchData> requestDataList = [];
+
+                          for (final employee in widget.selectedEmployees) {
+                            final formattedDate =
+                            DateFormat("yyyy-MM-dd").format(selectedDate);
+                            final formattedInTime = selectedInTime != null
+                                ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
+                              selectedDate.year,
+                              selectedDate.month,
+                              selectedDate.day,
+                              selectedInTime!.hour,
+                              selectedInTime!.minute,
+                            ))
+                                : '2023-10-10T09:00:00';
+
+                            final formattedOutTime = selectedOutTime != null
+                                ? DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime(
+                              selectedDate.year,
+                              selectedDate.month,
+                              selectedDate.day,
+                              selectedOutTime!.hour,
+                              selectedOutTime!.minute,
+                            ))
+                                : '2023-10-10T10:00:00';
+
+                            final inTime = PunchData(
+                              cardNo: employee.empCode ?? '',
+                              punchDatetime: formattedInTime,
+                              pDay: "N",
+                              isManual: "Y",
+                              payCode: "1999",
+                              machineNo: "1",
+                              datetime1: formattedOutTime,
+                              viewInfo: 0,
+                              showData: 0,
+                              remark: employee.remarks ?? '',
+                            );
+
+                            final outTime = PunchData(
+                              cardNo: employee.empCode ?? '',
+                              punchDatetime: formattedOutTime,
+                              pDay: "N",
+                              isManual: "Y",
+                              payCode: "1999",
+                              machineNo: "1",
+                              datetime1: formattedInTime,
+                              viewInfo: 0,
+                              showData: 0,
+                              remark: employee.remarks ?? '',
+                            );
+
+                            requestDataList.add(inTime);
+                            requestDataList.add(outTime);
+                          }
+
+                          context.read<ManualPunchBloc>().add(
+                            ManualPunchSubmitEvent(
+                              requestDataList: requestDataList,
+                            ),
+                          );
+                          _showToast(context);
+                        },
+                        child: const Text('Submit Attendance'),
+                      ),
                     ),
                   ],
                 ),
@@ -273,7 +272,7 @@ class _SubmitAttendanceState extends State<SubmitAttendance> {
             ),
           );
         } else {
-          return Scaffold(
+          return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }

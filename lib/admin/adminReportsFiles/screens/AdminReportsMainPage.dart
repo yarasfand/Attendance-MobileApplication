@@ -39,7 +39,7 @@ class AdminReportsMainPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text(
-                'Leave Page',
+                'Leaves',
                 style: AppBarStyles.appBarTextStyle,
               ),
               centerTitle: true,

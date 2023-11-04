@@ -81,8 +81,6 @@ class EmpMainPageState extends State<EmpMainPage> {
           GlobalObjects.empMail = empProfile.emailAddress;
         });
 
-        print(GlobalObjects.empName);
-        print(GlobalObjects.empMail);
 
         // Update your UI with other profile data here
       }
@@ -237,15 +235,15 @@ class EmpMainPageState extends State<EmpMainPage> {
   String _getStyledTitle(EmpDrawerItem item) {
     switch (item) {
       case EmpDrawerItems.home:
-        return "HOME";
+        return "Home";
       case EmpDrawerItems.reports:
-        return "REPORTS";
+        return "Reports";
       case EmpDrawerItems.profile:
-        return "PROFILE";
+        return "Profile";
       case EmpDrawerItems.logout:
         return ""; // You can return an empty string if needed
       default:
-        return "HOME"; // Set the default title
+        return "Home"; // Set the default title
     }
   }
 

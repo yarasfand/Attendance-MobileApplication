@@ -6,8 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xls;
-
-import '../../../admin/adminReports/screens/constants.dart';
+import '../../../constants/constants.dart';
 import 'empConstants.dart';
 import 'mobile.dart';
 

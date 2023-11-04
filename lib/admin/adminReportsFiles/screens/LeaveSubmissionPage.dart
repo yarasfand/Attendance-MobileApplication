@@ -8,6 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../No_internet/no_internet.dart';
 import '../../../constants/AppColor_constants.dart';
 import '../models/getActiveEmployeesModel.dart';
@@ -263,8 +264,11 @@ class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
                               Center(
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    const apiUrl =
-                                        'http://62.171.184.216:9595/api/admin/leave/addleave?CorporateId=ptsoffice';
+                                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    String corporateId = prefs.getString("corporate_id") ?? "ptsoffice";
+                                    print(corporateId);
+                                    var apiUrl =
+                                        'http://62.171.184.216:9595/api/admin/leave/addleave?CorporateId=$corporateId';
 
                                     final fromDate = fromDateController.text;
                                     final toDate = toDateController.text;

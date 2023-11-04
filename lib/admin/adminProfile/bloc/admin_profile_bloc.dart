@@ -10,6 +10,10 @@ class AdminProfileBloc extends Bloc<AdminProfileEvent, AdminProfileState> {
     on<FetchAdminProfile>((event, emit) async {
       await _mapFetchAdminProfileToState(event, emit);
     });
+
+    on<UpdateDrawerEvent>((event, emit) {
+      // Handle the event to update the drawer (you can add logic here)
+    });
   }
 
   Future<void> _mapFetchAdminProfileToState(FetchAdminProfile event, Emitter<AdminProfileState> emit) async {

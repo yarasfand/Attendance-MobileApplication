@@ -41,10 +41,8 @@ class AdminStorageDetails extends StatelessWidget {
             onTap: () {
               Navigator.push(
                   context,
-                  PageTransition(
-                    child: ManualMarkAttendance(),
-                    type: PageTransitionType.rightToLeft,
-                    duration: Duration(seconds: 1),
+                  MaterialPageRoute(
+                    builder: (context) => ManualMarkAttendance(),
                   ));
             },
             child: const AdminStorageInfoCard(
@@ -57,9 +55,9 @@ class AdminStorageDetails extends StatelessWidget {
             onTap: () {
               Navigator.push(
                   context,
-                  PageTransition(
-                      child: AdminReportsMainPage(),
-                      type: PageTransitionType.rightToLeft));
+                  MaterialPageRoute(
+                    builder: (context) => AdminReportsMainPage(),
+                  ));
             },
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/leave.png",
@@ -71,7 +69,9 @@ class AdminStorageDetails extends StatelessWidget {
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>  AdminMonthlyAndDailyReportsMainPage(viaDrawer: false,),
+                  builder: (context) => AdminMonthlyAndDailyReportsMainPage(
+                    viaDrawer: false,
+                  ),
                 )),
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/report.png",

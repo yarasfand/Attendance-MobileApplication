@@ -52,7 +52,7 @@ flutter_native_splash:
   ios: true
 
   color: "#FFFFFF"
-  image: "assets/images/pioneer_logo_app.png"
+  image: "assets/images/splash_screen_logo.png"
 
 
 dev_dependencies:

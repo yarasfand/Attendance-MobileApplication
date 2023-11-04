@@ -39,18 +39,40 @@ class EmpProfilePageState extends State<EmpProfilePage> {
     prefs.setBool('isLoggedIn', false);
     prefs.setBool('isEmployee', false);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return Builder(
-            builder: (context) => BlocProvider(
-              create: (context) => SignInBloc(),
-              child: LoginPage(),
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Logout"),
+          content: const Text("Are you sure?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
             ),
-          ); // Navigate back to LoginPage
-        },
-      ),
+            TextButton(
+              child: const Text('Logout'),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return Builder(
+                        builder: (context) => BlocProvider(
+                          create: (context) => SignInBloc(),
+                          child: LoginPage(),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -82,7 +104,7 @@ class EmpProfilePageState extends State<EmpProfilePage> {
       if (profileData.isNotEmpty) {
         EmpProfileModel? empProfile = profileData.first;
         final profileImage = empProfile.profilePic;
-
+        GlobalObjects.empId = empProfile.empId;
         if (profileImage != null && profileImage.isNotEmpty) {
           setState(() {
             EmpProfileModel? empProfile = profileData.first;
@@ -90,6 +112,8 @@ class EmpProfilePageState extends State<EmpProfilePage> {
             GlobalObjects.empProfilePic = empProfile.profilePic;
             GlobalObjects.empName = empProfile.empName;
             GlobalObjects.empMail = empProfile.emailAddress;
+            GlobalObjects.empId = empProfile.empId;
+            print(GlobalObjects.empId);
           });
         }
         if (profileImage == null && profileImage.isEmpty) {
@@ -166,12 +190,7 @@ class EmpProfilePageState extends State<EmpProfilePage> {
           if (state is EmpProfileLoadingState) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is EmpProfileLoadedState) {
-            Widget _buildRefreshButton() {
-              return IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: refreshUserData,
-              );
-            }
+
 
             List<EmpProfileModel> userList = state.users;
             final employeeProfile = userList[0];

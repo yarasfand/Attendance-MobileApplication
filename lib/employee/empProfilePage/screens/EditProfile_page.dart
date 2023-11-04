@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -282,9 +283,9 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Edit Profile",
-          style: TextStyle(color: AppColors.brightWhite),
+          style: AppBarStyles.appBarTextStyle,
         ),
         centerTitle: true,
         iconTheme: IconThemeData(color: AppColors.brightWhite),

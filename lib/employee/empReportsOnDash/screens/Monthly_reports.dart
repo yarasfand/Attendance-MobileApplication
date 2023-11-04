@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/MonthlyReports_repository.dart';
@@ -75,9 +76,9 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
     return Scaffold(
       backgroundColor: AppColors.brightWhite,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Monthly Reports',
-          style: TextStyle(color: Colors.white),
+          style: AppBarStyles.appBarTextStyle,
         ),
         backgroundColor: AppColors.primaryColor,
         iconTheme: IconThemeData(color: Colors.white),
@@ -281,7 +282,8 @@ class MonthlyReportsListView extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 16.0),
                       child: Text(
-                        "${shiftStartTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftStartTime)) : '---'}",
+                        "${shiftStartTime != null ? DateFormat('hh:mm dd/MM/yyyy').format(DateTime.parse(shiftStartTime)) : '---'}",
+
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: Colors.black,
@@ -333,7 +335,7 @@ class MonthlyReportsListView extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 16.0),
                       child: Text(
-                        "${shiftEndTime != null ? DateFormat('hh:mm').format(DateTime.parse(shiftEndTime)) : '---'}",
+                        "${shiftEndTime != null ? DateFormat('hh:mm dd/MM/yyyy').format(DateTime.parse(shiftEndTime)) : '---'}",
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: Colors.black,
@@ -356,30 +358,39 @@ class MonthlyReportsListView extends StatelessWidget {
                 children: [
                   TableCell(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Text(
                         "Worked: ${hoursWorked}",
                         style: TextStyle(color: Colors.grey),
                       ),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.green, // Status color
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                   margin: EdgeInsets.all(3),
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      "Status: ${status != null ? status : '---'}",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
+                  TableCell(
+                    child: Row(
+                      children: [
+                        SizedBox(width: 60,),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.green, // Status color
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          padding: EdgeInsets.all(8),
+                          child: Text(
+                            "Status: ${status != null ? (status.length > 15 ? status.substring(0, 15) + '...' : status) : '---'}",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ),
+              )
+
+
+
             ],
           ),
         );

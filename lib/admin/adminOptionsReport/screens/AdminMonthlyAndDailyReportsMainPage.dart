@@ -85,9 +85,7 @@ class AdminMonthlyAndDailyReportsMainPage extends StatelessWidget {
                 : AppBar(
                     title: const Text(
                       'REPORTS',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+                      style: AppBarStyles.appBarTextStyle
                     ),
                     iconTheme: const IconThemeData(
                       color: Colors.white,

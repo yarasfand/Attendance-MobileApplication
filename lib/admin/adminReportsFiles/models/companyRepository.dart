@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'companyModel.dart';
 
@@ -7,7 +8,10 @@ class CompanyRepository {
   final String baseUrl = 'http://62.171.184.216:9595/api/Admin/Company';
 
   Future<List<Company>> getAllActiveCompanies(String corporateId) async {
-    final Uri uri = Uri.parse('$baseUrl/GetAllActive?CorporateId=ptsoffice');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String corporateId = prefs.getString("corporate_id") ?? "ptsoffice";
+    print(corporateId);
+    final Uri uri = Uri.parse('$baseUrl/GetAllActive?CorporateId=$corporateId');
 
     try {
       final response = await http.get(uri);

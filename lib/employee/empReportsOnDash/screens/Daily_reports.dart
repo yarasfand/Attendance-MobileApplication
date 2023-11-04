@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/DailyReport_repository.dart';
@@ -120,9 +121,7 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
       appBar: AppBar(
         title: const Text(
           'Daily Report',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: AppBarStyles.appBarTextStyle
         ),
         iconTheme: const IconThemeData(
           color: Colors.white,

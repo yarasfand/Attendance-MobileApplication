@@ -1,15 +1,20 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:project/constants/globalObjects.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'geofenceGetlatLongmodel.dart';
 
 class GetLatLongRepo{
 
-  final String baseUrl = "http://62.171.184.216:9595/api/employee/location/locationdetail?CorporateId=ptsoffice&employeeId=3";
-
   Future<getLatLong?> fetchData() async {
+    SharedPreferences sharedPref = await SharedPreferences.getInstance();
+    String corporateId = sharedPref.getString('corporate_id') ?? 'ptsoffice';
+
     try {
-      final response = await http.get(Uri.parse(baseUrl));
+      final response = await http.get(Uri.parse(
+        "http://62.171.184.216:9595/api/employee/location/locationdetail?CorporateId=$corporateId&employeeId=${GlobalObjects.empId}",
+      ));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -23,5 +28,6 @@ class GetLatLongRepo{
       throw Exception('An error occurred: $e');
     }
   }
+
 
 }

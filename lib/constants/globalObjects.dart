@@ -9,11 +9,14 @@ class GlobalObjects{
    static  DateTime? empJoinDate;
    static String? empProfilePic;
    static String? empName;
-
+   // admin objects
    static String? adminCorpId;
    int? adminId;
-   static String? adminName;
    static String? adminMail;
+   static String? adminusername;
+   static String? adminpassword;
+   static String? adminemail;
+   static String? adminphonenumber;
 
 
 
@@ -24,6 +27,26 @@ class GlobalObjects{
             return AlertDialog(
                title: Text('Alert'),
                content: Text('Please Select The Employee..'),
+               actions: <Widget>[
+                  TextButton(
+                     onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                     },
+                     child: Text('Ok'),
+                  ),
+               ],
+            );
+         },
+      );
+   }
+
+   static void checkForLeaveForm(BuildContext context) {
+      showDialog(
+         context: context,
+         builder: (context) {
+            return AlertDialog(
+               title: Text('Alert'),
+               content: Text('Please Fill The Form..'),
                actions: <Widget>[
                   TextButton(
                      onPressed: () {

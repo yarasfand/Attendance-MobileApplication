@@ -49,6 +49,7 @@ class EmpProfileRepository {
 
       final List<EmpProfileModel> empProfileList = responseData.map((item) {
         return EmpProfileModel(
+          empId: item["empId"],
           empName: item["empName"] ?? "",
           empCode: item["empCode"] ?? "",
           shiftCode: item["shiftCode"] ?? "",

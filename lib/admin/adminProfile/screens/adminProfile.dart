@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:project/constants/AppBar_constant.dart';
+import '../../../constants/constants.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../adminDashboard/bloc/admin_api_bloc.dart';
 import '../../adminDashboard/models/adminModel.dart';
 import '../../adminDashboard/models/adminRepository.dart';
-import '../../adminReports/screens/constants.dart';
 
 class AdminViewPage extends StatelessWidget {
   @override
@@ -38,9 +39,9 @@ class AdminViewPage extends StatelessWidget {
                           Navigator.pop(context);
                         },
                       ),
-                      title: Text(
+                      title: const Text(
                         "My Profile",
-                        style: AdminkAppBarTextTheme,
+                        style: AppBarStyles.appBarTextStyle,
                       ),
                       centerTitle: true,
                       iconTheme: const IconThemeData(

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../No_internet/no_internet.dart';
 import '../adminOptions_bloc/admin_monthly_reports_bloc.dart';
 import '../adminOptions_bloc/admin_monthly_reports_event.dart';
@@ -20,24 +22,29 @@ class MonthlyReportsScreen extends StatefulWidget {
 
 class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
   int? selectedMonth; // Store the selected month
+  String corporateId="ptsoffice";
 
   @override
   void initState() {
     super.initState();
+    fetchCorporateIdFromSharedPrefs();
     // Fetch the reports when this screen is initialized
     fetchMonthlyReports();
   }
-
+  void fetchCorporateIdFromSharedPrefs() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    corporateId = prefs.getString('corporate_id') ?? "ptsoffice";
+  }
   void fetchMonthlyReports() {
     // Get the adminMonthlyReportsBloc from the context
     final adminMonthlyReportsBloc =
         BlocProvider.of<AdminMonthlyReportsBloc>(context);
 
-    if (selectedMonth != null) {
+    if (selectedMonth != null && corporateId != null) {
       // Dispatch the FetchAdminMonthlyReports event with the selectedEmployeeIds
       adminMonthlyReportsBloc.add(FetchAdminMonthlyReports(
         employeeIds: widget.selectedEmployeeIds,
-        corporateId: 'ptsoffice',
+        corporateId: corporateId,
         employeeId: 1,
         selectedMonth: selectedMonth ?? 1, // Directly use the local variable
       ));
@@ -86,7 +93,10 @@ class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
           {
             return Scaffold(
               appBar: AppBar(
-                title: const Text('Monthly Reports'),
+                title: const Text('Monthly Reports',style: AppBarStyles.appBarTextStyle,),
+                centerTitle: true,
+                iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+                backgroundColor: AppBarStyles.appBarBackgroundColor,
               ),
               body: Column(
                 children: [

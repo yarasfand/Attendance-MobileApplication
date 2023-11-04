@@ -14,3 +14,10 @@ class FetchAdminProfile extends AdminProfileEvent {
   @override
   List<Object> get props => [corporateId, employeeId];
 }
+
+class UpdateDrawerEvent extends AdminProfileEvent {
+  // You can add any relevant data or parameters needed for the update here
+
+  @override
+  List<Object> get props => [];
+}

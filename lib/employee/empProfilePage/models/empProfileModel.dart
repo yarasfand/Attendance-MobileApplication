@@ -1,4 +1,5 @@
 class EmpProfileModel {
+  final int empId;
   final String empName;
   final String empCode;
   final String shiftCode;
@@ -7,6 +8,7 @@ class EmpProfileModel {
   final dynamic profilePic; // New field for the profile picture
 
   EmpProfileModel({
+    required this.empId,
     required this.empName,
     required this.empCode,
     required this.shiftCode,
@@ -17,6 +19,7 @@ class EmpProfileModel {
 
   factory EmpProfileModel.fromJson(Map<String, dynamic> json) {
     return EmpProfileModel(
+      empId:  json['empId'] ?? 0,
       empName: json['empName'] ?? '',
       empCode: json['empCode'] ?? '',
       shiftCode: json['shiftCode'] ?? '',

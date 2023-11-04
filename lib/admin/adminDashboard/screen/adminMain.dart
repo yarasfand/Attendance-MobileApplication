@@ -14,37 +14,23 @@ import '../../adminGeofence/screens/GeoFenceMainPage.dart';
 import '../../adminProfile/models/AdminProfileModel.dart';
 import '../../adminProfile/models/AdminProfileRepository.dart';
 import '../../adminProfile/screens/adminProfilePage.dart';
-import '../../adminReports/screens/adminReports_page.dart';
 import '../bloc/admin_dash_bloc.dart';
 import 'adminAppbar.dart';
 import 'adminDraweritems.dart';
 import 'adminHome.dart';
 import 'admindDrawer.dart';
 
-
-class UserProfile {
-  String name;
-  String email;
-
-  UserProfile(this.name, this.email);
-
-  // Add a factory constructor for the Singleton pattern
-  factory UserProfile.instance() => _singleton;
-  static final UserProfile _singleton = UserProfile('Loading...', 'Loading...');
-}
-
 class AdminMainPage extends StatefulWidget {
   const AdminMainPage({Key? key}) : super(key: key);
 
   @override
-  State<AdminMainPage> createState() => _MainPageState();
+  State<AdminMainPage> createState() => AdminMainPageState();
 }
 
-class _MainPageState extends State<AdminMainPage> {
+class AdminMainPageState extends State<AdminMainPage> {
   final AdminDashBloc dashBloc = AdminDashBloc();
   late String corporateId;
   late String username;
-  late UserProfile userProfile;
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -66,22 +52,19 @@ class _MainPageState extends State<AdminMainPage> {
     );
   }
 
-
   AdminDrawerItem item = AdminDrawerItems.home;
   AdminProfileModel? profileData;
-
+  // to update drawer values
 
   @override
   void initState() {
     super.initState();
-
-    userProfile = UserProfile.instance(); // Get the singleton instance
     loadSharedPrefs().then((_) {
       fetchAdminProfileData(corporateId, username);
     });
   }
 
-   AdminProfileRepository profileRepository = AdminProfileRepository();
+  AdminProfileRepository profileRepository = AdminProfileRepository();
 
   Future<void> fetchAdminProfileData(
       String corporateId, String username) async {
@@ -89,14 +72,14 @@ class _MainPageState extends State<AdminMainPage> {
       final data =
       await profileRepository.fetchAdminProfile(corporateId, username);
       setState(() {
-        GlobalObjects.adminName = data!.userName;
+        GlobalObjects.adminusername = data!.userName;
         GlobalObjects.adminMail = data.email;
+
       });
     } catch (e) {
       print('Error fetching admin profile: $e');
     }
   }
-
 
   Future<void> loadSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -117,62 +100,58 @@ class _MainPageState extends State<AdminMainPage> {
                   pageHeading: _getPageInfo(item),
                 ),
               ),
-              drawer:Drawer(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        GestureDetector(
-
-                          child: UserAccountsDrawerHeader(
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryColor,
-                             ),
-                            accountName: Text( GlobalObjects.adminName ?? ""),
-                            accountEmail: Text(GlobalObjects.adminMail ?? ""),
-                            currentAccountPicture: const CircleAvatar(
-                              backgroundImage: AssetImage("assets/icons/userr.png"),
-                            ),
-                          ),
+              drawer: Drawer(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      UserAccountsDrawerHeader(
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
                         ),
-
-                        MyDrawer(
-                          onSelectedItems: (selectedItem) {
-                            setState(() {
-                              item = selectedItem;
-                              Navigator.of(context).pop();
-                            });
-
-                            switch (item) {
-                              case AdminDrawerItems.home:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
-
-                              case AdminDrawerItems.geofence:
-                                dashBloc.add(NavigateToGeofenceEvent());
-                                break;
-
-                              case AdminDrawerItems.reports:
-                                dashBloc.add(NavigateToReportsEvent());
-                                break;
-
-                              case AdminDrawerItems.profile:
-                                dashBloc.add(NavigateToProfileEvent());
-                                break;
-
-                              case AdminDrawerItems.logout:
-                                dashBloc.add(NavigateToLogoutEvent());
-                                break;
-
-                              default:
-                                dashBloc.add(NavigateToHomeEvent());
-                                break;
-                            }
-                          },
+                        accountName: Text(GlobalObjects.adminusername ?? ""),
+                        accountEmail: Text(GlobalObjects.adminMail ?? ""),
+                        currentAccountPicture: const CircleAvatar(
+                          backgroundImage:
+                              AssetImage("assets/icons/userrr.png"),
                         ),
-                      ],
-                    ),
+                      ),
+                      MyDrawer(
+                        onSelectedItems: (selectedItem) {
+                          setState(() {
+                            item = selectedItem;
+                            Navigator.of(context).pop();
+                          });
+
+                          switch (item) {
+                            case AdminDrawerItems.home:
+                              dashBloc.add(NavigateToHomeEvent());
+                              break;
+
+                            case AdminDrawerItems.geofence:
+                              dashBloc.add(NavigateToGeofenceEvent());
+                              break;
+
+                            case AdminDrawerItems.reports:
+                              dashBloc.add(NavigateToReportsEvent());
+                              break;
+
+                            case AdminDrawerItems.profile:
+                              dashBloc.add(NavigateToProfileEvent());
+                              break;
+
+                            case AdminDrawerItems.logout:
+                              dashBloc.add(NavigateToLogoutEvent());
+                              break;
+
+                            default:
+                              dashBloc.add(NavigateToHomeEvent());
+                              break;
+                          }
+                        },
+                      ),
+                    ],
                   ),
-
+                ),
               ),
               backgroundColor: Colors.white,
               body: getDrawerPage(),
@@ -212,13 +191,20 @@ class _MainPageState extends State<AdminMainPage> {
         bloc: dashBloc,
         builder: (context, state) {
           if (state is NavigateToProfileState) {
-            return AdminProfilePage();
+            return AdminProfilePage(onRefreshData: () {
+              // Handle the refresh signal here in the drawer.
+              // Update the drawer's UI or reload the data as needed.
+              fetchAdminProfileData(corporateId,
+                  username); // You can call the function to refresh the profile data here.
+            });
           } else if (state is NavigateToGeofenceState) {
             return const GeoFenceMainPage();
           } else if (state is NavigateToHomeState) {
             return const AdminDashboard();
           } else if (state is NavigateToReportsState) {
-            return  AdminMonthlyAndDailyReportsMainPage(viaDrawer: true,);
+            return AdminMonthlyAndDailyReportsMainPage(
+              viaDrawer: true,
+            );
           } else if (state is NavigateToLogoutState) {
             return AlertDialog(
               title: const Text("Confirm Logout"),

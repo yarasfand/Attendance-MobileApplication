@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'AdminDailyReportsModel.dart';
 
@@ -10,8 +11,16 @@ class AdminReportsRepository {
 
   Future<List<AdminDailyReportsModel>> fetchDailyReports(
       List<int> employeeIds, String reportDate) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? corporateId = prefs.getString('corporate_id');
+
+    if (corporateId == null) {
+      print('Corporate ID not found in shared preferences');
+      return [];
+    }
+
     final employeeIdParams = employeeIds.map((id) => 'employeeIds=$id').join('&');
-    final url = '$baseUrl/api/admin/report/getdailyreport?CorporateId=ptsoffice&$employeeIdParams&ReportDate=$reportDate';
+    final url = '$baseUrl/api/admin/report/getdailyreport?CorporateId=$corporateId&$employeeIdParams&ReportDate=$reportDate';
 
     final response = await http.get(Uri.parse(url));
 

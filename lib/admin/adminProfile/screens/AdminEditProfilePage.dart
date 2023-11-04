@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -6,6 +7,7 @@ import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
+import '../../../constants/AnimatedTextPopUp.dart';
 import '../../../No_internet/no_internet.dart';
 import '../models/AdminEditProfileModel.dart';
 import '../models/AdminEditProfileRepository.dart';
@@ -17,14 +19,37 @@ class AdminEditProfilePage extends StatefulWidget {
   State<AdminEditProfilePage> createState() => _AdminEditProfilePageState();
 }
 
-class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
+class _AdminEditProfilePageState extends State<AdminEditProfilePage>
+    with TickerProviderStateMixin {
+  late AnimationController addToCartPopUpAnimationController;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
+
+  final TextEditingController _usernameController =
+      TextEditingController(text: GlobalObjects.adminusername);
+  final TextEditingController _passwordController =
+      TextEditingController(text: GlobalObjects.adminpassword);
+  final TextEditingController _emailController =
+      TextEditingController(text: GlobalObjects.adminMail);
+  final TextEditingController _phoneNumberController =
+      TextEditingController(text: GlobalObjects.adminphonenumber);
   final AdminEditProfileRepository _editProfileRepository =
-  AdminEditProfileRepository('http://62.171.184.216:9595');
+      AdminEditProfileRepository('http://62.171.184.216:9595');
+  @override
+  void initState() {
+    addToCartPopUpAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    addToCartPopUpAnimationController.dispose();
+    super.dispose();
+  }
 
   Future<bool> _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -37,17 +62,26 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
       );
 
       final success =
-      await _editProfileRepository.updateAdminProfile(adminEditProfile);
+          await _editProfileRepository.updateAdminProfile(adminEditProfile);
 
       if (success) {
         GlobalObjects.adminMail = adminEditProfile.email;
         GlobalObjects.empName = adminEditProfile.userName;
-        Fluttertoast.showToast(msg: "Changes have been applied");
-        Navigator.pop(context, true);
-      } else {
-        Fluttertoast.showToast(msg: "Failed to update profile!");
-        Navigator.pop(context, false); // Pass true to indicate a successful update
+        Fluttertoast.showToast(msg: "Changes applied!");
+        Navigator.pop(context,true);
 
+      }
+      else {
+        addToCartPopUpAnimationController.forward();
+
+        // Delay for a few seconds and then reverse the animation
+        Timer(const Duration(seconds: 3), () {
+          addToCartPopUpAnimationController.reverse();
+          Navigator.pop(context,false);
+        });
+        showPopupWithMessage("Failed to update profile!");
+        Navigator.pop(
+            context, false); // Pass true to indicate a successful update
       }
     }
 
@@ -55,6 +89,15 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
   }
 
   bool isInternetLost = false;
+  void showPopupWithMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return addToCartPopUpMessage(
+            addToCartPopUpAnimationController, message);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,19 +126,21 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
         }
       },
       builder: (context, state) {
-        if(state is InternetGainedState)
-        {
+        if (state is InternetGainedState) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Edit Profile', style: AppBarStyles.appBarTextStyle,),
+              title: const Text(
+                'Edit Profile',
+                style: AppBarStyles.appBarTextStyle,
+              ),
               backgroundColor: AppBarStyles.appBarBackgroundColor,
-              iconTheme: const IconThemeData(color: AppBarStyles.appBarIconColor),
+              iconTheme:
+                  const IconThemeData(color: AppBarStyles.appBarIconColor),
               centerTitle: true,
-
             ),
             body: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height / 5 , horizontal: 16),
                 child: Card(
                   elevation: 4,
                   child: Padding(
@@ -106,7 +151,8 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
                         children: [
                           TextFormField(
                             controller: _usernameController,
-                            decoration: const InputDecoration(labelText: 'Username'),
+                            decoration:
+                                const InputDecoration(labelText: 'Username'),
                             validator: (value) {
                               if (value!.isEmpty) {
                                 return 'Username is required';
@@ -116,7 +162,8 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
                           ),
                           TextFormField(
                             controller: _passwordController,
-                            decoration: const InputDecoration(labelText: 'Password'),
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
                             validator: (value) {
                               if (value!.isEmpty) {
                                 return 'Password is required';
@@ -126,7 +173,8 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
                           ),
                           TextFormField(
                             controller: _emailController,
-                            decoration: const InputDecoration(labelText: 'Email'),
+                            decoration:
+                                const InputDecoration(labelText: 'Email'),
                             validator: (value) {
                               if (value!.isEmpty) {
                                 return 'Email is required';
@@ -148,7 +196,6 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: _submitForm,
-
                             child: const Text('Submit'),
                           ),
                         ],
@@ -159,14 +206,11 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage> {
               ),
             ),
           );
-        }
-        else {
+        } else {
           return const Scaffold(
-            body: Center(
-                child: CircularProgressIndicator()),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
-
       },
     );
   }

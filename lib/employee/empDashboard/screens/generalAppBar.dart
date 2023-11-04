@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../constants/AppBar_constant.dart';
 import '../../../constants/AppColor_constants.dart';
 
 class GenAppBar extends StatelessWidget {
@@ -28,9 +29,7 @@ class GenAppBar extends StatelessWidget {
           padding: const EdgeInsets.only(right: 55.0),
           child: Text(
             pageHeading,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
+            style: AppBarStyles.appBarTextStyle,
           ),
         ),
       ),

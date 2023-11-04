@@ -5,16 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'attendanceGeoFencingModel.dart';
 
 class GeoFenceRepository {
-  final String corporateId;
-  GeoFenceRepository(this.corporateId);
+  final String area;
+  GeoFenceRepository(this.area);
 
-  final String baseUrl =
-      "http://62.171.184.216:9595/api/employee/location/AddGeoPunch?CorporateId=ptsoffice&Area";
+
 
   Future<void> postData(GeofenceModel geoFenceModel) async {
-
-    print("${baseUrl}=$corporateId");
-    final apiUrl = "${baseUrl}=$corporateId";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String corporateId = prefs.getString("corporate_id") ?? "ptsoffice";
+    final String baseUrl =
+        "http://62.171.184.216:9595/api/employee/location/AddGeoPunch?CorporateId=$corporateId&Area";
+    print("${baseUrl}=$area");
+    final apiUrl = "${baseUrl}=$area";
 
     final headers = {
       'Content-Type': 'application/json',

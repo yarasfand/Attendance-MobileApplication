@@ -274,7 +274,6 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
     }).toList();
   }
 
-
   bool isInternetLost = false;
 
   @override
@@ -341,16 +340,25 @@ class _AdminGeofencingState extends State<AdminGeofencing> {
                             );
                           } else {
                             // No employees selected, show the alert
-                           GlobalObjects.checkForSelection(context);
+                            GlobalObjects.checkForSelection(context);
                           }
                         },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.blue,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 24,
-                          ),
-                        ),
+                        style: selectedEmployees != null &&
+                            selectedEmployees.isNotEmpty
+                            ? ElevatedButton.styleFrom(
+                                primary: Colors.blue,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 24,
+                                ),
+                              )
+                            : ElevatedButton.styleFrom(
+                                primary: Colors.grey,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 24,
+                                ),
+                              ),
                         child: const Text(
                           "Start Geofencing",
                           style: TextStyle(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../No_internet/no_internet.dart';
@@ -82,16 +84,20 @@ class _DailyReportsScreenState extends State<DailyReportsScreen> {
       {
         return Scaffold(
           appBar: AppBar(
-            title: Text("Daily Reports"),
+            title: Text("Daily Reports",style: AppBarStyles.appBarTextStyle,),
+            backgroundColor: AppBarStyles.appBarBackgroundColor,
+            centerTitle: true,
+            iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
           ),
           body: Column(
             children: <Widget>[
+              SizedBox(height: 20,),
               ElevatedButton(
                 onPressed: () => _selectDate(context),
                 child: Text("Select Date"),
               ),
               Center(
-                child: Text("Selected Date: ${selectedDate.toLocal()}"),
+                child: Text("Selected Date: ${DateFormat("dd MMMM y").format(selectedDate)}"),
               ),
               Expanded(
                 child: ListView.builder(

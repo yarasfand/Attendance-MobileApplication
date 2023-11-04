@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:project/admin/adminmanualAttendance/models/punchDataModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ManualPunchRepository {
-  final String apiUrl =
-      'http://62.171.184.216:9595/api/Admin/ManualPunch/AddManualPunch?CorporateId=ptsoffice';
+
 
   Future<bool> addManualPunch(List<PunchData> requestDataList) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String corporateId = prefs.getString("corporate_id") ?? "ptsoffice";
+    print(corporateId);
+    final String apiUrl =
+        'http://62.171.184.216:9595/api/Admin/ManualPunch/AddManualPunch?CorporateId=$corporateId';
     try {
       // Convert List<PunchData> to List<Map<String, dynamic>>
       final requestDataJsonList = requestDataList

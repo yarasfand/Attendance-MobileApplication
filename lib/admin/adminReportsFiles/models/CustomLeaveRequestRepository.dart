@@ -1,13 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'CustomLeaveRequestModel.dart';
 
 class CustomLeaveRequestRepository {
-  final String apiUrl =
-      'http://62.171.184.216:9595/api/admin/leave/approveleave?CorporateId=ptsoffice';
+
+
 
   Future<void> postCustomLeaveRequest(CustomLeaveRequestModel leaveRequest) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String corporateId = prefs.getString("corporate_id") ?? "ptsoffice";
+    print(corporateId);
+    final String apiUrl =
+        'http://62.171.184.216:9595/api/admin/leave/approveleave?CorporateId=$corporateId';
     final Map<String, dynamic> requestData = leaveRequest.toJson();
 
     final response = await http.post(

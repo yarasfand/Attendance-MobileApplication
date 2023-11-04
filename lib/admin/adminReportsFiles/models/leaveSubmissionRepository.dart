@@ -1,13 +1,18 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'leaveSubmissionModel.dart';
 
 
 class LeaveSubmissionRepository {
-  final String baseUrl =
-      'http://62.171.184.216:9595/api/admin/leave/addleave?CorporateId=ptsoffice';
+
 
   Future<void> submitLeaveRequest(LeaveSubmissionModel leaveSubmissionModel) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String corporateId = prefs.getString("corporate_id") ?? "ptsoffice";
+    print(corporateId);
+    final String baseUrl =
+        'http://62.171.184.216:9595/api/admin/leave/addleave?CorporateId=$corporateId';
     final apiUrl = baseUrl; // Use the base URL for leave request submission.
 
     try {
