@@ -13,6 +13,7 @@ class AdminDashBloc extends Bloc<AdminDashboardkEvent, AdminDashboardkState> {
     on<NavigateToReportsEvent>(navigateToReportsEvent);
     on<NavigateToLogoutEvent>(navigateToLogoutEvent);
     on<NavigateToHomeEvent>(navigateToHomeEvent);
+    on<NavigateToLeavesEvent>(navigateToLeavesEvent);
   }
 
   FutureOr<void> navigateToProfileEvent(NavigateToProfileEvent event, Emitter<AdminDashboardkState> emit) {
@@ -42,4 +43,8 @@ class AdminDashBloc extends Bloc<AdminDashboardkEvent, AdminDashboardkState> {
   }
 
 
+
+  FutureOr<void> navigateToLeavesEvent(NavigateToLeavesEvent event, Emitter<AdminDashboardkState> emit) {
+    emit(NavigateToLeavesState());
+  }
 }

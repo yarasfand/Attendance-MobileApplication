@@ -1,7 +1,8 @@
+import 'dart:io';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/admin/adminProfile/models/AdminProfileRepository.dart';
 import 'package:project/constants/AppColor_constants.dart';
@@ -10,16 +11,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../No_internet/no_internet.dart';
-import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
-import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
 import '../bloc/admin_profile_bloc.dart';
 import '../bloc/admin_profile_event.dart';
 import '../bloc/admin_profile_state.dart';
 import 'AdminEditProfilePage.dart';
-import 'adminProfile.dart';
 
 typedef void RefreshDataCallbackAdmin();
 
@@ -35,43 +32,32 @@ class AdminProfilePage extends StatefulWidget {
 class AdminProfilePageState extends State<AdminProfilePage> {
   late AdminProfileBloc adminProfileBloc;
 
-  Future<void> _logout(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isLoggedIn', false);
-    prefs.setBool('isEmployee', false);
-
-    await showDialog(
+  void _logout(BuildContext context) {
+    CoolAlert.show(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirm Logout"),
-          content: const Text("Are you sure?"),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-            ),
-            TextButton(
-              child: const Text('Logout'),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return Builder(
-                        builder: (context) => BlocProvider(
-                          create: (context) => SignInBloc(),
-                          child: LoginPage(),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
+      type: CoolAlertType.warning,
+      text: 'Do you want to logout?',
+      confirmBtnText: 'Logout!',
+      cancelBtnText: 'No',
+      confirmBtnColor: Colors.blue,
+      onConfirmBtnTap: () async {
+        // Handle logout logic
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('isLoggedIn', false);
+        prefs.setBool('isEmployee', false);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return Builder(
+                builder: (context) => BlocProvider(
+                  create: (context) => SignInBloc(),
+                  child: LoginPage(),
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -112,6 +98,7 @@ class AdminProfilePageState extends State<AdminProfilePage> {
     );
 
     if (exitConfirmed == true) {
+      print("Exiting the app");
       exitApp();
       return true;
     } else {
@@ -120,52 +107,18 @@ class AdminProfilePageState extends State<AdminProfilePage> {
   }
 
   void exitApp() {
-    SystemNavigator.pop();
+    exit(0);
   }
+
 
   String formatDate(String dateString) {
     final DateTime? joinedDate = DateTime.tryParse(dateString);
     return joinedDate != null ? DateFormat.yMMMd().format(joinedDate) : '---';
   }
 
-  void _launchDialer(String phoneNumber) async {
-    final url = Uri(scheme: 'tel:$phoneNumber');
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url);
-      } else {
-        throw 'Could not launch $url';
-      }
-    } catch (e) {
-      print('Error launching dialer: $e');
-    }
-  }
-
-  void _launchSms(String phoneNumber) async {
-    final url = 'sms:$phoneNumber';
-    try {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
-      }
-    } catch (e) {
-      print('Error launching SMS: $e');
-    }
-  }
-
-  void _launchEmail(String email) async {
-    final url = 'mailto:$email';
-    try {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
-      }
-    } catch (e) {
-      print('Error launching email: $e');
-    }
-  }
+  void call(String number) => launch("tel:$number");
+  void sendSms(String number) => launch("sms:$number");
+  void sendEmail(String email) => launch("mailto:$email");
 
   bool isInternetLost = false;
 
@@ -302,7 +255,7 @@ class AdminProfilePageState extends State<AdminProfilePage> {
                                                   icon: const Icon(Icons.call,
                                                       color: Colors.white),
                                                   onPressed: () {
-                                                    _launchDialer(
+                                                    call(
                                                         adminProfile.mobile);
                                                   },
                                                 ),
@@ -326,7 +279,7 @@ class AdminProfilePageState extends State<AdminProfilePage> {
                                                       Icons.message,
                                                       color: Colors.white),
                                                   onPressed: () {
-                                                    _launchSms(
+                                                    sendSms(
                                                         adminProfile.mobile);
                                                   },
                                                 ),
@@ -349,7 +302,7 @@ class AdminProfilePageState extends State<AdminProfilePage> {
                                                   icon: const Icon(Icons.mail,
                                                       color: Colors.white),
                                                   onPressed: () {
-                                                    _launchEmail(
+                                                    sendEmail(
                                                         adminProfile.email);
                                                   },
                                                 ),

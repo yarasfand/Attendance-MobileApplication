@@ -105,38 +105,207 @@ class _DailyReportsScreenState extends State<DailyReportsScreen> {
                   itemBuilder: (context, index) {
                     final report = dailyReports[index];
                     return Card(
-                      margin: EdgeInsets.all(8.0),
-                      child: ListTile(
-                        title: Text("Employee ID: ${report.empId}",
-                            style: GoogleFonts.openSans(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                        subtitle: Column(
-                          children: [
-                            Text(
-                                "Shift Start Time: ${report.shiftStartTime ?? 'N/A'}",
-                                style: GoogleFonts.openSans(fontSize: 16)),
-                            Text(
-                                "Shift End Time: ${report.shiftEndTime ?? 'N/A'}",
-                                style: GoogleFonts.openSans(fontSize: 16)),
-                            Container(
-                              padding: EdgeInsets.all(8.0),
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.blue, // Status capsule background color
-                                  borderRadius: BorderRadius.circular(12.0), // Rounded corners
-                                ),
-                                padding:
-                                EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-                                child: Text(
-                                  "Status: ${report.status}",
-                                  style: GoogleFonts.openSans(
-                                      fontSize: 16, color: Colors.white),
+                      margin: EdgeInsets.all(16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      elevation: 5,
+                      child: Table(
+                        children: [
+                          TableRow(
+                              children: [
+                                TableCell(child: Padding(
+                                  padding: const EdgeInsets.only(top:8.0,left: 16.0),
+                                  child: Text("ID: ${report.empId}",style: GoogleFonts.poppins(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),),
+                                )),
+                                TableCell(child: SizedBox()),
+
+                              ]
+                          ),
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    "Shift",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 16.0,
+                                  ),
+                                  child: Text(
+                                    "Punch Time",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    "Start",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: Text(
+                                  "In",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    "${report.shiftStartTime != null ? DateFormat('hh:mm dd/MM/yyyy').format(report.shiftStartTime!) : '---'}",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: Text(
+                                  "${report.in1 != null ? DateFormat('hh:mm dd/MM/yyyy').format(report.in1!) : '---'}",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    "End",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: Text(
+                                  "Out",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    "${report.shiftEndTime != null ? DateFormat('hh:mm dd/MM/yyyy').format(report.shiftEndTime!) : '---'}",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: Text(
+                                  "${report.out2 != null ? DateFormat('hh:mm dd/MM/yyyy').format(report.out2!) : '---'}",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    "Worked: ${report.hoursWorked}",
+                                    style:
+                                    TextStyle(color: Colors.grey),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 60,
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors
+                                            .green, // Status color
+                                        borderRadius:
+                                        BorderRadius.circular(20.0),
+                                      ),
+                                      padding: EdgeInsets.all(8),
+                                      child: Text(
+                                        "Status: ${report.status != null ? (report.status.length > 15 ? report.status.substring(0, 15) + '...' : report.status) : '---'}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
                       ),
                     );
                   },

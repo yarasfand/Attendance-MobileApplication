@@ -71,15 +71,12 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
       if (employeeData.isNotEmpty) {
         _saveAdminDataToSharedPreferences(enteredUsername, enteredCorporateID);
-
         _loginAsAdmin();
       } else {
-        showPopupWithMessageFailed(
-            "User not found!"); // Show "User not found" message
+        showCustomFailureAlert(context, "User Not Found!");
       }
     } catch (e) {
-      showPopupWithMessageFailed(
-          "User not found!"); // Show "User not found" message
+      showCustomFailureAlert(context, "User Not Found!");
     }
   }
 
@@ -113,29 +110,19 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         _saveCardNoToSharedPreferences(cardNo, empCode, employeeId);
         _loginAsEmployee();
       } else {
-        showPopupWithMessageFailed(
-            "User not found!"); // Show "User not found" message
+        showCustomFailureAlert(context, "User Not Found!");
       }
     } catch (e) {
-      showPopupWithMessageFailed(
-          "User not found!"); // Show "User not found" message
+      showCustomFailureAlert(context, "User Not Found!");
     }
   }
 
   void _loginAsEmployee() async {
-    // await _successScaffoldMessage(context, "Login Successful");
-    showPopupWithMessageSuccess("Login Successful");
-    await Future.delayed(Duration(seconds: 3));
-
-    Navigator.pushReplacement(
-        context,
-        PageTransition(
-            child: const EmpMainPage(), type: PageTransitionType.rightToLeft));
+    showCustomSuccessAlertEmployee(context, "Login Successful!");
   }
 
   void _saveCardNoToSharedPreferences(
       String cardNo, String empCode, int employeeId) async {
-    // print("Card Number: $cardNo");
     final sharedPrefEmp = await SharedPreferences.getInstance();
     sharedPrefEmp.setString('cardNo', cardNo);
     sharedPrefEmp.setString('empCode', empCode);
@@ -145,13 +132,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   void _loginAsAdmin() async {
-    showPopupWithMessageSuccess("Login Successful");
-    await Future.delayed(Duration(seconds: 3));
-    Navigator.pushReplacement(
-        context,
-        PageTransition(
-            child: const AdminMainPage(),
-            type: PageTransitionType.rightToLeft));
+    showCustomSuccessAlertAdmin(context, "Login Succesful!");
   }
 
   void showPopupWithMessageFailed(String message) {
@@ -177,7 +158,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return addToCartPopUpMessage(
+        return addToCartPopUpNoCrossMessage(
             addToCartPopUpAnimationController, message);
       },
     );
@@ -201,20 +182,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       // Set the role based on the selected user type
       if (_selectedUserType == UserType.employee) {
         enteredRole = 'employee';
-        addToCartPopUpAnimationController.forward();
-
-        // Delay for a few seconds and then reverse the animation
-        Timer(const Duration(seconds: 3), () {
-          addToCartPopUpAnimationController.reverse();
-        });
       } else if (_selectedUserType == UserType.admin) {
         enteredRole = 'admin';
-        addToCartPopUpAnimationController.forward();
-
-        // Delay for a few seconds and then reverse the animation
-        Timer(const Duration(seconds: 3), () {
-          addToCartPopUpAnimationController.reverse();
-        });
       }
       sharedPref.setString('role', enteredRole);
       // saving corporateId
@@ -259,13 +228,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         _isButtonPressed = false;
       });
     } else {
-      addToCartPopUpAnimationController.forward();
-
-      // Delay for a few seconds and then reverse the animation
-      Timer(const Duration(seconds: 3), () {
-        addToCartPopUpAnimationController.reverse();
-      });
-      showPopupWithMessage("Please filled out all fields");
+      showCustomWarningAlert(context, "Please fill out all required fields");
     }
   }
 
@@ -279,11 +242,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         if (state is InternetLostState) {
           // Set the flag to true when internet is lost
           isInternetLost = true;
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             Navigator.push(
               context,
               PageTransition(
-                child: NoInternet(),
+                child: const NoInternet(),
                 type: PageTransitionType.rightToLeft,
               ),
             );
@@ -310,7 +273,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         height: MediaQuery.of(context).size.height * 0.5,
                         width: MediaQuery.of(context).size.width,
                         color: AppColors.primaryColor,
-                        child: Column(
+                        child: const Column(
                           children: [
                             SizedBox(
                               height: 100,
@@ -388,7 +351,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               TextFormField(
                                 controller: _CoorporateIdController,
                                 decoration: InputDecoration(
-                                  labelText: 'Coorporate ID',
+                                  labelText: 'Corporate Id',
                                   suffixIcon: Image.asset(
                                     'assets/icons/username.png',
                                   ),
@@ -403,7 +366,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               TextFormField(
                                 controller: _UserController,
                                 decoration: InputDecoration(
-                                  labelText: 'User Name',
+                                  labelText: 'Username',
                                   suffixIcon:
                                       Image.asset('assets/icons/profile.png'),
                                 ),
@@ -457,29 +420,63 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   ),
                                 ],
                               ),
-                              ListTile(
-                                title: const Text('Employee'),
-                                leading: Radio<UserType>(
-                                  value: UserType.employee,
-                                  groupValue: _selectedUserType,
-                                  onChanged: (UserType? value) {
-                                    setState(() {
-                                      _selectedUserType = value!;
-                                    });
-                                  },
-                                ),
-                              ),
-                              ListTile(
-                                title: const Text('Admin'),
-                                leading: Radio<UserType>(
-                                  value: UserType.admin,
-                                  groupValue: _selectedUserType,
-                                  onChanged: (UserType? value) {
-                                    setState(() {
-                                      _selectedUserType = value!;
-                                    });
-                                  },
-                                ),
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedUserType = UserType.employee;
+                                      });
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Radio<UserType>(
+                                              value: UserType.employee,
+                                              groupValue: _selectedUserType,
+                                              onChanged: (UserType? value) {
+                                                setState(() {
+                                                  _selectedUserType = value!;
+                                                });
+                                              },
+                                            ),
+                                            const Text('Employee'),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedUserType = UserType.admin;
+                                      });
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Radio<UserType>(
+                                              value: UserType.admin,
+                                              groupValue: _selectedUserType,
+                                              onChanged: (UserType? value) {
+                                                setState(() {
+                                                  _selectedUserType = value!;
+                                                });
+                                              },
+                                            ),
+                                            const Text('Admin     '),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 20),
                               BlocBuilder<SignInBloc, SignInState>(
@@ -536,7 +533,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
           );
         } else {
-          return Scaffold(
+          return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }

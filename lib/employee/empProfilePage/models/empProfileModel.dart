@@ -5,6 +5,7 @@ class EmpProfileModel {
   final String shiftCode;
   final String emailAddress;
   final DateTime dateofJoin;
+  final String phoneNo;
   final dynamic profilePic; // New field for the profile picture
 
   EmpProfileModel({
@@ -14,6 +15,7 @@ class EmpProfileModel {
     required this.shiftCode,
     required this.emailAddress,
     required this.dateofJoin,
+    required this.phoneNo,
     required this.profilePic, // Added profilePic to the constructor
   });
 
@@ -28,6 +30,7 @@ class EmpProfileModel {
           ? DateTime.tryParse(json['dateofJoin'] ?? '') ?? DateTime.now()
           : DateTime.now(),
       profilePic: json['profilePic'] ?? '', // Parse profilePic from JSON
+      phoneNo: json['phoneNo'] ?? '', // Parse profilePic from JSON
     );
   }
 }

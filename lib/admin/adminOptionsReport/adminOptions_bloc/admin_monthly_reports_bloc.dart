@@ -27,4 +27,5 @@ class AdminMonthlyReportsBloc extends Bloc<AdminMonthlyReportsEvent, AdminMonthl
       emit(AdminMonthlyReportsError(errorMessage: e.toString()));
     }
   }
+
 }

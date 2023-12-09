@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 
@@ -7,26 +8,68 @@ import 'leave_history_page.dart';
 import 'leave_request_application_page.dart';
 
 class LeaveRequestPage extends StatelessWidget {
+  late final bool viaDrawer;
+  LeaveRequestPage({required this.viaDrawer});
+
+  Future<bool?> _onBackPressed(BuildContext context) async {
+    bool? exitConfirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Exit'),
+        content: Text('Are you sure you want to exit the app?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (exitConfirmed == true) {
+      exitApp();
+      return true;
+    } else {
+      return false;
+    }
+  }
+  void exitApp() {
+    SystemNavigator.pop();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'LEAVE REQUEST',
-          style: AppBarStyles.appBarTextStyle
-        ),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+      appBar: viaDrawer ? null
+        : AppBar(
+            backgroundColor: AppBarStyles.appBarBackgroundColor,
+        iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+        title: Text("Leaves",style: AppBarStyles.appBarTextStyle,),
         centerTitle: true,
-        backgroundColor: AppColors.primaryColor,
+
       ),
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              viaDrawer
+                  ? WillPopScope(
+                onWillPop: () async {
+                  return _onBackPressed(context)
+                      .then((value) => value ?? false);
+                },
+                child: const SizedBox(),
+              )
+                  : SizedBox(),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -75,7 +118,7 @@ class CardWidget extends StatelessWidget {
           0.8, // Adjust card width as needed
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: AppColors.secondaryColor,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
@@ -94,7 +137,7 @@ class CardWidget extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               text,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, color: Colors.white,fontWeight: FontWeight.bold),
             ),
           ],
         ),

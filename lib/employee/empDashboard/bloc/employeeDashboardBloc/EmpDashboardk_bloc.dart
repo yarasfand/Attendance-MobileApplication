@@ -12,29 +12,31 @@ class EmpDashboardkBloc extends Bloc<EmpDashboardkEvent, EmpDashboardkState> {
     on<NavigateToReportsEvent>(navigateToReportsEvent);
     on<NavigateToLogoutEvent>(navigateToLogoutEvent);
     on<NavigateToHomeEvent>(navigateToHomeEvent);
-
-
+    on<NavigateToLeaveEvent>(navigateToLeaveEvent);
   }
 
-  FutureOr<void> navigateToProfileEvent(NavigateToProfileEvent event, Emitter<EmpDashboardkState> emit) {
-
+  FutureOr<void> navigateToProfileEvent(
+      NavigateToProfileEvent event, Emitter<EmpDashboardkState> emit) {
     emit(NavigateToProfileState());
-
   }
 
+  FutureOr<void> navigateToLeaveEvent(
+      NavigateToLeaveEvent event, Emitter<EmpDashboardkState> emit) {
+    emit(NavigateToLeaveState());
+  }
 
-  FutureOr<void> navigateToReportsEvent(NavigateToReportsEvent event, Emitter<EmpDashboardkState> emit) {
+  FutureOr<void> navigateToReportsEvent(
+      NavigateToReportsEvent event, Emitter<EmpDashboardkState> emit) {
     emit(NavigateToReportsState());
-
-
   }
 
-  FutureOr<void> navigateToLogoutEvent(NavigateToLogoutEvent event, Emitter<EmpDashboardkState> emit) {
+  FutureOr<void> navigateToLogoutEvent(
+      NavigateToLogoutEvent event, Emitter<EmpDashboardkState> emit) {
     emit(NavigateToLogoutState());
-
   }
 
-  FutureOr<void> navigateToHomeEvent(NavigateToHomeEvent event, Emitter<EmpDashboardkState> emit) {
+  FutureOr<void> navigateToHomeEvent(
+      NavigateToHomeEvent event, Emitter<EmpDashboardkState> emit) {
     emit(NavigateToHomeState());
   }
 }

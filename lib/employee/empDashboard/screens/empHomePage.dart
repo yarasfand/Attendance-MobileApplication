@@ -9,6 +9,7 @@ import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/constants/globalObjects.dart';
+import 'package:project/employee/empDashboard/screens/generalAppBar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
@@ -56,6 +57,7 @@ class HomePageState extends State<EmpDashHome> {
 
   Future<void> fetchProfileData() async {
     try {
+
       final profileData = await _profileRepository.getData();
       if (profileData.isNotEmpty) {
         EmpProfileModel? empProfile = profileData.first;
@@ -451,7 +453,7 @@ class HomePageState extends State<EmpDashHome> {
                                                   CupertinoPageRoute(
                                                 builder: (context) {
                                                   // return LeaveRequestForm();
-                                                  return LeaveRequestPage();
+                                                  return LeaveRequestPage(viaDrawer: false,);
                                                 },
                                               ));
                                             },
@@ -465,7 +467,8 @@ class HomePageState extends State<EmpDashHome> {
                                                         viaDrawer: false,
                                                       ),
                                                       type: PageTransitionType
-                                                          .rightToLeft));
+                                                          .rightToLeft)
+                                              );
                                             },
                                             child: ItemDashboard(
                                               showShadow: false,
@@ -484,6 +487,7 @@ class HomePageState extends State<EmpDashHome> {
                                     ],
                                   ),
                                 ),
+
                               ],
                             ),
                           );
@@ -748,7 +752,7 @@ class ProfileInfoBigCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14.0,
                 color: Colors.white70,
-                fontWeight: FontWeight.w300,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

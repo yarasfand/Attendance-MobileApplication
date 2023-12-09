@@ -30,7 +30,7 @@ class AfterIntro extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 PageTransition(
-                  duration: Duration(seconds: 1),
+                  duration: const Duration(seconds: 1),
                   type: PageTransitionType
                       .rightToLeft, // Choose your desired transition type
                   child: Builder(

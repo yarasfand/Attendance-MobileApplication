@@ -9,7 +9,7 @@ class LeaveHistoryRepository {
       SharedPreferences pref = await SharedPreferences.getInstance();
       String corporateId = pref.getString("corporate_id") ?? "";
       int employeeId = pref.getInt("employee_id") ?? 0;
-
+      print(employeeId);
       final apiUrl =
           "http://62.171.184.216:9595/api/employee/leave/getleavehistorybyemployeeid?CorporateId=$corporateId&employeeId=$employeeId";
 

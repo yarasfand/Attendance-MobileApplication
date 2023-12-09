@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart'; // Import FlutterToast
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
@@ -10,6 +10,7 @@ import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../No_internet/no_internet.dart';
+import '../../../constants/AnimatedTextPopUp.dart';
 import '../bloc/CustomLeaveRequestApiFiles/custom_leave_request_bloc.dart';
 import '../bloc/leaveRequestApiFiles/leave_request_bloc.dart';
 import '../bloc/unApprovedLeaveRequestApiFiles/un_approved_leave_request_bloc.dart';
@@ -27,7 +28,7 @@ class LeaveApprovalPage extends StatefulWidget {
 }
 
 class _LeaveApprovalPageState extends State<LeaveApprovalPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin{
   bool isInternetLost = false;
   late TabController _tabController;
   List<UnApprovedLeaveRequest> unapprovedLeaveRequests = [];
@@ -35,6 +36,7 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage>
 
   @override
   void initState() {
+
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
@@ -196,7 +198,7 @@ class _LeaveApprovalPageState extends State<LeaveApprovalPage>
 }
 
 
-class LeaveRequestCard extends StatelessWidget {
+class LeaveRequestCard extends StatefulWidget {
   final String reason;
   final DateTime fromDate;
   final String status;
@@ -215,23 +217,57 @@ class LeaveRequestCard extends StatelessWidget {
     required this.toDate,
   });
 
+  @override
+  State<LeaveRequestCard> createState() => _LeaveRequestCardState();
+}
+
+class _LeaveRequestCardState extends State<LeaveRequestCard> with TickerProviderStateMixin{
+
+  late AnimationController addToCartPopUpAnimationController;
+
+  @override
+  void initState() {
+    addToCartPopUpAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    // TODO: implement initState
+    super.initState();
+  }
+  @override
+  void dispose() {
+    addToCartPopUpAnimationController.dispose();
+    super.dispose();
+  }
+
   String formatDate(DateTime date) {
     return DateFormat.yMd().format(date); // Formats the date (year, month, day)
+  }
+  void showPopupWithMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return addToCartPopUpSuccess(
+            addToCartPopUpAnimationController,
+            message
+        );
+      },
+    );
   }
 
   void _approveLeave(BuildContext context) async{
     // Create the leave request model with empId, fromDate, toDate, and other parameters
-    final String formattedFromDate = DateFormat('yyyy-MM-dd').format(fromDate);
-    final String formattedToDate = DateFormat('yyyy-MM-dd').format(toDate);
-    final String formattedApplicationDate = DateFormat('yyyy-MM-dd').format(applicationDate);
+    final String formattedFromDate = DateFormat('yyyy-MM-dd').format(widget.fromDate);
+    final String formattedToDate = DateFormat('yyyy-MM-dd').format(widget.toDate);
+    final String formattedApplicationDate = DateFormat('yyyy-MM-dd').format(widget.applicationDate);
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String corporateId = prefs.getString('corporate_id') ?? "";
     final leaveRequest = CustomLeaveRequestModel(
-      employeeId: empId,
+      employeeId: widget.empId,
       fromDate: formattedFromDate, // Format the date
       toDate: formattedToDate, // Format the date
-      reason: reason,
+      reason: widget.reason,
       leaveId: 0,
       leaveDuration: null,
       approvedBy: corporateId,
@@ -241,18 +277,7 @@ class LeaveRequestCard extends StatelessWidget {
     );
 
     // Use the BLoC to post the leave request
-    customLeaveRequestBloc!.add(PostCustomLeaveRequest(leaveRequest: leaveRequest));
-
-    // Show a toast message
-    Fluttertoast.showToast(
-      msg: 'Leave Approved',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
+    widget.customLeaveRequestBloc!.add(PostCustomLeaveRequest(leaveRequest: leaveRequest));
     // Fetch unapproved leave requests after approval
     context.read<UnapprovedLeaveRequestBloc>().add(FetchUnapprovedLeaveRequests());
   }
@@ -274,28 +299,28 @@ class LeaveRequestCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  reason,
+                  widget.reason,
                   style: GoogleFonts.lato(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'From: ${formatDate(fromDate)}', // Format the date
+                  'From: ${formatDate(widget.fromDate)}', // Format the date
                   style: GoogleFonts.lato(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
                 ),
                 Text(
-                  'To: ${formatDate(toDate)}', // Format the date
+                  'To: ${formatDate(widget.toDate)}', // Format the date
                   style: GoogleFonts.lato(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
                 ),
                 Text(
-                  'Application Date: ${formatDate(applicationDate)}', // Format the date
+                  'Application Date: ${formatDate(widget.applicationDate)}', // Format the date
                   style: GoogleFonts.lato(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -310,8 +335,18 @@ class LeaveRequestCard extends StatelessWidget {
                 SizedBox(height: 40,),
                 ElevatedButton(
                   onPressed: () {
-                    if (customLeaveRequestBloc != null) {
-                      _approveLeave(context);
+                    if (widget.customLeaveRequestBloc != null) {
+
+                      addToCartPopUpAnimationController.forward();
+                      Timer(const Duration(seconds: 2), () {
+                        _approveLeave(context);
+                        addToCartPopUpAnimationController.reverse();
+
+                        Navigator.pop(context);
+
+                      });
+                      showPopupWithMessage("Leave approved!");
+
                     } else {
                       print("The values passed are null");
                     }

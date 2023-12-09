@@ -7,3 +7,4 @@ class NavigateToProfileEvent extends DashboardkActionEvent{}
 class NavigateToHomeEvent extends DashboardkActionEvent{}
 class NavigateToReportsEvent extends DashboardkActionEvent{}
 class NavigateToLogoutEvent extends DashboardkActionEvent{}
+class NavigateToLeaveEvent extends DashboardkActionEvent{}

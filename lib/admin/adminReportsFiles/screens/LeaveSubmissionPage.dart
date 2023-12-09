@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -10,6 +12,7 @@ import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../No_internet/no_internet.dart';
+import '../../../constants/AnimatedTextPopUp.dart';
 import '../../../constants/AppColor_constants.dart';
 import '../models/getActiveEmployeesModel.dart';
 import '../models/leaveTypeRepository.dart';
@@ -23,7 +26,8 @@ class LeaveSubmissionPage extends StatefulWidget {
       _LeaveSubmissionPageState(selectedEmployees: selectedEmployees);
 }
 
-class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
+class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> with TickerProviderStateMixin{
+  late AnimationController addToCartPopUpAnimationController;
   final List<GetActiveEmpModel> selectedEmployees;
   _LeaveSubmissionPageState({required this.selectedEmployees});
   final LeaveTypeRepository leaveTypeRepository = LeaveTypeRepository();
@@ -45,6 +49,10 @@ class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
   };
   @override
   void initState() {
+    addToCartPopUpAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
     super.initState();
     leaveTypeRepository.fetchLeaveTypes().then((leaveTypes) {
       setState(() {
@@ -56,7 +64,33 @@ class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
       });
     });
   }
-
+  void showPopupWithFailedMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return addToCartPopUpFailed(
+            addToCartPopUpAnimationController,
+            message
+        );
+      },
+    );
+  }
+  void showPopupWithSuccessMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return addToCartPopUpSuccess(
+            addToCartPopUpAnimationController,
+            message
+        );
+      },
+    );
+  }
+  @override
+  void dispose() {
+    addToCartPopUpAnimationController.dispose();
+    super.dispose();
+  }
   bool isInternetLost = false;
 
   @override
@@ -105,7 +139,6 @@ class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
                   child: Column(
                     children: [
                       Card(
-
                         elevation: 6,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -315,23 +348,27 @@ class _LeaveSubmissionPageState extends State<LeaveSubmissionPage> {
                                               (response) => response.statusCode == 200);
 
                                       if (allRequestsSucceeded) {
-                                        Fluttertoast.showToast(
-                                          msg: "Leave Added Successfully",
-                                          gravity: ToastGravity.BOTTOM,
-                                        );
+                                        addToCartPopUpAnimationController.forward();
+                                        Timer(const Duration(seconds: 2), () {
+                                          addToCartPopUpAnimationController.reverse();
+                                          Navigator.pop(context);
+                                        });
+                                        showPopupWithSuccessMessage("Leave added successfully!");
                                       } else {
-                                        Fluttertoast.showToast(
-                                          msg: "Some leave requests failed",
-                                          gravity: ToastGravity.BOTTOM,
-                                          backgroundColor: AppColors.secondaryColor,
-                                        );
+                                        addToCartPopUpAnimationController.forward();
+                                        Timer(const Duration(seconds: 2), () {
+                                          addToCartPopUpAnimationController.reverse();
+                                          Navigator.pop(context);
+                                        });
+                                        showPopupWithFailedMessage("Some leave request failed!");
                                       }
                                     } catch (e) {
-                                      Fluttertoast.showToast(
-                                        msg: "Failed to add leave: $e",
-                                        gravity: ToastGravity.BOTTOM,
-                                        backgroundColor: AppColors.secondaryColor,
-                                      );
+                                      addToCartPopUpAnimationController.forward();
+                                      Timer(const Duration(seconds: 2), () {
+                                        addToCartPopUpAnimationController.reverse();
+                                        Navigator.pop(context);
+                                      });
+                                      showPopupWithFailedMessage("Failed to add leave!");
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(

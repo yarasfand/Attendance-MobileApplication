@@ -72,7 +72,7 @@ class _GeoFenceMainPageState extends State<GeoFenceMainPage> {
                   PageTransition(
                     child: const AdminGeofencing(),
                     type: PageTransitionType.rightToLeft,
-                    duration: const Duration(seconds: 1),
+                    duration: const Duration(milliseconds: 500),
                   ),
                 );
                 // Implement the action for Set Geofence here.

@@ -26,7 +26,7 @@ class _EmpSalaryReportDetailState extends State<EmpSalaryReportDetail> {
         backgroundColor:
         AppColors.primaryColor, // Match the GPS Tracker Page's theme
       ),
-      body: Center(child: Text("This is salary reports page")),
+      body: const Center(child: Text("This is salary reports page")),
     );
   }
 }

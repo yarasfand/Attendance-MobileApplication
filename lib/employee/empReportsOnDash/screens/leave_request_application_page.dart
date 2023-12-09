@@ -82,12 +82,18 @@ class _LeaveRequestFormState extends State<LeaveRequestForm>
     }
   }
 
-  void showPopupWithMessage(String message) {
+  void showPopupWithMessage(String message, BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return addToCartPopUpMessage(
-            addToCartPopUpAnimationController, message);
+          addToCartPopUpAnimationController,
+          message,
+              () {
+            // Add the logic you want to execute when the pop-up is pressed
+            Navigator.pop(context); // Close the pop-up
+          },
+        );
       },
     );
   }
@@ -175,6 +181,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm>
                       scrollDirection: Axis.vertical,
                       child: Center(
                         child: Container(
+                          margin: EdgeInsets.only(top: 50),
                           color: AppColors.brightWhite,
                           width: MediaQuery.of(context).size.width /
                               1.2, // Adjust the width as needed
@@ -412,7 +419,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm>
                                                 .reverse();
                                           });
                                           showPopupWithMessage(
-                                              "Request Submitted Successfully");
+                                              "Request Submitted Successfully",context);
 
                                           _popPage();
                                         } else if (_postRequestBloc.state
@@ -427,7 +434,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm>
                                                 .reverse();
                                           });
                                           showPopupWithMessage(
-                                            "Error: ${(_postRequestBloc.state as SubmissionError).error}",
+                                            "Error: ${(_postRequestBloc.state as SubmissionError).error}",context
                                           );
                                         }
                                       }

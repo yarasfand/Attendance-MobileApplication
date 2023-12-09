@@ -39,7 +39,6 @@ class EmpLeaveRepository {
       );
       if (leaveType != null) {
         final leaveTypeName = leaveType['ltypeName'] as String;
-        print("Leave Type Name: $leaveTypeName");
         return leaveTypeName;
       } else {
         return "Leave Type Not Found";

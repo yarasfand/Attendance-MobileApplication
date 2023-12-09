@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project/employee/empDashboard/screens/empHomePage.dart';
 import '../../../constants/AppBar_constant.dart';
 import '../../../constants/AppColor_constants.dart';
 
@@ -12,6 +13,11 @@ class GenAppBar extends StatelessWidget {
     required this.pageHeading,
   }) : super(key: key);
 
+  void onRefresh()
+  {
+    print("On refresh called");
+    HomePageState().fetchProfileData();
+  }
   @override
   Widget build(BuildContext context) {
     return AppBar(

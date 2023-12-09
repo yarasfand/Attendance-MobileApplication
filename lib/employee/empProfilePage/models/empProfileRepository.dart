@@ -58,6 +58,7 @@ class EmpProfileRepository {
               ? DateTime.tryParse(item["dateofJoin"]) ?? DateTime.now()
               : DateTime.now(),
           profilePic: item["profilePic"] ?? "",
+          phoneNo: item["phoneNo"] ?? "",
         );
       }).toList();
 

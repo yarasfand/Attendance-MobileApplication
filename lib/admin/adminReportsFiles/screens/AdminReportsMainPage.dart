@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppBar_constant.dart';
@@ -11,6 +12,43 @@ import 'LeaveApprovalPage.dart';
 
 class AdminReportsMainPage extends StatelessWidget {
   bool isInternetLost = false;
+  late final bool viaDrawer;
+  AdminReportsMainPage({required this.viaDrawer});
+
+
+  Future<bool?> _onBackPressed(BuildContext context) async {
+    bool? exitConfirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Exit'),
+        content: Text('Are you sure you want to exit the app?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (exitConfirmed == true) {
+      exitApp();
+      return true;
+    } else {
+      return false;
+    }
+  }
+  void exitApp() {
+    SystemNavigator.pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +75,27 @@ class AdminReportsMainPage extends StatelessWidget {
       builder: (context, state) {
         if (state is InternetGainedState) {
           return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Leaves',
-                style: AppBarStyles.appBarTextStyle,
-              ),
+            appBar: viaDrawer ? null
+                : AppBar(
+              backgroundColor: AppBarStyles.appBarBackgroundColor,
+              iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
+              title: Text("Leaves",style: AppBarStyles.appBarTextStyle,),
               centerTitle: true,
-              backgroundColor: AppColors.primaryColor,
-              iconTheme: IconThemeData(color: AppColors.brightWhite),
+
             ),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Equal space between cards
                 children: [
+                  viaDrawer
+                      ? WillPopScope(
+                    onWillPop: () async {
+                      return _onBackPressed(context)
+                          .then((value) => value ?? false);
+                    },
+                    child: const SizedBox(),
+                  )
+                      : SizedBox(),
                   Expanded(
                     child: Container(
                       width: double.infinity, // Cover the full width of the screen

@@ -29,7 +29,7 @@ class EmpDrawer extends StatelessWidget {
           children: [
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 25),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 25),
               child: buildDrawerItems(context),
             ),
           ],
@@ -43,7 +43,7 @@ class EmpDrawer extends StatelessWidget {
             .map(
               (item) => ListTile(
                 contentPadding: EdgeInsets.fromLTRB(
-                    0, MediaQuery.of(context).size.height / 22.5, 0, 0),
+                    0, MediaQuery.of(context).size.height / 28, 0, 0),
                 leading: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 20, 0), // Adjust the padding as needed
                   child: Icon(item.icon, color: Colors.black87),

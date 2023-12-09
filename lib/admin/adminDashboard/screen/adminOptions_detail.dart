@@ -1,13 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:project/admin/adminOptionsReport/screens/AdminMonthlyAndDailyReportsMainPage.dart';
-import 'package:project/admin/adminOptionsReport/screens/AdminReportsEmployeeListPage.dart';
-import 'package:project/admin/pendingLeavesApproval/model/ApproveManualPunchRepository.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import '../../adminReportsFiles/screens/AdminReportsMainPage.dart';
 import '../../adminmanualAttendance/screens/ManualMarkAttendance.dart';
-import '../../pendingLeavesApproval/screens/PendingLeavesPage.dart';
 import 'adminOptions_card.dart';
 import 'adminconstants.dart';
 
@@ -56,7 +52,7 @@ class AdminStorageDetails extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AdminReportsMainPage(),
+                    builder: (context) => AdminReportsMainPage(viaDrawer: false),
                   ));
             },
             child: const AdminStorageInfoCard(

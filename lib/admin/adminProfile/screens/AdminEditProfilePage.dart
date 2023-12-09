@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/globalObjects.dart';
@@ -67,21 +66,24 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
       if (success) {
         GlobalObjects.adminMail = adminEditProfile.email;
         GlobalObjects.empName = adminEditProfile.userName;
-        Fluttertoast.showToast(msg: "Changes applied!");
-        Navigator.pop(context,true);
+        addToCartPopUpAnimationController.forward();
+        // Delay for a few seconds and then reverse the animation
+        Timer(const Duration(seconds: 3), () {
+          addToCartPopUpAnimationController.reverse();
+          Navigator.pop(context);
+          Navigator.pop(context,true);
+        });
+        showPopupWithSuccessMessage("Profile updated successfully!");
 
       }
       else {
         addToCartPopUpAnimationController.forward();
-
         // Delay for a few seconds and then reverse the animation
         Timer(const Duration(seconds: 3), () {
           addToCartPopUpAnimationController.reverse();
           Navigator.pop(context,false);
         });
-        showPopupWithMessage("Failed to update profile!");
-        Navigator.pop(
-            context, false); // Pass true to indicate a successful update
+        showPopupWithFailedMessage("Failed to update profile!");
       }
     }
 
@@ -89,15 +91,31 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
   }
 
   bool isInternetLost = false;
-  void showPopupWithMessage(String message) {
+
+  void showPopupWithSuccessMessage(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return addToCartPopUpMessage(
-            addToCartPopUpAnimationController, message);
+        return addToCartPopUpSuccess(
+          addToCartPopUpAnimationController,
+          message
+        );
       },
     );
   }
+  void showPopupWithFailedMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return addToCartPopUpFailed(
+          addToCartPopUpAnimationController,
+          message
+        );
+      },
+    );
+  }
+
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +157,8 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
               centerTitle: true,
             ),
             body: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height / 5 , horizontal: 16),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 40,horizontal: 15),
                 child: Card(
                   elevation: 4,
                   child: Padding(
@@ -149,6 +167,15 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
                       key: _formKey,
                       child: Column(
                         children: [
+                          Container(
+                            alignment: Alignment.topCenter,
+                            child: Image.asset(
+                              'assets/icons/userrr.png', // Replace with your actual asset path
+                              height: 150,
+                              width: 150,
+                            ),
+                          ),
+                          SizedBox(height: 30,),
                           TextFormField(
                             controller: _usernameController,
                             decoration:
@@ -162,8 +189,22 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
                           ),
                           TextFormField(
                             controller: _passwordController,
-                            decoration:
-                                const InputDecoration(labelText: 'Password'),
+                            obscureText: !_isPasswordVisible,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                },
+                              ),
+                            ),
                             validator: (value) {
                               if (value!.isEmpty) {
                                 return 'Password is required';

@@ -131,49 +131,52 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
       ),
       body: Column(
         children: [
-          Card(
-            elevation: 5,
-            color: AppColors.secondaryColor,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              elevation: 5,
+              color: AppColors.secondaryColor,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  Center(
-                    child: Text(
-                      formattedSelectedDate,
-                      style: GoogleFonts.openSans(
-                        textStyle: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
+                    Center(
+                      child: Text(
+                        formattedSelectedDate,
+                        style: GoogleFonts.openSans(
+                          textStyle: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _selectFromDate(context);
-                        },
-                        child: const Text('Select Date'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          String formattedDate = formatDateTime(_selectedDate);
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            _selectFromDate(context);
+                          },
+                          child: const Text('Select Date'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            String formattedDate = formatDateTime(_selectedDate);
 
-                          _fetchAndDisplayReports(formattedDate);
-                        },
-                        child: const Text('Fetch Reports'),
-                      ),
-                    ],
-                  )
+                            _fetchAndDisplayReports(formattedDate);
+                          },
+                          child: const Text('Fetch Reports'),
+                        ),
+                      ],
+                    )
 
-                ],
+                  ],
+                ),
               ),
             ),
           ),

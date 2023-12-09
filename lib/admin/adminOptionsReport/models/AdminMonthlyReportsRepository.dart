@@ -37,4 +37,5 @@ class AdminMonthlyReportsRepository {
       throw Exception('Error fetching monthly reports: $e');
     }
   }
+
 }

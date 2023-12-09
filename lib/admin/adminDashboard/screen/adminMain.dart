@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/admin/adminOptionsReport/screens/AdminMonthlyAndDailyReportsMainPage.dart';
+import 'package:project/admin/adminReportsFiles/screens/AdminReportsMainPage.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
@@ -70,11 +72,10 @@ class AdminMainPageState extends State<AdminMainPage> {
       String corporateId, String username) async {
     try {
       final data =
-      await profileRepository.fetchAdminProfile(corporateId, username);
+          await profileRepository.fetchAdminProfile(corporateId, username);
       setState(() {
         GlobalObjects.adminusername = data!.userName;
         GlobalObjects.adminMail = data.email;
-
       });
     } catch (e) {
       print('Error fetching admin profile: $e');
@@ -138,6 +139,9 @@ class AdminMainPageState extends State<AdminMainPage> {
                             case AdminDrawerItems.profile:
                               dashBloc.add(NavigateToProfileEvent());
                               break;
+                            case AdminDrawerItems.leaves:
+                              dashBloc.add(NavigateToLeavesEvent());
+                              break;
 
                             case AdminDrawerItems.logout:
                               dashBloc.add(NavigateToLogoutEvent());
@@ -192,44 +196,50 @@ class AdminMainPageState extends State<AdminMainPage> {
         builder: (context, state) {
           if (state is NavigateToProfileState) {
             return AdminProfilePage(onRefreshData: () {
-              // Handle the refresh signal here in the drawer.
-              // Update the drawer's UI or reload the data as needed.
-              fetchAdminProfileData(corporateId,
-                  username); // You can call the function to refresh the profile data here.
+              fetchAdminProfileData(corporateId, username);
             });
-          } else if (state is NavigateToGeofenceState) {
+          }
+          else if (state is NavigateToLeavesState) {
+            return AdminReportsMainPage(viaDrawer: true,);
+          }
+          else if (state is NavigateToGeofenceState) {
             return const GeoFenceMainPage();
-          } else if (state is NavigateToHomeState) {
+          }
+          else if (state is NavigateToHomeState) {
             return const AdminDashboard();
-          } else if (state is NavigateToReportsState) {
+          }
+          else if (state is NavigateToReportsState) {
             return AdminMonthlyAndDailyReportsMainPage(
               viaDrawer: true,
             );
-          } else if (state is NavigateToLogoutState) {
-            return AlertDialog(
-              title: const Text("Confirm Logout"),
-              content: const Text("Are you sure?"),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdminMainPage(),
-                      ),
-                    );
-                  },
-                ),
-                TextButton(
-                  child: const Text('Logout'),
-                  onPressed: () {
-                    _logout(context);
-                  },
-                ),
-              ],
-            );
-          } else {
+          }
+          else if (state is NavigateToLogoutState) {
+            // Use Future.delayed to execute after the build is complete
+            Future.delayed(Duration.zero, () {
+              CoolAlert.show(
+                context: context,
+                type: CoolAlertType.confirm,
+                title: 'Confirm Logout',
+                text: 'Are you sure?',
+                confirmBtnText: 'Logout',
+                cancelBtnText: 'Cancel',
+                onConfirmBtnTap: () async {
+                  await _logout(context);
+                },
+                onCancelBtnTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdminMainPage(),
+                    ),
+                  );
+                },
+              );
+            });
+
+            return const AdminDashboard(); // Assuming AdminDashboard is the default screen
+          }
+          else {
             return const AdminDashboard();
           }
         });
@@ -238,17 +248,19 @@ class AdminMainPageState extends State<AdminMainPage> {
   String _getPageInfo(AdminDrawerItem item) {
     switch (item) {
       case AdminDrawerItems.home:
-        return "HOME";
+        return "Home";
       case AdminDrawerItems.geofence:
-        return "GEOFENCE";
+        return "Geofence";
       case AdminDrawerItems.profile:
-        return "PROFILE";
+        return "Profile";
+      case AdminDrawerItems.leaves:
+        return "Leaves";
       case AdminDrawerItems.reports:
-        return "REPORTS";
+        return "Reports";
       case AdminDrawerItems.logout:
         return "";
       default:
-        return "HOME";
+        return "Home";
     }
   }
 }

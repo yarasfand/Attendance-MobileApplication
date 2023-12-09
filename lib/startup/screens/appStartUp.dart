@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project/employee/empDashboard/screens/employeeMain.dart';
 import 'package:project/admin/adminDashboard/screen/adminMain.dart';
@@ -13,15 +12,15 @@ class AppStartup extends StatelessWidget {
       future: getUserData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show a loading indicator
+          return const CircularProgressIndicator(); // Show a loading indicator
         } else {
           if (snapshot.hasData) {
             final userData = snapshot.data;
             if (userData!.isLoggedIn) {
               if (userData.isEmployee) {
-                return EmpMainPage(); // User is an employee, show the employee page
+                return const EmpMainPage(); // User is an employee, show the employee page
               } else {
-                return AdminMainPage(); // User is an admin, show the admin page
+                return const AdminMainPage(); // User is an admin, show the admin page
               }
             } else {
               // Check if the user has visited the login page
@@ -29,19 +28,19 @@ class AppStartup extends StatelessWidget {
                 future: hasVisitedLoginPage(),
                 builder: (context, loginSnapshot) {
                   if (loginSnapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else {
                     // Check if the user has visited the login page
                     return FutureBuilder<bool>(
                       future: hasVisitedLoginPage(),
                       builder: (context, loginSnapshot) {
                         if (loginSnapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
+                          return const CircularProgressIndicator();
                         } else {
                           final hasVisitedLogin = loginSnapshot.data ?? false;
                           if (!hasVisitedLogin) {
                             // User hasn't visited the login page, show the IntroScreen
-                            return Screen1();
+                            return const Screen1();
                           } else {
                             // User has visited the login page, do not show the IntroScreen
                             return LoginPage();
@@ -55,7 +54,7 @@ class AppStartup extends StatelessWidget {
             }
           }
           // Handle error or no user data scenario
-          return Text("Error or no user data");
+          return const Text("Error or no user data");
         }
       },
     );

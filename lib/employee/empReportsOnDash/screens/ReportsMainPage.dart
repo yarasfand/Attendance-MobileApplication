@@ -1,6 +1,7 @@
 import 'package:flutter/Material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
 
 import 'Daily_reports.dart';
@@ -53,10 +54,8 @@ class ReportsMainPage extends StatelessWidget {
           ? null
           : AppBar(
               title: const Text(
-                'REPORTS',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                'Reports',
+                style: AppBarStyles.appBarTextStyle
               ),
               iconTheme: const IconThemeData(
                 color: Colors.white,

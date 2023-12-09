@@ -46,20 +46,30 @@ class AdminMonthlyReportsModel {
       shiftEndTime: json['shiftendtime'] != null
           ? DateTime.parse(json['shiftendtime'])
           : null,
-      hoursWorked: json['hoursworked'],
+      hoursWorked: json['hoursworked'] != null
+          ? (json['hoursworked'] is int ? json['hoursworked'] : 0)
+          : 0,
       otDuration: json['otduration'],
-      earlyArrival: json['earlyarrival'],
-      earlyDeparture: json['earlydeparture'],
-      lateArrival: json['latearrival'],
-      totalLossHrs: json['totallosshrs'],
-      status: json['status'],
-      reason: json['reason'],
-      shift: json['shift'],
+      earlyArrival: json['earlyarrival'] != null
+          ? (json['earlyarrival'] is int ? json['earlyarrival'] : 0)
+          : 0,
+      earlyDeparture: json['earlydeparture'] != null
+          ? (json['earlydeparture'] is int ? json['earlydeparture'] : 0)
+          : 0,
+      lateArrival: json['latearrival'] != null
+          ? (json['latearrival'] is int ? json['latearrival'] : 0)
+          : 0,
+      totalLossHrs: json['totallosshrs'] != null
+          ? (json['totallosshrs'] is int ? json['totallosshrs'] : 0)
+          : 0,
+      status: json['status'] ?? "",  // Default to empty string if null
+      reason: json['reason'] ?? "",  // Default to empty string if null
+      shift: json['shift'] ?? "",  // Default to empty string if null
       in1: json['in1'] != null ? DateTime.parse(json['in1']) : null,
       in2: json['in2'] != null ? DateTime.parse(json['in2']) : null,
       out1: json['out1'] != null ? DateTime.parse(json['out1']) : null,
       out2: json['out2'] != null ? DateTime.parse(json['out2']) : null,
-      remark: json['remark'],
+      remark: json['remark'] ?? "",  // Default to empty string if null
     );
   }
 }

@@ -29,9 +29,9 @@ class MyDrawer extends StatelessWidget {
     double optTopDiff;
 
     if (screenWidth <= 370) {
-      optTopDiff = screenHeight / 27;
+      optTopDiff = screenHeight / 30;
     } else {
-      optTopDiff = screenHeight / 20;
+      optTopDiff = screenHeight / 30;
     }
 
     return Column(

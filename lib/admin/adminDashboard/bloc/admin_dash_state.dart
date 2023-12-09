@@ -10,3 +10,4 @@ class NavigateToHomeState extends AdminDashboardkState{}
 class NavigateToGeofenceState extends AdminDashboardkState{}
 class NavigateToReportsState extends AdminDashboardkState{}
 class NavigateToLogoutState extends AdminDashboardkState{}
+class NavigateToLeavesState extends AdminDashboardkState{}

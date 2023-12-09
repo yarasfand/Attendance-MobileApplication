@@ -8,3 +8,4 @@ class NavigateToHomeEvent extends AdminDashboardkActionEvent{}
 class NavigateToGeofenceEvent extends AdminDashboardkActionEvent{}
 class NavigateToReportsEvent extends AdminDashboardkActionEvent{}
 class NavigateToLogoutEvent extends AdminDashboardkActionEvent{}
+class NavigateToLeavesEvent extends AdminDashboardkActionEvent{}
