@@ -11,6 +11,8 @@ import '../../No_internet/no_internet.dart';
 import '../../admin/adminDashboard/screen/adminMain.dart';
 import '../../employee/empDashboard/models/user_repository.dart';
 import '../../employee/empDashboard/screens/employeeMain.dart';
+import '../../employee/empProfilePage/models/empProfileModel.dart';
+import '../../employee/empProfilePage/models/empProfileRepository.dart';
 import '../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../bloc/loginBloc/loginEvents.dart';
@@ -34,7 +36,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-
+    saveEmpAllToShared();
     super.initState();
   }
 
@@ -120,6 +122,26 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _loginAsEmployee() async {
     showCustomSuccessAlertEmployee(context, "Login Successful!");
   }
+
+  EmpProfileRepository profileRepository = EmpProfileRepository();
+  String? profileImageUrl;
+  Future<void> saveEmpAllToShared() async {
+    try {
+      final profileData = await profileRepository.getData();
+      if (profileData.isNotEmpty) {
+        EmpProfileModel? empProfile = profileData.first;
+        final sharedPrefEmp = await SharedPreferences.getInstance();
+
+        setState(() {
+          sharedPrefEmp.setString('empName', empProfile.empName);
+          sharedPrefEmp.setString('empMail', empProfile.emailAddress);
+        });
+      }
+    } catch (e) {
+      print("Error fetching profile data: $e");
+    }
+  }
+
 
   void _saveCardNoToSharedPreferences(
       String cardNo, String empCode, int employeeId) async {

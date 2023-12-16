@@ -10,10 +10,11 @@ class GetLatLongRepo{
   Future<getLatLong?> fetchData() async {
     SharedPreferences sharedPref = await SharedPreferences.getInstance();
     String corporateId = sharedPref.getString('corporate_id') ?? 'ptsoffice';
+    int? empId = sharedPref.getInt('employee_id');
 
     try {
       final response = await http.get(Uri.parse(
-        "http://62.171.184.216:9595/api/employee/location/locationdetail?CorporateId=$corporateId&employeeId=${GlobalObjects.empId}",
+        "http://62.171.184.216:9595/api/employee/location/locationdetail?CorporateId=$corporateId&employeeId=${empId}",
       ));
 
       if (response.statusCode == 200) {

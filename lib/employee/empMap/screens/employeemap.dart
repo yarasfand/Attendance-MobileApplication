@@ -27,7 +27,8 @@ class EmployeeMap extends StatefulWidget {
   _EmployeeMapState createState() => _EmployeeMapState();
 }
 
-class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin {
+class _EmployeeMapState extends State<EmployeeMap>
+    with TickerProviderStateMixin {
   double? getLat;
   double? getLong;
   double? geofenceRadius = 100;
@@ -41,15 +42,17 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
   File? selectedImage;
   String base64Image = "";
   late String sublocaity;
+  late List<int> originalDimensions;
+  late List<int> resizedImage = <int>[];
+  late bool _uploading;
+  late Future<String?> _uploadFuture;
 
   void showPopupWithSuccessMessage(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return addToCartPopUpSuccess(
-            addToCartPopUpAnimationController,
-            message
-        );
+            addToCartPopUpAnimationController, message);
       },
     );
   }
@@ -58,10 +61,7 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return addToCartPopUpFailed(
-            addToCartPopUpAnimationController,
-            message
-        );
+        return addToCartPopUpFailed(addToCartPopUpAnimationController, message);
       },
     );
   }
@@ -77,6 +77,8 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
     _initializelatLong();
     display();
     checkLocationPermissionAndFetchLocation();
+    _uploading = false;
+    _uploadFuture = Future.value(null);
   }
 
   @override
@@ -149,7 +151,7 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
         if (selectedImage == null) {
           _imageError();
         } else {
-          final base64Image = base64Encode(selectedImage!.readAsBytesSync());
+          final base64Image = base64Encode(resizedImage);
           final geoFenceModel = GeofenceModel(
             cardno: cardNo.toString(),
             location: fullAddress,
@@ -169,15 +171,17 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
           try {
             await geoFenceRepository.postData(geoFenceModel);
             addToCartPopUpAnimationController.forward();
-            // Delay for a few seconds and then reverse the animation
             Timer(const Duration(seconds: 3), () {
               addToCartPopUpAnimationController.reverse();
               Navigator.pop(context);
             });
             showPopupWithSuccessMessage("Attendance marked successfully!");
+            Timer(const Duration(seconds: 4), () {
+              Navigator.pop(context);
+            });
           } catch (e) {
             addToCartPopUpAnimationController.forward();
-            // Delay for a few seconds and then reverse the animation
+
             Timer(const Duration(seconds: 3), () {
               addToCartPopUpAnimationController.reverse();
               Navigator.pop(context);
@@ -186,39 +190,29 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
           }
         }
       } else if (distance >= geofenceRadius!) {
-        addToCartPopUpAnimationController.forward();
-        // Delay for a few seconds and then reverse the animation
-        Timer(const Duration(seconds: 3), () {
-          addToCartPopUpAnimationController.reverse();
-          Navigator.pop(context);
+        Timer(const Duration(seconds: 1), () {
+          showCustomFailureAlert(context, "Geofence Not Allowed at this Location");
         });
-        showPopupWithFailedMessage("GeoPunch not allowed at this location!");
       }
-    }
-    else if (geofenceLatitude == null || geofenceLongitude == null) {
-      print("hi4");
+    } else if (geofenceLatitude == null || geofenceLongitude == null) {
+      //print("hi4");
       print(geofenceLatitude);
       print(geofenceLongitude);
       Navigator.pop(context);
       showCustomWarningAlert(context, "Geofence not started by office");
-    }
-    else {
-      print("hi5");
-
+    } else {
       addToCartPopUpAnimationController.forward();
-      // Delay for a few seconds and then reverse the animation
-      Timer(const Duration(seconds: 3), () {
+      Timer(const Duration(seconds: 2), () {
         addToCartPopUpAnimationController.reverse();
         Navigator.pop(context);
       });
-      showPopupWithFailedMessage("Failed to mark.Check your internet!");
+      showPopupWithSuccessMessage("Failed to mark. Check your internet!");
     }
   }
 
   void _imageError() {
     showCustomWarningAlert(context, "Please take photo before proceeding");
   }
-
 
   Future<void> _markAttendance() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -234,10 +228,7 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
     if (selectedImage == null) {
       _imageError();
     } else {
-      final originalImageBytes = await selectedImage!.readAsBytes();
-      final resizedImageBytes = await resizeImage(originalImageBytes, 256, 256);
-
-      final base64Image = base64Encode(resizedImageBytes);
+      final base64Image = base64Encode(resizedImage);
 
       final geoFenceModel = GeofenceModel(
         cardno: cardNo.toString(),
@@ -253,37 +244,42 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
         imagepath: '',
         punchDatetime: DateTime.now(),
       );
-      final geoFenceRepository = GeoFenceRepository("Location");
+      final geoFenceRepository = GeoFenceRepository("location");
 
       try {
-        Navigator.pop(context);
         await geoFenceRepository.postData(geoFenceModel);
         addToCartPopUpAnimationController.forward();
         // Delay for a few seconds and then reverse the animation
-        Timer(const Duration(seconds: 3), () {
+        Timer(const Duration(seconds: 2), () {
           addToCartPopUpAnimationController.reverse();
           Navigator.pop(context);
         });
         showPopupWithSuccessMessage("Attendance successfully marked!");
+        Timer(const Duration(seconds: 4), () {
+          Navigator.pop(context);
+        });
       } catch (e) {
         addToCartPopUpAnimationController.forward();
-        // Delay for a few seconds and then reverse the animation
-        Timer(const Duration(seconds: 3), () {
+
+        Timer(const Duration(seconds: 2), () {
           addToCartPopUpAnimationController.reverse();
           Navigator.pop(context);
         });
-        showPopupWithFailedMessage("Failed to mark. Check your internet!");
+        showPopupWithSuccessMessage("Failed to mark. Check your internet!");
       }
     }
   }
 
-  Future<List<int>> resizeImage(Uint8List imageBytes, int targetWidth, int targetHeight) async {
+  Future<List<int>> resizeImage(
+      Uint8List imageBytes, int targetWidth, int targetHeight) async {
     img.Image image = img.decodeImage(imageBytes)!;
 
-    img.Image resizedImage = img.copyResize(image, width: targetWidth, height: targetHeight);
+    img.Image resizedImage =
+        img.copyResize(image, width: targetWidth, height: targetHeight);
 
     return img.encodePng(resizedImage);
   }
+
   Future<void> display() async {
     await checkLocationPermissionAndFetchLocation();
   }
@@ -313,8 +309,6 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
     }
   }
 
-
-
   void CheckOfficeOrLocation() {
     CoolAlert.show(
       context: context,
@@ -325,15 +319,12 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
       cancelBtnText: 'Location',
       onConfirmBtnTap: () {
         _startGeoFencingUpdate();
-
       },
       onCancelBtnTap: () {
         _markAttendance();
-
       },
     );
   }
-
 
   Future<void> getAddress(double lat, double long) async {
     try {
@@ -364,35 +355,88 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
   }
 
   Future<void> chooseImage() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 10);
+    final image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 10);
 
     if (image != null) {
-      // Read image bytes
-      final imageBytes = await image.readAsBytes();
-      final resizedImage = await resizeImage(imageBytes, 256, 256);
-      final originalDimensions = await getImageDimensions(imageBytes);
-      final resizedDimensions = await getImageDimensions(resizedImage);
-
-
-      print('Original Image Dimensions: $originalDimensions');
-      print('Resized Image Dimensions: $resizedDimensions');
-
-
       setState(() {
-        selectedImage = File(image.path);
-        base64Image = base64Encode(resizedImage);
+        _uploading = true;
       });
+
+      try {
+        final imageBytes = await image.readAsBytes();
+        resizedImage = await resizeImage(imageBytes, 256, 256);
+        originalDimensions = await getImageDimensions(imageBytes);
+
+        setState(() {
+          selectedImage = File(image.path);
+          base64Image = base64Encode(resizedImage);
+        });
+
+        setState(() {
+          _uploading = false;
+          _uploadFuture = uploadImage(selectedImage!);
+        });
+      } catch (error) {
+        setState(() {
+          _uploading = false;
+        });
+        print('Error: $error');
+      }
     }
   }
 
+  Future<String?> uploadImage(File imageFile) async {
+    try {
+      return imageFile.path;
+    } catch (error) {
+      print('Upload Error: $error');
+      return null;
+    }
+  }
+
+  Widget buildPhoto() {
+    return FutureBuilder<String?>(
+      future: _uploadFuture,
+      builder: (context, snapshot) {
+        if (_uploading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          // Display the uploaded image
+          return ClipOval(
+            child: Image.file(
+              File(snapshot.data!), // Use the file path from the snapshot
+              fit: BoxFit.cover,
+              width: 256,
+              height: 256,
+            ),
+          );
+        }  else {
+          // Display a placeholder or default image
+          return ClipOval(
+            child: Image.asset(
+              "assets/icons/userr.png",
+              width: 256,
+              height: 256,
+            ),
+          );
+        }
+      },
+    );
+  }
 
 
   Future<List<int>> getImageDimensions(List<int> imageBytes) async {
     final image = await decodeImageFromList(Uint8List.fromList(imageBytes));
     return [image.width, image.height];
   }
-
-
 
   String remarks = "";
 
@@ -420,10 +464,8 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
         appBar: AppBar(
           backgroundColor: AppColors.primaryColor,
           elevation: 0,
-          title: const Text(
-            "Attendance Portal",
-            style: AppBarStyles.appBarTextStyle
-          ),
+          title: const Text("Attendance Portal",
+              style: AppBarStyles.appBarTextStyle),
           iconTheme: const IconThemeData(
             color: Colors.white,
           ),
@@ -448,21 +490,7 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
                     ),
                   ),
 
-                  ClipOval(
-                    child: selectedImage != null
-                        ? Image.file(
-                      selectedImage!,
-                      fit: BoxFit.cover,
-                      width: 256,
-                      height: 256,
-                    )
-                        : Image.asset(
-                      "assets/icons/userr.png",
-                      width: 256,
-                      height: 256,
-                    ),
-                  ),
-
+                  buildPhoto()
                 ],
               ),
               if (Street.isNotEmpty)
@@ -490,7 +518,8 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
-                              textAlign: TextAlign.center, // Align text in the center
+                              textAlign:
+                                  TextAlign.center, // Align text in the center
                             ),
                           ),
                           if (sublocaity.isNotEmpty)
@@ -502,7 +531,8 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
-                                textAlign: TextAlign.center, // Align text in the center
+                                textAlign: TextAlign
+                                    .center, // Align text in the center
                               ),
                             ),
                           Center(
@@ -513,7 +543,8 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
-                              textAlign: TextAlign.center, // Align text in the center
+                              textAlign:
+                                  TextAlign.center, // Align text in the center
                             ),
                           ),
                           const SizedBox(height: 7),
@@ -536,7 +567,6 @@ class _EmployeeMapState extends State<EmployeeMap> with TickerProviderStateMixin
                     ),
                   ),
                 ),
-
 
               // Add Remarks TextField
               Padding(

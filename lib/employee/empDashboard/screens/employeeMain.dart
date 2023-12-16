@@ -77,8 +77,12 @@ class EmpMainPageState extends State<EmpMainPage> {
           GlobalObjects.empName = empProfile.empName;
           GlobalObjects.empMail = empProfile.emailAddress;
         });
-
-        // Update your UI with other profile data here
+      } else if (profileData.isNotEmpty) {
+        final sharedPrefEmp = await SharedPreferences.getInstance();
+          setState(() {
+            GlobalObjects.empName = sharedPrefEmp.getString('empName');
+            GlobalObjects.empMail = sharedPrefEmp.getString('empMail');
+          });
       }
     } catch (e) {
       print("Error fetching profile data: $e");
@@ -195,16 +199,16 @@ class EmpMainPageState extends State<EmpMainPage> {
           return EmpProfilePage(onRefreshData: () {
             fetchProfileData();
           });
-        }
-        else if (state is NavigateToLeaveState) {
+        } else if (state is NavigateToLeaveState) {
           print("This is leave state");
-          return LeaveRequestPage(viaDrawer: true,);
+          return LeaveRequestPage(
+            viaDrawer: true,
+          );
         } else if (state is NavigateToHomeState) {
           return EmpDashboard();
         } else if (state is NavigateToReportsState) {
           return ReportsMainPage(viaDrawer: true);
-        }
-        else if (state is NavigateToLogoutState) {
+        } else if (state is NavigateToLogoutState) {
           // Use Future.delayed to execute after the build is complete
           Future.delayed(Duration.zero, () {
             CoolAlert.show(
@@ -229,8 +233,7 @@ class EmpMainPageState extends State<EmpMainPage> {
           });
 
           return const EmpDashboard(); // Assuming AdminDashboard is the default screen
-        }
-        else {
+        } else {
           return EmpDashboard();
         }
       },

@@ -26,7 +26,8 @@ class EmpEditProfilePage extends StatefulWidget {
   State<EmpEditProfilePage> createState() => _EmpEditProfilePageState();
 }
 
-class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProviderStateMixin{
+class _EmpEditProfilePageState extends State<EmpEditProfilePage>
+    with TickerProviderStateMixin {
   late String corporateId;
   late String userName;
   late String password;
@@ -53,31 +54,26 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
       context: context,
       builder: (BuildContext context) {
         return addToCartPopUpSuccess(
-            addToCartPopUpAnimationController,
-            message
-        );
+            addToCartPopUpAnimationController, message);
       },
     );
   }
+
   void showPopupWithFailedMessage(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return addToCartPopUpFailed(
-            addToCartPopUpAnimationController,
-            message
-        );
+        return addToCartPopUpFailed(addToCartPopUpAnimationController, message);
       },
     );
   }
+
   void showPopupWithMessage(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return addToCartPopUpNoCrossMessage(
-            addToCartPopUpAnimationController,
-            message
-        );
+            addToCartPopUpAnimationController, message);
       },
     );
   }
@@ -140,7 +136,6 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
           base64Image = base64Encode(imageBytes);
           _profilePicture = File(pickedFile.path);
         });
-
       }
     }
   }
@@ -247,17 +242,20 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
     }
   }
 
-  void _submitDataToAPI(EmpEditProfileModel dataToSubmit) {
+  Future<void> _submitDataToAPI(EmpEditProfileModel dataToSubmit) async {
     if (_profilePicture != null) {
-      // Encode the image only if it's not empty
       final imageBytes = _profilePicture!.readAsBytesSync();
       base64Image = base64Encode(imageBytes);
     }
 
+    final sharedPrefEmp = await SharedPreferences.getInstance();
+    setState(() {
+      sharedPrefEmp.setString('empName', dataToSubmit.empName);
+      sharedPrefEmp.setString('empMail', dataToSubmit.emailAddress);
+    });
     context
         .read<EmpEditProfileBloc>()
         .add(SubmitEmpEditProfileData(dataToSubmit));
-
   }
 
   Widget buildEditProfilePicture() {
@@ -270,8 +268,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
           fit: BoxFit.cover,
         ),
       );
-    }
-    else if (GlobalObjects.empProfilePic != null && _profilePicture == null) {
+    } else if (GlobalObjects.empProfilePic != null && _profilePicture == null) {
       try {
         final imageBytes = base64Decode(GlobalObjects.empProfilePic!);
         if (imageBytes.isNotEmpty) {
@@ -341,7 +338,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
                       key: _formKey,
                       child: Stack(children: [
                         Container(
-                          margin: const EdgeInsets.only(left: 10,right: 10),
+                          margin: const EdgeInsets.only(left: 10, right: 10),
                           child: Card(
                             color:
                                 Colors.transparent, // Make the Card transparent
@@ -443,7 +440,7 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
                                       labelText: 'Password',
                                       labelStyle: GoogleFonts.poppins(
                                           color: AppColors.black),
-                                      suffixIcon:IconButton(
+                                      suffixIcon: IconButton(
                                         icon: Icon(
                                           isPasswordVisible
                                               ? Icons.visibility
@@ -451,11 +448,11 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            isPasswordVisible = !isPasswordVisible;
+                                            isPasswordVisible =
+                                                !isPasswordVisible;
                                           });
                                         },
                                       ),
-
                                     ),
                                     obscureText: !isPasswordVisible,
                                     validator: (value) {
@@ -511,25 +508,31 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
                                         EmpEditProfileState>(
                                       listener: (context, state) {
                                         if (state is EmpEditProfileSuccess) {
-                                          addToCartPopUpAnimationController.forward();
+                                          addToCartPopUpAnimationController
+                                              .forward();
                                           // Delay for a few seconds and then reverse the animation
                                           Timer(const Duration(seconds: 3), () {
-                                            addToCartPopUpAnimationController.reverse();
+                                            addToCartPopUpAnimationController
+                                                .reverse();
                                             Navigator.pop(context);
-                                            Navigator.pop(context,true);
+                                            Navigator.pop(context, true);
                                           });
 
-                                          showPopupWithSuccessMessage("Profile updated successfully!");
-
-                                        } else if (state is EmpEditProfileError) {
+                                          showPopupWithSuccessMessage(
+                                              "Profile updated successfully!");
+                                        } else if (state
+                                            is EmpEditProfileError) {
                                           // Show a failure toast message when data submission fails
-                                          addToCartPopUpAnimationController.forward();
+                                          addToCartPopUpAnimationController
+                                              .forward();
                                           // Delay for a few seconds and then reverse the animation
                                           Timer(const Duration(seconds: 3), () {
-                                            addToCartPopUpAnimationController.reverse();
+                                            addToCartPopUpAnimationController
+                                                .reverse();
                                             Navigator.pop(context);
                                           });
-                                          showPopupWithFailedMessage("Failed to update!");
+                                          showPopupWithFailedMessage(
+                                              "Failed to update!");
                                         }
                                       },
                                       builder: (context, state) {
@@ -542,24 +545,34 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
                                                 final dataToSubmit =
                                                     EmpEditProfileModel(
                                                   empId: GlobalObjects.empId,
-                                                  empName: empNameController.text,
+                                                  empName:
+                                                      empNameController.text,
                                                   fatherName:
                                                       fatherNameController.text,
                                                   pwd: pwdController.text,
                                                   emailAddress:
-                                                      emailAddressController.text,
-                                                  phoneNo: phoneNoController.text,
-                                                  profilePic: base64Image ?? GlobalObjects.empProfilePic!,
+                                                      emailAddressController
+                                                          .text,
+                                                  phoneNo:
+                                                      phoneNoController.text,
+                                                  profilePic: base64Image ??
+                                                      GlobalObjects
+                                                          .empProfilePic!,
                                                 );
                                                 _submitDataToAPI(dataToSubmit);
-                                                addToCartPopUpAnimationController.forward();
+                                                addToCartPopUpAnimationController
+                                                    .forward();
                                                 // Delay for a few seconds and then reverse the animation
-                                                Timer(const Duration(seconds: 3), () {
-                                                  addToCartPopUpAnimationController.reverse();
+                                                Timer(
+                                                    const Duration(seconds: 3),
+                                                    () {
+                                                  addToCartPopUpAnimationController
+                                                      .reverse();
                                                   Navigator.pop(context);
-                                                  Navigator.pop(context,true);
+                                                  Navigator.pop(context, true);
                                                 });
-                                                showPopupWithSuccessMessage("Profile updated successfully!");
+                                                showPopupWithSuccessMessage(
+                                                    "Profile updated successfully!");
                                               }
                                             },
                                             style: ElevatedButton.styleFrom(
@@ -602,7 +615,6 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage> with TickerProv
     password = sharedPrefEmp.getString('password')!;
 
     if (corporateId != null && userName != null && password != null) {
-
     } else {
       // Handle the case where data is not found in shared preferences
       print('Data not found in shared preferences');
