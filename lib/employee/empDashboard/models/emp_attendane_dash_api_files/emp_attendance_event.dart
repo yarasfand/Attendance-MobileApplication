@@ -1,11 +1,13 @@
 part of 'emp_attendance_bloc.dart';
 
 @immutable
-abstract class EmpAttendanceEvent extends Equatable{}
+abstract class EmpAttendanceEvent extends Equatable {
+  const EmpAttendanceEvent();
 
-class EmpAttendanceLoadingEvent extends EmpAttendanceEvent{
   @override
-  // TODO: implement props
-  List<Object?> get props => [];
-
+  List<Object> get props => [];
 }
+
+class EmpAttendanceLoadingEvent extends EmpAttendanceEvent {}
+
+class RefreshEmpAttendanceEvent extends EmpAttendanceEvent {}

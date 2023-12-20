@@ -10,3 +10,4 @@ class NavigateToHomeState extends EmpDashboardkState{}
 class NavigateToReportsState extends EmpDashboardkState{}
 class NavigateToLogoutState extends EmpDashboardkState{}
 class NavigateToLeaveState extends EmpDashboardkState{}
+class DataRefreshedState extends EmpDashboardkState {} // Define DataRefreshedState

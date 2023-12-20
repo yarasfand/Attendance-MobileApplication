@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/constants/globalObjects.dart';
+import 'package:project/employee/empDashboard/screens/empHomePage.dart';
 import 'package:project/employee/empReportsOnDash/screens/leaveReportMainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
@@ -17,7 +18,6 @@ import '../../empProfilePage/models/empProfileRepository.dart';
 import '../../empProfilePage/screens/profilepage.dart';
 import '../../empReportsOnDash/screens/ReportsMainPage.dart';
 import '../bloc/employeeDashboardBloc/EmpDashboardk_bloc.dart';
-import 'empDashHome.dart';
 import 'empDrawer.dart';
 import 'empDrawerItems.dart';
 import 'generalAppBar.dart';
@@ -32,6 +32,8 @@ class EmpMainPage extends StatefulWidget {
 class EmpMainPageState extends State<EmpMainPage> {
   final EmpDashboardkBloc dashBloc = EmpDashboardkBloc();
   EmpProfileModel? empProfile;
+  EmpDrawerItem item = EmpDrawerItems.home;
+  final PageStorageBucket bucket = PageStorageBucket();
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,13 +55,16 @@ class EmpMainPageState extends State<EmpMainPage> {
     );
   }
 
-  EmpDrawerItem item = EmpDrawerItems.home;
 
   @override
   void initState() {
     super.initState();
     profileRepository = EmpProfileRepository();
     fetchProfileData();
+  }
+
+  void openDrawer(BuildContext context) {
+    Scaffold.of(context).openDrawer();
   }
 
   EmpProfileRepository profileRepository = EmpProfileRepository();
@@ -88,6 +93,7 @@ class EmpMainPageState extends State<EmpMainPage> {
       print("Error fetching profile data: $e");
     }
   }
+  final PageStorageBucket _bucket = PageStorageBucket();
 
   @override
   Widget build(BuildContext context) =>
@@ -192,51 +198,54 @@ class EmpMainPageState extends State<EmpMainPage> {
       );
 
   Widget getDrawerPage() {
-    return BlocBuilder<EmpDashboardkBloc, EmpDashboardkState>(
-      bloc: dashBloc,
-      builder: (context, state) {
-        if (state is NavigateToProfileState) {
-          return EmpProfilePage(onRefreshData: () {
-            fetchProfileData();
-          });
-        } else if (state is NavigateToLeaveState) {
-          print("This is leave state");
-          return LeaveRequestPage(
-            viaDrawer: true,
-          );
-        } else if (state is NavigateToHomeState) {
-          return EmpDashboard();
-        } else if (state is NavigateToReportsState) {
-          return ReportsMainPage(viaDrawer: true);
-        } else if (state is NavigateToLogoutState) {
-          // Use Future.delayed to execute after the build is complete
-          Future.delayed(Duration.zero, () {
-            CoolAlert.show(
-              context: context,
-              type: CoolAlertType.confirm,
-              title: 'Confirm Logout',
-              text: 'Are you sure?',
-              confirmBtnText: 'Logout',
-              cancelBtnText: 'Cancel',
-              onConfirmBtnTap: () async {
-                await _logout(context);
-              },
-              onCancelBtnTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EmpMainPage(),
-                  ),
-                );
-              },
+    return PageStorage(
+      bucket: _bucket,
+      child: BlocBuilder<EmpDashboardkBloc, EmpDashboardkState>(
+        bloc: dashBloc,
+        builder: (context, state) {
+          if (state is NavigateToProfileState) {
+            return EmpProfilePage(onRefreshData: () {
+              fetchProfileData();
+            });
+          } else if (state is NavigateToLeaveState) {
+            print("This is leave state");
+            return LeaveRequestPage(
+              viaDrawer: true,
             );
-          });
+          } else if (state is NavigateToHomeState) {
+            return EmpDashHome();
+          } else if (state is NavigateToReportsState) {
+            return ReportsMainPage(viaDrawer: true);
+          } else if (state is NavigateToLogoutState) {
+            // Use Future.delayed to execute after the build is complete
+            Future.delayed(Duration.zero, () {
+              CoolAlert.show(
+                context: context,
+                type: CoolAlertType.confirm,
+                title: 'Confirm Logout',
+                text: 'Are you sure?',
+                confirmBtnText: 'Logout',
+                cancelBtnText: 'Cancel',
+                onConfirmBtnTap: () async {
+                  await _logout(context);
+                },
+                onCancelBtnTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmpMainPage(),
+                    ),
+                  );
+                },
+              );
+            });
 
-          return const EmpDashboard(); // Assuming AdminDashboard is the default screen
-        } else {
-          return EmpDashboard();
-        }
-      },
+            return const EmpDashHome(); // Assuming AdminDashboard is the default screen
+          } else {
+            return EmpDashHome();
+          }
+        },
+      ),
     );
   }
 

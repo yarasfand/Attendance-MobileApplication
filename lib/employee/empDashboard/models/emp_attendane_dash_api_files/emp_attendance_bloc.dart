@@ -10,6 +10,7 @@ part 'emp_attendance_state.dart';
 
 class EmpAttendanceBloc extends Bloc<EmpAttendanceEvent, EmpAttendanceState> {
   final EmpAttendanceRepository _empAttendanceRepository;
+
   EmpAttendanceBloc(this._empAttendanceRepository)
       : super(EmpAttendanceLoadingState()) {
     on<EmpAttendanceLoadingEvent>((event, emit) async {
@@ -18,10 +19,20 @@ class EmpAttendanceBloc extends Bloc<EmpAttendanceEvent, EmpAttendanceState> {
         final users = await _empAttendanceRepository.getData();
         emit(EmpAttendanceLoadedState([users]));
       } catch (e) {
-        print("API Error: $e"); // Add this line to print the error message
-        emit(EmpAttendanceErrorState("Failed to fetch data from the API: $e"));
+        print("API Error: $e");
+        emit(EmpAttendanceErrorState(
+            "Failed to fetch data from the API: $e"));
       }
-      // print("hey you emit first state");
+    });
+
+    on<RefreshEmpAttendanceEvent>((event, emit) async {
+      try {
+        final refreshedUsers = await _empAttendanceRepository.getData();
+        emit(EmpAttendanceLoadedState([refreshedUsers]));
+      } catch (e) {
+        print("API Error during refresh: $e");
+        emit(EmpAttendanceErrorState("Failed to refresh data: $e"));
+      }
     });
   }
 }

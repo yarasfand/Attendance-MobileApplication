@@ -199,8 +199,7 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) {
-              return AdminProfileBloc(
-                  AdminProfileRepository());
+              return AdminProfileBloc(AdminProfileRepository());
             },
             child: AdminProfilePage(),
           ),
