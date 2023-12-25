@@ -1,34 +1,35 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'empProfileModel.dart';
+import 'package:project/employee/empProfilePage/models/empProfileModel.dart';
+import '../../../Sqlite/sqlite_helper.dart';
 
 class EmpProfileRepository {
-  late String coorporateId ;
-  late int employeeId ;
+  String? coorporateId; // Make it nullable
+  late int employeeId;
 
   EmpProfileRepository() {
-    // Initialize shared preferences and fetch data when the object is created.
     _initialize();
   }
 
   Future<void> _initialize() async {
-    await fetchSharedPrefData();
+    await fetchDatabaseData();
   }
 
-  Future<void> fetchSharedPrefData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    coorporateId = pref.getString("corporate_id") ?? "";
-    employeeId = pref.getInt("employee_id") ?? 0;
+  Future<void> fetchDatabaseData() async {
+    try {
+      final dbHelper = EmployeeDatabaseHelper();
+      coorporateId = await dbHelper.getCoorporateId();
+      employeeId = await dbHelper.getLoggedInEmployeeId();
+    } catch (e) {
+      print("Error fetching data from SQLite: $e");
+    }
   }
 
   Future<List<EmpProfileModel>> getData() async {
     await _initialize(); // Ensure initialization is complete.
-    await fetchSharedPrefData(); // Fetch shared preferences data.
-    if (coorporateId.isEmpty || employeeId == 0) {
+    if (coorporateId == null || coorporateId!.isEmpty || employeeId == 0) {
       throw Exception("coorporateId or employeeId not initialized");
     }
-
 
     String apiUrl =
         "http://62.171.184.216:9595/api/employee/dashboard/profile?CorporateId=$coorporateId&employeeId=$employeeId";

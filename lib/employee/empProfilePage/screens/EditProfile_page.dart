@@ -13,6 +13,7 @@ import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:camera/camera.dart';
+import '../../../Sqlite/sqlite_helper.dart';
 import '../../../constants/AnimatedTextPopUp.dart';
 import '../../empDashboard/models/user_model.dart';
 import '../../empDashboard/models/user_repository.dart';
@@ -248,11 +249,37 @@ class _EmpEditProfilePageState extends State<EmpEditProfilePage>
       base64Image = base64Encode(imageBytes);
     }
 
-    final sharedPrefEmp = await SharedPreferences.getInstance();
-    setState(() {
-      sharedPrefEmp.setString('empName', dataToSubmit.empName);
-      sharedPrefEmp.setString('empMail', dataToSubmit.emailAddress);
-    });
+    try {
+      final dbHelper = EmployeeDatabaseHelper.instance;
+      int loggedInEmployeeId = await dbHelper.getLoggedInEmployeeId();
+
+      if (loggedInEmployeeId > 0) {
+        final db = await dbHelper.database;
+        await db.transaction((txn) async {
+          await txn.rawInsert('''
+            INSERT OR REPLACE INTO employeeProfileData (empCode, profilePic, empName, emailAddress)
+            VALUES (?, ?, ?, ?)
+          ''', [
+            GlobalObjects.empCode,
+            dataToSubmit.profilePic,
+            dataToSubmit.empName,
+            dataToSubmit.emailAddress
+          ]);
+        });
+
+        setState(() {
+          GlobalObjects.empProfilePic = dataToSubmit.profilePic;
+          GlobalObjects.empName = dataToSubmit.empName;
+          GlobalObjects.empMail = dataToSubmit.emailAddress;
+        });
+      }
+
+      await dbHelper.printProfileData();
+    } catch (e) {
+      print("Error fetching profile data: $e");
+    } finally {
+      setState(() {});
+    }
     context
         .read<EmpEditProfileBloc>()
         .add(SubmitEmpEditProfileData(dataToSubmit));

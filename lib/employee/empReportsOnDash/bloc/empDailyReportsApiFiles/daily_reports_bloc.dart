@@ -20,8 +20,6 @@ class DailyReportsBloc extends Bloc<DailyReportsEvent, DailyReportsState> {
 
       try {
         final reports = await repository.getDailyReports(
-          corporateId: event.corporateId,
-          employeeId: event.employeeId,
           reportDate: event.reportDate,
         );
 

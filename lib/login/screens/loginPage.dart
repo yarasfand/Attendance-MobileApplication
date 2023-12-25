@@ -8,9 +8,8 @@ import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../No_internet/no_internet.dart';
-import '../../admin/adminDashboard/screen/adminMain.dart';
+import '../../Sqlite/sqlite_helper.dart';
 import '../../employee/empDashboard/models/user_repository.dart';
-import '../../employee/empDashboard/screens/employeeMain.dart';
 import '../../employee/empProfilePage/models/empProfileModel.dart';
 import '../../employee/empProfilePage/models/empProfileRepository.dart';
 import '../../introduction/bloc/bloc_internet/internet_bloc.dart';
@@ -109,6 +108,9 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         final cardNo = employeeData[0].cardNo;
         final empCode = employeeData[0].empCode;
         final employeeId = employeeData[0].empId;
+        await saveEmployeeToDatabase(
+            employeeId, enteredUsername, enteredCorporateID);
+
         _saveCardNoToSharedPreferences(cardNo, empCode, employeeId);
         _loginAsEmployee();
       } else {
@@ -119,8 +121,81 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
   }
 
+  String? savedEmpCode;
+
+  Future<void> fetchProfileData() async {
+    try {
+      final dbHelper = EmployeeDatabaseHelper.instance;
+      int loggedInEmployeeId = await dbHelper.getLoggedInEmployeeId();
+
+      if (loggedInEmployeeId > 0) {
+        final profileRepository = EmpProfileRepository();
+        final profileData = await profileRepository.getData();
+
+        if (profileData.isNotEmpty) {
+          EmpProfileModel? empProfile = profileData.first;
+          final profileImage = empProfile.profilePic;
+
+          final db = await dbHelper.database;
+          await db.transaction((txn) async {
+            await txn.rawInsert('''
+            INSERT OR REPLACE INTO employeeProfileData (empCode, profilePic, empName, emailAddress)
+            VALUES (?, ?, ?, ?)
+          ''', [
+              empProfile.empCode,
+              profileImage,
+              empProfile.empName,
+              empProfile.emailAddress
+            ]);
+          });
+
+          GlobalObjects.empCode = empProfile.empCode;
+          GlobalObjects.empProfilePic = profileImage;
+          GlobalObjects.empName = empProfile.empName;
+          GlobalObjects.empMail = empProfile.emailAddress;
+          setState(() {
+            GlobalObjects.empCode = empProfile.empCode;
+            GlobalObjects.empProfilePic = profileImage;
+            GlobalObjects.empName = empProfile.empName;
+            GlobalObjects.empMail = empProfile.emailAddress;
+            savedEmpCode = empProfile.empCode;
+            profileImageUrl = profileImage;
+          });
+        }
+
+        await dbHelper.printProfileData();
+      }
+    } catch (e) {
+      print("Error fetching profile data: $e");
+    } finally {
+      setState(() {});
+    }
+  }
+
+  Future<void> saveEmployeeToDatabase(
+      int employeeId, String username, String corporateId) async {
+    try {
+      final dbHelper = EmployeeDatabaseHelper();
+      await dbHelper.insertEmployee(employeeId, corporateId);
+
+      final List<Map<String, dynamic>> savedData =
+          await dbHelper.getEmployees();
+
+      if (savedData.isNotEmpty) {
+        fetchProfileData();
+        print("Data saved successfully!");
+        print(savedData);
+      } else {
+        print("Failed to save data!");
+      }
+    } catch (e) {
+      print("Error saving employee data to SQLite: $e");
+    }
+  }
+
   void _loginAsEmployee() async {
     showCustomSuccessAlertEmployee(context, "Login Successful!");
+    await fetchProfileData();
   }
 
   EmpProfileRepository profileRepository = EmpProfileRepository();
@@ -141,7 +216,6 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       print("Error fetching profile data: $e");
     }
   }
-
 
   void _saveCardNoToSharedPreferences(
       String cardNo, String empCode, int employeeId) async {

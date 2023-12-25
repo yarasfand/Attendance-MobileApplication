@@ -1,29 +1,51 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../Sqlite/sqlite_helper.dart';
 import 'emp_attendance_status_model.dart';
 
 class EmpAttendanceRepository {
-  late String coorporateId;
-  late int employeeId;
+  String? corporateId;
+  int? employeeId;
 
   EmpAttendanceRepository() {
     // Initialize shared preferences and fetch data when the object is created.
-    fetchSharedPrefData();
+    fetchDatabaseData();
   }
 
-  Future<void> fetchSharedPrefData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    coorporateId = pref.getString("corporate_id")!;
-    employeeId = pref.getInt("employee_id")!;
+  Future<void> fetchDatabaseData() async {
+    try {
+      final dbHelper = EmployeeDatabaseHelper.instance;
+      final firstEmployee = await dbHelper.getFirstEmployee();
 
+      if (firstEmployee != null) {
+        corporateId = firstEmployee['corporate_id'] as String?;
+        employeeId = firstEmployee['id'] as int?;
+      } else {
+        // Handle the case where no employee data is found
+        // Set default values or throw an exception as needed
+        corporateId = null; // Set a default value
+        employeeId = null;   // Set a default value
+      }
+    } catch (e) {
+      print("Error fetching data from the database: $e");
+      // Handle the error as needed
+    }
+    print("Fetched corporateId: $corporateId, employeeId: $employeeId");
   }
 
   Future<EmpAttendanceModel> getData() async {
+    if (!_isInitialized()) {
+      // If not initialized, fetch data before proceeding
+      await fetchDatabaseData();
+    }
     // Construct the apiUrl when you need it (inside a method).
+    if (corporateId == null || employeeId == null) {
+      // Handle the case where corporateId or employeeId is still null
+      throw Exception("CorporateId or employeeId is null");
+    }
+
     String apiUrl =
-        "http://62.171.184.216:9595/api/employee/dashboard/attendance?CorporateId=$coorporateId&employeeId=$employeeId";
+        "http://62.171.184.216:9595/api/employee/dashboard/attendance?CorporateId=$corporateId&employeeId=$employeeId";
 
     final headers = {
       'Content-Type': 'application/json', // Set the content type to JSON
@@ -34,8 +56,6 @@ class EmpAttendanceRepository {
       Uri.parse(apiUrl),
       headers: headers,
     );
-
-
 
     if (response.statusCode == 200) {
       final List<dynamic> responseData = json.decode(response.body);
@@ -63,5 +83,10 @@ class EmpAttendanceRepository {
       throw Exception(
           "Failed to fetch data from the API. Status code: ${response.statusCode}");
     }
+  }
+
+  bool _isInitialized() {
+    print("Checking initialization: corporateId = $corporateId, employeeId = $employeeId");
+    return corporateId != null && employeeId != null;
   }
 }

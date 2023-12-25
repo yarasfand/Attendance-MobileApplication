@@ -9,6 +9,7 @@ import 'package:project/constants/globalObjects.dart';
 import 'package:project/employee/empDashboard/screens/empHomePage.dart';
 import 'package:project/employee/empReportsOnDash/screens/leaveReportMainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../Sqlite/sqlite_helper.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
@@ -35,31 +36,65 @@ class EmpMainPageState extends State<EmpMainPage> {
   EmpDrawerItem item = EmpDrawerItems.home;
   final PageStorageBucket bucket = PageStorageBucket();
 
-  Future<void> _logout(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isLoggedIn', false);
-    prefs.setBool('isEmployee', false);
+  Future<bool> _logout(BuildContext context) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isLoggedIn', false);
+      prefs.setBool('isEmployee', false);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return Builder(
-            builder: (context) => BlocProvider(
-              create: (context) => SignInBloc(),
-              child: LoginPage(),
-            ),
-          ); // Navigate back to LoginPage
-        },
-      ),
-    );
+      // Get the employee ID from the SQLite table
+      final dbHelper = EmployeeDatabaseHelper();
+      int employeeId = await dbHelper.getLoggedInEmployeeId();
+
+      if (employeeId > 0) {
+        await dbHelper.deleteAllEmployeeData();
+
+        // Delete profile data
+        await dbHelper.deleteProfileData();
+
+        await dbHelper.deleteAttendenceData();
+
+        List<Map<String, dynamic>> remainingEmployees =
+            await dbHelper.getEmployees();
+        print("Remaining Employees: $remainingEmployees");
+
+        bool isDataDeleted = remainingEmployees.isEmpty;
+
+        if (!isDataDeleted) {
+          // Data not deleted
+          print("data not deleted");
+          return false;
+        }
+      }
+
+      print("Executing return");
+      Navigator.popUntil(context, (route) => route.isFirst);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (context) => SignInBloc(),
+            child: LoginPage(),
+          ),
+        ),
+      );
+      print("After deletion");
+      await EmployeeDatabaseHelper.instance.printProfileData();
+
+      // Data successfully deleted
+      return true;
+    } catch (e) {
+      print("Error during logout: $e");
+      print("Logout failed: Data not deleted");
+      return false;
+    }
   }
-
 
   @override
   void initState() {
     super.initState();
     profileRepository = EmpProfileRepository();
+
     fetchProfileData();
   }
 
@@ -84,15 +119,16 @@ class EmpMainPageState extends State<EmpMainPage> {
         });
       } else if (profileData.isNotEmpty) {
         final sharedPrefEmp = await SharedPreferences.getInstance();
-          setState(() {
-            GlobalObjects.empName = sharedPrefEmp.getString('empName');
-            GlobalObjects.empMail = sharedPrefEmp.getString('empMail');
-          });
+        setState(() {
+          GlobalObjects.empName = sharedPrefEmp.getString('empName');
+          GlobalObjects.empMail = sharedPrefEmp.getString('empMail');
+        });
       }
     } catch (e) {
       print("Error fetching profile data: $e");
     }
   }
+
   final PageStorageBucket _bucket = PageStorageBucket();
 
   @override
@@ -260,7 +296,7 @@ class EmpMainPageState extends State<EmpMainPage> {
       case EmpDrawerItems.profile:
         return "Profile";
       case EmpDrawerItems.logout:
-        return ""; // You can return an empty string if needed
+        return "Home"; // You can return an empty string if needed
       default:
         return "Home"; // Set the default title
     }

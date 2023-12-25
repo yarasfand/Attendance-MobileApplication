@@ -21,7 +21,6 @@ class AdminGeoFenceRepository {
     };
 
     try {
-      // Convert the list of AdminGeoFenceModel to a list of JSON objects
       final List<Map<String, dynamic>> jsonList = geoFenceDataList.map((model) => model.toJson()).toList();
 
       final response = await http.post(

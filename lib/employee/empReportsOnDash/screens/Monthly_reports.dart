@@ -143,8 +143,7 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       final employeeId = prefs.getInt('employee_id') ?? 0;
 
       final reportsData = await repository.getMonthlyReports(
-        corporateId: corporateId,
-        employeeId: employeeId,
+
         month: selectedMonth,
       );
 

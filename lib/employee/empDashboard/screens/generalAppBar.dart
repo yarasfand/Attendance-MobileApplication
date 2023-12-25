@@ -15,7 +15,7 @@
 
     void onRefresh() {
       print("On refresh called");
-      HomePageState().fetchProfileData();
+      HomePageState();
     }
 
     @override

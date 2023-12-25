@@ -31,13 +31,17 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
   @override
   void initState() {
     super.initState();
-    formattedSelectedDate = showFormatDateTime(_selectedDate); // Format the current date
-    _fetchAndDisplayReports(formatDateTime(_selectedDate)); // Fetch data for the current date
+    formattedSelectedDate =
+        showFormatDateTime(_selectedDate); // Format the current date
+    _fetchAndDisplayReports(
+        formatDateTime(_selectedDate)); // Fetch data for the current date
   }
+
   String formatDateTime(DateTime dateTime) {
     final formatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
     return formatter.format(dateTime);
   }
+
   String showFormatDateTime(DateTime dateTime) {
     final formatter = DateFormat("d MMMM y", 'en_US');
     return formatter.format(dateTime);
@@ -60,7 +64,8 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
         formattedSelectedDate = formattedDate; // Update formattedSelectedDate
       });
 
-      final formattedDateTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(picked);
+      final formattedDateTime =
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(picked);
       _fetchAndDisplayReports(formattedDateTime);
     }
   }
@@ -84,15 +89,14 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
         String formattedSelectedDate = outputFormatter.format(parsedDateTime);
 
         final response = await _repository.getDailyReports(
-          corporateId: corporateId,
-          employeeId: employeeId,
           reportDate: parsedDateTime,
         );
 
         if (response is List<DailyReportsModel>) {
           setState(() {
             _dailyReports = response;
-            formattedSelectedDate = formattedSelectedDate; // Store the formatted date
+            formattedSelectedDate =
+                formattedSelectedDate; // Store the formatted date
             isLoading = false;
           });
         } else {
@@ -119,10 +123,7 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Daily Report',
-          style: AppBarStyles.appBarTextStyle
-        ),
+        title: const Text('Daily Report', style: AppBarStyles.appBarTextStyle),
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
@@ -141,7 +142,6 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     Center(
                       child: Text(
                         formattedSelectedDate,
@@ -153,7 +153,6 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -166,7 +165,8 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            String formattedDate = formatDateTime(_selectedDate);
+                            String formattedDate =
+                                formatDateTime(_selectedDate);
 
                             _fetchAndDisplayReports(formattedDate);
                           },
@@ -174,7 +174,6 @@ class _DailyReportsPageState extends State<DailyReportsPage> {
                         ),
                       ],
                     )
-
                   ],
                 ),
               ),
@@ -299,8 +298,6 @@ class DailyInfoCard extends StatelessWidget {
               title: 'Punch OutTime',
               value: formatTime(report.out2) ?? '---',
             ),
-
-
           ],
         ),
       ),

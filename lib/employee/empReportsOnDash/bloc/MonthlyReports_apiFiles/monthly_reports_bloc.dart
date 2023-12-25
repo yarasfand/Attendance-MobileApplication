@@ -19,8 +19,7 @@ class MonthlyReportsBloc extends Bloc<MonthlyReportsEvent, MonthlyReportsState> 
 
         try {
           final reports = await repository.getMonthlyReports(
-            corporateId: event.corporateId,
-            employeeId: event.employeeId,
+
             month: event.month,
           );
 

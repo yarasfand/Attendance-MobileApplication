@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../Sqlite/sqlite_helper.dart'; // Adjust the import path based on your project structure
 
 import '../models/DailyReports_model.dart';
 
@@ -8,34 +9,51 @@ class DailyReportsRepository {
       'http://62.171.184.216:9595/api/employee/report/getdailyreport';
 
   Future<List<DailyReportsModel>> getDailyReports({
-    required String corporateId,
-    required int employeeId,
     required DateTime reportDate,
   }) async {
-    final String formattedDate = reportDate.toIso8601String();
+    try {
+      final dbHelper = EmployeeDatabaseHelper.instance;
+      final firstEmployee = await dbHelper.getFirstEmployee();
 
-    final Uri uri = Uri.parse(
-        '$baseUrl?CorporateId=$corporateId&employeeId=$employeeId&ReportDate=$formattedDate');
+      if (firstEmployee != null) {
+        final String corporateId = firstEmployee['corporate_id'] as String;
+        final int employeeId = firstEmployee['id'] as int;
 
-    final response = await http.get(uri);
+        final String formattedDate = reportDate.toIso8601String();
 
-    if (response.statusCode == 200) {
-      final dynamic data = json.decode(response.body);
+        final Uri uri = Uri.parse(
+            '$baseUrl?CorporateId=$corporateId&employeeId=$employeeId&ReportDate=$formattedDate');
 
-      if (data is Map<String, dynamic>) {
-        // Assuming that the API response is a single report object
-        final DailyReportsModel report =
-        DailyReportsModel.fromJson(data); // Adjust this to your model
+        final response = await http.get(uri);
 
-        // Create a List to hold the single report
-        final List<DailyReportsModel> reports = [report];
+        if (response.statusCode == 200) {
+          final dynamic data = json.decode(response.body);
 
-        return reports;
+          if (data is Map<String, dynamic>) {
+            // Assuming that the API response is a single report object
+            final DailyReportsModel report =
+            DailyReportsModel.fromJson(data); // Adjust this to your model
+
+            // Create a List to hold the single report
+            final List<DailyReportsModel> reports = [report];
+
+            return reports;
+          } else {
+            throw Exception('API response does not contain the expected structure');
+          }
+        } else {
+          throw Exception('Failed to load daily reports');
+        }
       } else {
-        throw Exception('API response does not contain the expected structure');
+        // Handle the case where no employee data is found
+        // Set default values or throw an exception as needed
+        print("No employee data found in the database.");
+        return [];
       }
-    } else {
-      throw Exception('Failed to load daily reports');
+    } catch (e) {
+      // Handle any database or network errors
+      print("Error: $e");
+      throw Exception("Failed to fetch data from the database or make API request.");
     }
   }
 }
