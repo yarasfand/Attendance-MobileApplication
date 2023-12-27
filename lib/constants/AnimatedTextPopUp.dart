@@ -330,6 +330,18 @@ void showCustomSuccessAlertEmployee(BuildContext context, String successMessage)
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => EmpMainPage()));
   });
 }
+void showCustomSuccessAlertEditEmployee(BuildContext context, String successMessage) {
+  CoolAlert.show(
+    context: context,
+    type: CoolAlertType.success,
+    title: 'Success',
+    text: successMessage,
+    autoCloseDuration: Duration(seconds: 3), // Auto-close after 2 seconds
+    confirmBtnText: 'Ok', // Set confirm button text to an empty string
+    confirmBtnColor: Colors.blue,
+    borderRadius: 10.0,
+  );
+}
 void showCustomSuccessAlertAdmin(BuildContext context, String successMessage) {
   CoolAlert.show(
     context: context,

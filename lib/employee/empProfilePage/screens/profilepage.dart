@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +15,6 @@ import '../../../Sqlite/sqlite_helper.dart';
 import '../../../constants/globalObjects.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
-import '../../empDashboard/screens/empHomePage.dart';
 import '../bloc/emProfileApiFiles/emp_profile_api_bloc.dart';
 import '../models/empProfileModel.dart';
 import '../models/empProfileRepository.dart';
@@ -23,9 +23,9 @@ import 'EditProfile_page.dart';
 typedef void RefreshDataCallback();
 
 class EmpProfilePage extends StatefulWidget {
-  final RefreshDataCallback? onRefreshData;
+  final Function onProfileEdit;
 
-  EmpProfilePage({Key? key, this.onRefreshData}) : super(key: key);
+  const EmpProfilePage({Key? key, required this.onProfileEdit}) : super(key: key);
 
   @override
   State<EmpProfilePage> createState() => EmpProfilePageState();
@@ -34,6 +34,7 @@ class EmpProfilePage extends StatefulWidget {
 class EmpProfilePageState extends State<EmpProfilePage> {
   LoginPageState select = LoginPageState();
   Key _profileImageKey = UniqueKey();
+  bool _didEditProfile = false; // Add this variable
 
   Widget _buildProfileImage() {
     return FutureBuilder(
@@ -83,45 +84,61 @@ class EmpProfilePageState extends State<EmpProfilePage> {
       prefs.setBool('isLoggedIn', false);
       prefs.setBool('isEmployee', false);
 
+      // Get the employee ID from the SQLite table
       final dbHelper = EmployeeDatabaseHelper();
       int employeeId = await dbHelper.getLoggedInEmployeeId();
 
-      if (employeeId > 0) {
-        await dbHelper.deleteAllEmployeeData();
+      // Show the confirmation dialog
+      CoolAlert.show(
+        context: context,
+        type: CoolAlertType.confirm,
+        title: 'Confirm Logout',
+        text: 'Are you sure?',
+        confirmBtnText: 'Logout',
+        cancelBtnText: 'Cancel',
+        onConfirmBtnTap: () async {
+          if (employeeId > 0) {
+            await dbHelper.deleteAllEmployeeData();
 
-        // Delete profile data
-        await dbHelper.deleteProfileData();
+            // Delete profile data
+            await dbHelper.deleteProfileData();
 
-        await dbHelper.deleteAttendenceData();
-
-        List<Map<String, dynamic>> remainingEmployees =
+            List<Map<String, dynamic>> remainingEmployees =
             await dbHelper.getEmployees();
-        print("Remaining Employees: $remainingEmployees");
+            print("Remaining Employees: $remainingEmployees");
 
-        bool isDataDeleted = remainingEmployees.isEmpty;
+            bool isDataDeleted = remainingEmployees.isEmpty;
 
-        if (!isDataDeleted) {
-          // Data not deleted
-          print("data not deleted");
-          return false;
-        }
-      }
+            if (!isDataDeleted) {
+              // Data not deleted
+              print("data not deleted");
+            }
+          }
 
-      print("Executing return");
-      Navigator.popUntil(context, (route) => route.isFirst);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BlocProvider(
-            create: (context) => SignInBloc(),
-            child: LoginPage(),
-          ),
-        ),
+          // Perform logout after confirmation
+          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BlocProvider(
+                create: (context) => SignInBloc(),
+                child: LoginPage(),
+              ),
+            ),
+          );
+          await EmployeeDatabaseHelper.instance.printProfileData();
+        },
+        onCancelBtnTap: () {
+          // User canceled logout
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmpMainPage(),
+            ),
+          );
+        },
       );
-      print("After deletion");
-      await EmployeeDatabaseHelper.instance.printProfileData();
 
-      // Data successfully deleted
       return true;
     } catch (e) {
       print("Error during logout: $e");
@@ -136,47 +153,87 @@ class EmpProfilePageState extends State<EmpProfilePage> {
   void initState() {
     print("init in emp profile called");
     super.initState();
-    _initProfileBloc();
-    fetchProfileData();
+    if(GlobalObjects.empMail == null || GlobalObjects.empPhone== null)
+      {
+        fetchProfileData();
+      }
+  }
+
+  Future<void> fetchProfileData() async {
+    try {
+      final dbHelper = EmployeeDatabaseHelper.instance;
+      int loggedInEmployeeId = await dbHelper.getLoggedInEmployeeId();
+
+      if (loggedInEmployeeId > 0) {
+        final profileRepository = EmpProfileRepository();
+        final profileData = await profileRepository.getData();
+
+        if (profileData.isNotEmpty) {
+          EmpProfileModel? empProfile = profileData.first;
+          final profileImage = empProfile.profilePic;
+
+          // Insert or replace into employeeProfileData table
+          await dbHelper.insertProfileData(
+            empCode: empProfile.empCode,
+            profilePic: profileImage,
+            empName: empProfile.empName,
+            emailAddress: empProfile.emailAddress,
+          );
+
+          // Insert or replace into profileTable
+          await dbHelper.insertProfilePageData(
+            empCode: empProfile.empCode,
+            profilePic: profileImage,
+            empName: empProfile.empName,
+            emailAddress: empProfile.emailAddress,
+            joinDate: empProfile.dateofJoin.toIso8601String() ?? '',
+            phoneNumber: empProfile.phoneNo ?? '',
+            password: empProfile.password ?? '',
+            fatherName: empProfile.fatherName ?? '',
+          );
+
+          // Update global objects and UI state
+          GlobalObjects.empCode = empProfile.empCode;
+          GlobalObjects.empProfilePic = profileImage;
+          GlobalObjects.empName = empProfile.empName;
+          GlobalObjects.empMail = empProfile.emailAddress;
+          GlobalObjects.empFatherName=empProfile.fatherName;
+          GlobalObjects.empPassword=empProfile.password;
+          GlobalObjects.empJoinDate=empProfile.dateofJoin;
+          GlobalObjects.empPhone=empProfile.phoneNo;
+          setState(() {
+            profileImageUrl = profileImage;
+            GlobalObjects.empCode = empProfile.empCode;
+            GlobalObjects.empProfilePic = profileImage;
+            GlobalObjects.empName = empProfile.empName;
+            GlobalObjects.empMail = empProfile.emailAddress;
+            GlobalObjects.empFatherName=empProfile.fatherName;
+            GlobalObjects.empPassword=empProfile.password;
+            GlobalObjects.empJoinDate=empProfile.dateofJoin;
+            GlobalObjects.empPhone=empProfile.phoneNo;
+
+          });
+        }
+
+        // Print profile data for debugging
+        await dbHelper.printProfileData();
+      }
+    } catch (e) {
+      print("Error fetching and saving profile data: $e");
+    } finally {
+      setState(() {});
+    }
   }
 
   void updateProfileData() {
-    initEmpMainPage.fetchProfileData();
+    // Fetch and update the profile data
+    fetchProfileData();
+    // Trigger a rebuild of the widget tree
+    setState(() {});
   }
 
   var initEmpMainPage = EmpMainPageState();
 
-  Future<void> fetchProfileData() async {
-    print("Now in fetch profile state");
-    updateProfileData();
-    try {
-      final profileData = await _profileRepository.getData();
-      if (profileData.isNotEmpty) {
-        EmpProfileModel? empProfile = profileData.first;
-        final profileImage = empProfile.profilePic;
-        GlobalObjects.empId = empProfile.empId;
-        if (profileImage != null && profileImage.isNotEmpty) {
-          setState(() {
-            EmpProfileModel? empProfile = profileData.first;
-            profileImageUrl = profileImage;
-            GlobalObjects.empProfilePic = empProfile.profilePic;
-            GlobalObjects.empName = empProfile.empName;
-            GlobalObjects.empMail = empProfile.emailAddress;
-            GlobalObjects.empId = empProfile.empId;
-            print(GlobalObjects.empId);
-          });
-        }
-        if (profileImage == null && profileImage.isEmpty) {
-          setState(() {
-            GlobalObjects.empProfilePic = null;
-          });
-        }
-        // Update your UI with other profile data here
-      }
-    } catch (e) {
-      print("Error fetching profile data: $e");
-    }
-  }
 
   Future<bool?> _onBackPressed(BuildContext context) async {
     bool? exitConfirmed = await showDialog(
@@ -213,20 +270,6 @@ class EmpProfilePageState extends State<EmpProfilePage> {
     SystemNavigator.pop();
   }
 
-  // Method to initialize the BlocProvider
-  void _initProfileBloc() {
-    _profileApiBloc = EmpProfileApiBloc(
-      RepositoryProvider.of<EmpProfileRepository>(context),
-    )..add(EmpProfileLoadingEvent());
-  }
-
-  void refreshUserData() {
-    print("Now in state of refresh User data");
-   _profileApiBloc.add(EmpProfileLoadingEvent());
-    if (widget.onRefreshData != null) {
-      widget.onRefreshData!();
-    }
-  }
 
   void call(String number) => launch("tel:$number");
   void sendSms(String number) => launch("sms:$number");
@@ -234,227 +277,215 @@ class EmpProfilePageState extends State<EmpProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        return _profileApiBloc;
-      },
-      child: BlocBuilder<EmpProfileApiBloc, EmpProfileApiState>(
-        builder: (context, state) {
-          if (state is EmpProfileLoadingState) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is EmpProfileLoadedState) {
-            List<EmpProfileModel> userList = state.users;
-            final employeeProfile = userList[0];
-            return Scaffold(
-              backgroundColor: Colors.white,
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                      0, MediaQuery.of(context).size.height / 15, 0, 0),
-                  child: Column(
-                    children: [
-                      WillPopScope(
-                        onWillPop: () async {
-                          return _onBackPressed(context)
-                              .then((value) => value ?? false);
-                        },
-                        child: const SizedBox(),
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                    0, MediaQuery.of(context).size.height / 15, 0, 0),
+                child: Column(
+                  children: [
+                    WillPopScope(
+                      onWillPop: () async {
+                        return _onBackPressed(context)
+                            .then((value) => value ?? false);
+                      },
+                      child: const SizedBox(),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Card(
+                      elevation: 4.0,
+                      margin: const EdgeInsets.all(32.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Card(
-                        elevation: 4.0,
-                        margin: const EdgeInsets.all(32.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(
-                                  top: 20.0), // Add margin from the top
-                              child: Column(
-                                children: [
-                                  CircleAvatar(
-                                    key: _profileImageKey,
-                                    radius: 70.0,
-                                    backgroundImage: (GlobalObjects
-                                                    .empProfilePic !=
-                                                null &&
-                                            GlobalObjects
-                                                .empProfilePic!.isNotEmpty)
-                                        ? MemoryImage(
-                                            base64Decode(
-                                                GlobalObjects.empProfilePic!),
-                                          ) as ImageProvider<Object>
-                                        : AssetImage('assets/icons/userrr.png'),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      Text(
-                                        employeeProfile.empName,
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                            // Increase font size
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        softWrap: true,
-                                      ),
-                                      Text(
-                                        "${employeeProfile.emailAddress}",
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                            fontWeight: FontWeight.w300,
-                                            fontSize: 16,
-                                            // Increase font size
-                                            color: Colors.black,
-                                          ),
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(
+                                top: 20.0), // Add margin from the top
+                            child: Column(
+                              children: [
+                                CircleAvatar(
+                                  key: _profileImageKey,
+                                  radius: 70.0,
+                                  backgroundImage: (GlobalObjects
+                                                  .empProfilePic !=
+                                              null &&
+                                          GlobalObjects
+                                              .empProfilePic!.isNotEmpty)
+                                      ? MemoryImage(
+                                          base64Decode(
+                                              GlobalObjects.empProfilePic!),
+                                        ) as ImageProvider<Object>
+                                      : AssetImage('assets/icons/userrr.png'),
+                                ),
+                                const SizedBox(width: 20),
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    Text(
+                                      GlobalObjects.empName ?? "---",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                          // Increase font size
+                                          color: Colors.black,
                                         ),
                                       ),
-                                      Text(
-                                        "Join Date: ${DateFormat('dd MMM yy').format(employeeProfile.dateofJoin)}",
-                                        style: GoogleFonts.montserrat(
-                                          textStyle: const TextStyle(
-                                            fontWeight: FontWeight.w300,
-                                            fontSize: 16,
-                                            // Increase font size
-                                            color: Colors.black,
-                                          ),
+                                      softWrap: true,
+                                    ),
+                                    Text(
+                                      GlobalObjects.empMail ?? "---",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: 16,
+                                          // Increase font size
+                                          color: Colors.black,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Capsule structure for icons
-                            Container(
-                              margin: const EdgeInsets.only(
-                                  top: 20.0, bottom: 20.0),
-                              // Add margin from the top and bottom
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors
-                                          .blue, // Change the color as needed
                                     ),
-                                    child: Center(
-                                      child: IconButton(
-                                        icon: const Icon(FontAwesomeIcons.phone,
-                                            color: Colors.white),
-                                        onPressed: () {
-                                          call(employeeProfile.phoneNo);
-                                        },
+                                    Text(
+                                      "Join Date: ${DateFormat('dd MMM yy').format(GlobalObjects.empJoinDate ?? DateTime.now())}",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors
-                                          .grey, // Change the color as needed
-                                    ),
-                                    child: Center(
-                                      child: IconButton(
-                                        icon: const Icon(
-                                            FontAwesomeIcons.envelope,
-                                            color: Colors.white),
-                                        onPressed: () {
-                                          sendEmail(
-                                              employeeProfile.emailAddress);
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors
-                                          .green, // Change the color as needed
-                                    ),
-                                    child: Center(
-                                      child: IconButton(
-                                        icon: const Icon(
-                                            FontAwesomeIcons.message,
-                                            color: Colors.white),
-                                        onPressed: () {
-                                          sendSms(employeeProfile.phoneNo);
-                                          // Add your call functionality here
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildTileWidget(
-                        title: 'Edit Profile',
-                        icon: FontAwesomeIcons.pencil,
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            PageTransition(
-                              child: const EmpEditProfilePage(),
-                              type: PageTransitionType.rightToLeft,
+                          ),
+                          // Capsule structure for icons
+                          Container(
+                            margin: const EdgeInsets.only(
+                                top: 20.0, bottom: 20.0),
+                            // Add margin from the top and bottom
+                            child: Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .blue, // Change the color as needed
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      icon: const Icon(FontAwesomeIcons.phone,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        call(GlobalObjects.empPhone ?? "---");
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .grey, // Change the color as needed
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      icon: const Icon(
+                                          FontAwesomeIcons.envelope,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        sendEmail(
+                                            GlobalObjects.empMail ?? "---");
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .green, // Change the color as needed
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      icon: const Icon(
+                                          FontAwesomeIcons.message,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        sendSms(GlobalObjects.empPhone ?? "---");
+                                        // Add your call functionality here
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                          fetchProfileData();
-                          refreshUserData();
-                        },
+                          ),
+                        ],
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      _buildTileWidget(
-                        title: 'Logout',
-                        icon: Icons.logout,
-                        onTap: () => _logout(context),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTileWidget(
+                      title: 'Edit Profile',
+                      icon: FontAwesomeIcons.pencil,
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          PageTransition(
+                            child: EmpEditProfilePage(
+                              onSave: () {
+                                // Callback function triggered when data is saved in EditProfilePage
+                                updateProfileData();
+                              },
+                              onSaveSuccess: () {
+                                // Set the boolean value to true when the user comes back
+                                setState(() {
+                                  _didEditProfile = true;
+                                });
+                              },
+                            ),
+                            type: PageTransitionType.rightToLeft,
+                          ),
+                        );
+                        if (_didEditProfile) {
+                          widget.onProfileEdit(); // Call the callback function here
+                          updateProfileData();
+                          setState(() {
+                            _didEditProfile = false; // Reset the boolean value
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _buildTileWidget(
+                      title: 'Logout',
+                      icon: Icons.logout,
+                      onTap: () => _logout(context),
+                    ),
+                  ],
                 ),
               ),
-            );
-          } else if (state is EmpProfileErrorState) {
-            return Center(
-              child: Text(
-                "Error: ${state.message}",
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 18.0,
-                ),
-              ),
-            );
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-    );
+            ),
+          );
   }
 
   Widget _buildField(String label, String value) {

@@ -136,37 +136,55 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           EmpProfileModel? empProfile = profileData.first;
           final profileImage = empProfile.profilePic;
 
-          final db = await dbHelper.database;
-          await db.transaction((txn) async {
-            await txn.rawInsert('''
-            INSERT OR REPLACE INTO employeeProfileData (empCode, profilePic, empName, emailAddress)
-            VALUES (?, ?, ?, ?)
-          ''', [
-              empProfile.empCode,
-              profileImage,
-              empProfile.empName,
-              empProfile.emailAddress
-            ]);
-          });
+          // Insert or replace into employeeProfileData table
+          await dbHelper.insertProfileData(
+            empCode: empProfile.empCode,
+            profilePic: profileImage,
+            empName: empProfile.empName,
+            emailAddress: empProfile.emailAddress,
+          );
 
+          // Insert or replace into profileTable
+          await dbHelper.insertProfilePageData(
+            empCode: empProfile.empCode,
+            profilePic: profileImage,
+            empName: empProfile.empName,
+            emailAddress: empProfile.emailAddress,
+            joinDate: empProfile.dateofJoin.toIso8601String() ?? '',
+            phoneNumber: empProfile.phoneNo ?? '',
+            password: empProfile.password ?? '',
+            fatherName: empProfile.fatherName ?? '',
+          );
+
+          // Update global objects and UI state
           GlobalObjects.empCode = empProfile.empCode;
           GlobalObjects.empProfilePic = profileImage;
           GlobalObjects.empName = empProfile.empName;
           GlobalObjects.empMail = empProfile.emailAddress;
+          GlobalObjects.empFatherName=empProfile.fatherName;
+          GlobalObjects.empPassword=empProfile.password;
+          GlobalObjects.empJoinDate=empProfile.dateofJoin;
+          GlobalObjects.empPhone=empProfile.phoneNo;
           setState(() {
+            savedEmpCode = empProfile.empCode;
+            profileImageUrl = profileImage;
             GlobalObjects.empCode = empProfile.empCode;
             GlobalObjects.empProfilePic = profileImage;
             GlobalObjects.empName = empProfile.empName;
             GlobalObjects.empMail = empProfile.emailAddress;
-            savedEmpCode = empProfile.empCode;
-            profileImageUrl = profileImage;
+            GlobalObjects.empFatherName=empProfile.fatherName;
+            GlobalObjects.empPassword=empProfile.password;
+            GlobalObjects.empJoinDate=empProfile.dateofJoin;
+            GlobalObjects.empPhone=empProfile.phoneNo;
+
           });
         }
 
+        // Print profile data for debugging
         await dbHelper.printProfileData();
       }
     } catch (e) {
-      print("Error fetching profile data: $e");
+      print("Error fetching and saving profile data: $e");
     } finally {
       setState(() {});
     }

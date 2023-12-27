@@ -240,9 +240,13 @@ class EmpMainPageState extends State<EmpMainPage> {
         bloc: dashBloc,
         builder: (context, state) {
           if (state is NavigateToProfileState) {
-            return EmpProfilePage(onRefreshData: () {
-              fetchProfileData();
-            });
+            return EmpProfilePage(
+
+              onProfileEdit: () {
+                // Call fetchProfileData when the profile is edited
+                fetchProfileData();
+              },
+            );
           } else if (state is NavigateToLeaveState) {
             print("This is leave state");
             return LeaveRequestPage(

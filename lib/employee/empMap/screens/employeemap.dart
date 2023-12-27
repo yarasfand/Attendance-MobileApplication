@@ -123,20 +123,17 @@ class _EmployeeMapState extends State<EmployeeMap>
   Future<void> _startGeoFencingUpdate() async {
     final double? geofenceLatitude = getLat;
     final double? geofenceLongitude = getLong;
-    print("hi1");
+
     if (geofenceLatitude != null &&
         geofenceLongitude != null &&
         currentLat != null &&
         currentLong != null) {
-      print("hi3");
-
       double distance = Geolocator.distanceBetween(
         geofenceLatitude,
         geofenceLongitude,
         currentLat!,
         currentLong!,
       );
-      print("hi2");
 
       print("This is the distanceeeeeeeee! ${distance} ");
 
@@ -187,13 +184,8 @@ class _EmployeeMapState extends State<EmployeeMap>
               Navigator.pop(context);
             });
           } catch (e) {
-            addToCartPopUpAnimationController.forward();
-
-            Timer(const Duration(seconds: 3), () {
-              addToCartPopUpAnimationController.reverse();
-              Navigator.pop(context);
-            });
-            showPopupWithFailedMessage("Failed to mark.Check your internet!");
+            showCustomWarningAlert(context,
+                "Internet not connected attendance will be marked when internet is available");
           }
         }
       } else if (distance >= geofenceRadius!) {
@@ -209,12 +201,8 @@ class _EmployeeMapState extends State<EmployeeMap>
       Navigator.pop(context);
       showCustomWarningAlert(context, "Geofence not started by office");
     } else {
-      addToCartPopUpAnimationController.forward();
-      Timer(const Duration(seconds: 2), () {
-        addToCartPopUpAnimationController.reverse();
-        Navigator.pop(context);
-      });
-      showPopupWithSuccessMessage("Failed to mark. Check your internet!");
+      showCustomWarningAlert(context,
+          "Internet not connected attendance will be marked when internet is available");
     }
   }
 
@@ -227,14 +215,15 @@ class _EmployeeMapState extends State<EmployeeMap>
 
         await db.transaction((txn) async {
           await txn.rawInsert('''
-          INSERT OR REPLACE INTO employeeAttendanceData (empCode, long, lat, location,dateTime)
-          VALUES (?, ?, ?, ?, ?)
+          INSERT OR REPLACE INTO employeeAttendanceData (empCode, long, lat, location,dateTime, attendeePic)
+          VALUES (?, ?, ?, ?, ?,?)
         ''', [
             GlobalObjects.empCode,
             currentLat.toString(),
             currentLong.toString(),
             fullAddress.toString(),
-            DateTime.now().toIso8601String()
+            DateTime.now().toIso8601String(),
+            resizedImage.toString()
           ]);
         });
         setState(() {
@@ -242,6 +231,8 @@ class _EmployeeMapState extends State<EmployeeMap>
           runDbOneTime = runDbOneTime + 1;
         });
         print(" Data saved");
+        showCustomWarningAlert(context,
+            "Internet not connected attendance will be marked when internet is available");
         await dbHelper.printAttendData();
       } catch (e) {
         print("Error Posting Attendance data: $e");
@@ -300,15 +291,7 @@ class _EmployeeMapState extends State<EmployeeMap>
         Timer(const Duration(seconds: 4), () {
           Navigator.pop(context);
         });
-      } catch (e) {
-        addToCartPopUpAnimationController.forward();
-
-        Timer(const Duration(seconds: 2), () {
-          addToCartPopUpAnimationController.reverse();
-          Navigator.pop(context);
-        });
-        showPopupWithSuccessMessage("Failed to mark. Check your internet!");
-      }
+      } catch (e) {}
     }
   }
 
@@ -487,103 +470,89 @@ class _EmployeeMapState extends State<EmployeeMap>
     return BlocConsumer<InternetBloc, InternetStates>(
       listener: (context, state) {},
       builder: (context, state) {
-        if (state is InternetGainedState) {
-          final currentDateTime =
-              DateFormat('MMM dd, yyyy hh:mm a').format(DateTime.now());
-
-          if (locationError) {
-            return AlertDialog(
-              title: const Text('Turn On Location'),
-              content: const Text(
-                  'Please turn on your location to use this feature.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          } else if (currentLat != null && currentLong != null) {
-            return Scaffold(
-              appBar: AppBar(
-                backgroundColor: AppColors.primaryColor,
-                elevation: 0,
-                title: const Text("Attendance Portal",
-                    style: AppBarStyles.appBarTextStyle),
-                iconTheme: const IconThemeData(
-                  color: Colors.white,
-                ),
-                centerTitle: true,
+        final currentDateTime =
+            DateFormat('MMM dd, yyyy hh:mm a').format(DateTime.now());
+        if (locationError) {
+          return AlertDialog(
+            title: const Text('Turn On Location'),
+            content:
+                const Text('Please turn on your location to use this feature.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
               ),
-              body: Padding(
-                padding: EdgeInsets.fromLTRB(
-                    15, MediaQuery.of(context).size.height / 8.5, 15, 15),
-                child: ListView(
-                  children: [
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Square image frame with rounded corners (Placeholder)
-                        Container(
-                          width: MediaQuery.of(context).size.height / 5,
-                          height: MediaQuery.of(context).size.height / 5,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(10.0),
-                            color: Colors.transparent,
-                          ),
+            ],
+          );
+        } else if (currentLat != null && currentLong != null) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppColors.primaryColor,
+              elevation: 0,
+              title: const Text("Attendance Portal",
+                  style: AppBarStyles.appBarTextStyle),
+              iconTheme: const IconThemeData(
+                color: Colors.white,
+              ),
+              centerTitle: true,
+            ),
+            body: Padding(
+              padding: EdgeInsets.fromLTRB(
+                  15, MediaQuery.of(context).size.height / 8.5, 15, 15),
+              child: ListView(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Square image frame with rounded corners (Placeholder)
+                      Container(
+                        width: MediaQuery.of(context).size.height / 5,
+                        height: MediaQuery.of(context).size.height / 5,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(10.0),
+                          color: Colors.transparent,
                         ),
+                      ),
 
-                        buildPhoto()
-                      ],
-                    ),
-                    if (Street.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-                        child: Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
+                      buildPhoto()
+                    ],
+                  ),
+                  if (Street.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25.0, right: 25.0),
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(25.0),
                           ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Center(
-                                  child: Text(
-                                    "Street: $Street",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                    textAlign: TextAlign
-                                        .center, // Align text in the center
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Center(
+                                child: Text(
+                                  "Street: $Street",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
                                   ),
+                                  textAlign: TextAlign
+                                      .center, // Align text in the center
                                 ),
-                                if (sublocaity.isNotEmpty)
-                                  Center(
-                                    child: Text(
-                                      "Sublocality: $sublocaity",
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign
-                                          .center, // Align text in the center
-                                    ),
-                                  ),
+                              ),
+                              if (sublocaity.isNotEmpty)
                                 Center(
                                   child: Text(
-                                    "Country: $countryName",
+                                    "Sublocality: $sublocaity",
                                     style: const TextStyle(
                                       fontSize: 16,
                                       color: Colors.black,
@@ -593,94 +562,72 @@ class _EmployeeMapState extends State<EmployeeMap>
                                         .center, // Align text in the center
                                   ),
                                 ),
-                                const SizedBox(height: 7),
-                                Container(
-                                  padding: const EdgeInsets.all(2.0),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
+                              Center(
+                                child: Text(
+                                  "Country: $countryName",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  child: Text(
-                                    currentDateTime,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
+                                  textAlign: TextAlign
+                                      .center, // Align text in the center
+                                ),
+                              ),
+                              const SizedBox(height: 7),
+                              Container(
+                                padding: const EdgeInsets.all(2.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Text(
+                                  currentDateTime,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    // Add Remarks TextField
-                    Padding(
-                      padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          labelText: 'Remarks',
-                          hintText: 'Enter your remarks...',
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            remarks = value;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-                      child: ElevatedButton(
-                        onPressed: chooseImage,
-                        style: ElevatedButton.styleFrom(
-                          primary: AppColors
-                              .primaryColor, // Change to your desired background color
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 24), // Adjust padding as needed
-                        ),
-                        child: Text(
-                          "Click Your Photo",
-                          style: GoogleFonts.lato(
-                            // Replace with your desired Google Fonts style
-                            textStyle: const TextStyle(
-                              fontSize: 16, // Adjust the font size as needed
-                              fontWeight: FontWeight
-                                  .bold, // Adjust the font weight as needed
-                              color:
-                                  Colors.white, // Change text color as needed
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 7,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25.0, right: 25.0),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Remarks',
+                        hintText: 'Enter your remarks...',
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          remarks = value;
+                        });
+                      },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (selectedImage != null) {
-                            CheckOfficeOrLocation();
-                          } else {
-                            _imageError();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: AppColors
-                              .primaryColor, // Change to your desired background color
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 24), // Adjust padding as needed
-                        ),
-                        child: const Text(
-                          "Mark Your Attendance",
-                          style: TextStyle(
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25.0, right: 25.0),
+                    child: ElevatedButton(
+                      onPressed: chooseImage,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors
+                            .primaryColor, // Change to your desired background color
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ), // Adjust padding as needed
+                      ),
+                      child: Text(
+                        "Click Your Photo",
+                        style: GoogleFonts.lato(
+                          // Replace with your desired Google Fonts style
+                          textStyle: const TextStyle(
                             fontSize: 16, // Adjust the font size as needed
                             fontWeight: FontWeight
                                 .bold, // Adjust the font weight as needed
@@ -689,58 +636,97 @@ class _EmployeeMapState extends State<EmployeeMap>
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                    height: 7,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25.0, right: 25.0),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (selectedImage != null) {
+                          if (state is InternetGainedState) {
+                            CheckOfficeOrLocation();
+                          }
+                          if (state is InternetLostState && runDbOneTime < 1) {
+                            _noWifiAttendence();
+                          } else {
+                            showCustomFailureAlert(context, 'You Are Offline');
+                          }
+                        } else {
+                          _imageError();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors
+                            .primaryColor, // Change to your desired background color
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 24), // Adjust padding as needed
+                      ),
+                      child: const Text(
+                        "Mark Your Attendance",
+                        style: TextStyle(
+                          fontSize: 16, // Adjust the font size as needed
+                          fontWeight: FontWeight
+                              .bold, // Adjust the font weight as needed
+                          color: Colors.white, // Change text color as needed
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            );
-          } else {
-            checkLocationPermissionAndFetchLocation();
-            return const Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text("Fetching Location..."),
-                    SizedBox(height: 16),
-                    Text("Go Back And Turn On Location..."),
-                  ],
-                ),
-              ),
-            );
-          }
+            ),
+          );
         } else {
-          if (isDataSaved && runDbOneTime == 1) {
-            return const Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text("Data is Saved Now you can exit app..."),
-                  ],
-                ),
+          checkLocationPermissionAndFetchLocation();
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text("Fetching Location..."),
+                ],
               ),
-            );
-          } else {
-            _noWifiAttendence();
-            return const Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text("Saving Data in the Local..."),
-                  ],
-                ),
-              ),
-            );
-          }
+            ),
+          );
         }
       },
     );
+  }
+
+  Widget buildNoWifiOrSavedDataWidget() {
+    if (isDataSaved && runDbOneTime == 1) {
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text(
+                  "Internet not connected attendance will be marked when internet is available"),
+            ],
+          ),
+        ),
+      );
+    } else {
+      _noWifiAttendence();
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text("Saving Data in the Local..."),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }

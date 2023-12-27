@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:project/constants/AnimatedTextPopUp.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -57,8 +58,8 @@ class HomePageState extends State<EmpDashHome> {
       await db.transaction((txn) async {
         await txn.rawUpdate('''
         UPDATE employeeAttendanceData
-        SET long = ?, lat = ?, location = ?, dateTime = ?
-      ''', [null, null, null, null]);
+        SET long = ?, lat = ?, location = ?, dateTime = ?, attendeePic = ?
+      ''', [null, null, null, null, null]);
       });
       print("Data set to null successfully");
     } catch (e) {
@@ -78,12 +79,15 @@ class HomePageState extends State<EmpDashHome> {
 
       if (empCode != "0" && empCode != null) {
         DateTime dateTimeConverted = DateTime.parse(attendData['dateTime']);
+        String imageInString = attendData['attendeePic'];
+        final base64Image = base64Encode(utf8.encode(imageInString));
+
         final geoFenceModel = GeofenceModel(
           cardno: attendData['empCode'],
           location: attendData['location'],
           lan: attendData['lat'],
           long: attendData['long'],
-          imageData: null,
+          imageData: base64Image,
           imeiNo: null,
           temp1: '',
           temp2: '',
@@ -102,19 +106,9 @@ class HomePageState extends State<EmpDashHome> {
         }
         print("Data set to null successfully");
 
-        showDialog<String>(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text('GREAT!'),
-            content: const Text('Pending Attendance Marked Sucessfully...'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.pop(context, 'OK'),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        String formattedDateTime = DateFormat('MMM dd, yyyy hh:mm a').format(dateTimeConverted);
+        showCustomSuccessAlertEmployee(context, "Pending Attendance Marked Successfully $formattedDateTime");
+
       } else if (empCode == "0" || empCode == null) {
         print("hello");
         return;

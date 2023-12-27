@@ -22,13 +22,13 @@ class EmployeeDatabaseHelper {
   }
 
   void _createDB(Database db, int version) async {
-    try {
-      await db.execute('''
-      CREATE TABLE IF NOT EXISTS employee (
-        id INTEGER PRIMARY KEY,
-        corporate_id TEXT
-      )
-    ''');
+        try {
+          await db.execute('''
+          CREATE TABLE IF NOT EXISTS employee (
+            id INTEGER PRIMARY KEY,
+            corporate_id TEXT
+          )
+        ''');
 
       await db.execute('''
       CREATE TABLE IF NOT EXISTS employeeProfileData (
@@ -45,7 +45,20 @@ class EmployeeDatabaseHelper {
         location TEXT,
         lat TEXT,
         long TEXT,
-        dateTime TEXT
+        dateTime TEXT,
+        attendeePic TEXT,
+      )
+    ''');
+      await db.execute('''
+      CREATE TABLE IF NOT EXISTS profileTable (
+        empCode TEXT PRIMARY KEY,
+        profilePic TEXT,
+        empName TEXT,
+        emailAddress TEXT,
+        joinDate TEXT,
+        phoneNumber TEXT,
+        password TEXT,
+        fatherName TEXT
       )
     ''');
       print("Tables created successfully");
@@ -53,6 +66,36 @@ class EmployeeDatabaseHelper {
       print('Error creating database tables: $e');
     }
   }
+
+  Future<void> insertProfilePageData({
+
+    required String empCode,
+    required String profilePic,
+    required String empName,
+    required String emailAddress,
+    required String joinDate,
+    required String phoneNumber,
+    required String password,
+    required String fatherName,
+  }) async {
+    final db = await database;
+    await db.insert(
+      'profileTable',
+      {
+        'empCode': empCode,
+        'profilePic': profilePic,
+        'empName': empName,
+        'emailAddress': emailAddress,
+        'joinDate': joinDate,
+        'phoneNumber': phoneNumber,
+        'password': password,
+        'fatherName': fatherName,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    print("Data inserted in profileTable");
+  }
+
 
   Future<void> insertEmployee(int id, String corporateId) async {
     final db = await database;
@@ -88,21 +131,55 @@ class EmployeeDatabaseHelper {
     }
   }
 
-  Future<void> insertProfileData(String empCode, String profilePic,
-      String empName, String emailAddress) async {
-    final db = await database;
-    await db.insert(
-      'employeeProfileData',
-      {
-        'empCode': empCode,
-        'profilePic': profilePic,
-        'empName': empName,
-        'emailAddress': emailAddress,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    print("Data inserted in profile table");
+  Future<void> insertProfileData({
+    required String empCode,
+    required String profilePic,
+    required String empName,
+    required String emailAddress,
+  }) async {
+    try {
+      final db = await database;
+
+      // Check if the employee with the same empCode already exists
+      List<Map<String, dynamic>> existingData = await db.query(
+        'employeeProfileData',
+        where: 'empCode = ?',
+        whereArgs: [empCode],
+      );
+
+      if (existingData.isNotEmpty) {
+        // Employee with empCode already exists, update the data
+        await db.update(
+          'employeeProfileData',
+          {
+            'profilePic': profilePic,
+            'empName': empName,
+            'emailAddress': emailAddress,
+          },
+          where: 'empCode = ?',
+          whereArgs: [empCode],
+        );
+      } else {
+        // Employee with empCode doesn't exist, insert new data
+        await db.insert(
+          'employeeProfileData',
+          {
+            'empCode': empCode,
+            'profilePic': profilePic,
+            'empName': empName,
+            'emailAddress': emailAddress,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+
+      print("Data inserted/updated in employeeProfileData table");
+    } catch (e) {
+      print("Error inserting/updating profile data: $e");
+    }
   }
+
+
 
   Future<void> deleteProfileData() async {
     try {
@@ -149,11 +226,16 @@ class EmployeeDatabaseHelper {
   }
 
   Future<int> getLoggedInEmployeeId() async {
-    final db = await database;
-    List<Map<String, dynamic>> result = await db.query('employee');
-    if (result.isNotEmpty) {
-      return result.first['id'] as int;
-    } else {
+    try {
+      final db = await database;
+      List<Map<String, dynamic>> result = await db.query('employee');
+      if (result.isNotEmpty) {
+        return result.first['id'] as int;
+      } else {
+        return 0; // or any other default value
+      }
+    } catch (e) {
+      print('Error getting logged-in employee ID: $e');
       return 0; // or any other default value
     }
   }
@@ -172,12 +254,19 @@ class EmployeeDatabaseHelper {
   }
 
   Future<void> insertAttendanceData(
-      String empCode, String lat, String long, String location, DateTime dateTime) async {
+      String empCode, String lat, String long, String location, DateTime dateTime, String attendeePic) async {
 
     final db = await database;
     await db.insert(
       'employeeAttendanceData',
-      {'empCode': empCode, 'location': location, 'long': long, 'lat': lat , 'dateTime': dateTime},
+      {
+        'empCode': empCode,
+        'location': location,
+        'long': long,
+        'lat': lat ,
+        'dateTime': dateTime,
+        'attendeePic': attendeePic
+      },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     print("Data inserted in employeeAttendanceData table");
@@ -187,7 +276,7 @@ class EmployeeDatabaseHelper {
     final db = await database;
     List<Map<String, dynamic>> result = await db.query(
       'employeeAttendanceData',
-      columns: ['empCode', 'location', 'long', 'lat', 'dateTime'],
+      columns: ['empCode', 'location', 'long', 'lat', 'dateTime', 'attendeePic'],
     );
     if (result.isNotEmpty) {
       return result.first;
@@ -215,7 +304,7 @@ class EmployeeDatabaseHelper {
 
       result.forEach((row) {
         print(
-            'empCode: ${row['empCode']}, lat: ${row['lat']}, long: ${row['long']} , location: ${row['location']}, dateTime: ${row['dateTime']} ');
+            'empCode: ${row['empCode']}, lat: ${row['lat']}, long: ${row['long']} , location: ${row['location']}, dateTime: ${row['dateTime']}, attendeePic: ${row['attendeePic']} ');
       });
     } catch (e) {
       print("Error printing Attendance data: $e");

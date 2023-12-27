@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:project/constants/AnimatedTextPopUp.dart';
@@ -86,13 +85,9 @@ class _LeaveRequestFormState extends State<LeaveRequestForm>
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return addToCartPopUpMessage(
+        return addToCartPopUpSuccess(
           addToCartPopUpAnimationController,
-          message,
-              () {
-            // Add the logic you want to execute when the pop-up is pressed
-            Navigator.pop(context); // Close the pop-up
-          },
+          message
         );
       },
     );

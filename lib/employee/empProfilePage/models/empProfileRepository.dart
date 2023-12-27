@@ -52,6 +52,8 @@ class EmpProfileRepository {
         return EmpProfileModel(
           empId: item["empId"],
           empName: item["empName"] ?? "",
+          fatherName: item["fatherName"] ?? "",
+          password: item["pwd"] ?? "",
           empCode: item["empCode"] ?? "",
           shiftCode: item["shiftCode"] ?? "",
           emailAddress: item["emailAddress"] ?? "",

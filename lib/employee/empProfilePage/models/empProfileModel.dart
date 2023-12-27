@@ -1,6 +1,8 @@
 class EmpProfileModel {
   final int empId;
   final String empName;
+  final String fatherName;
+  final String password;
   final String empCode;
   final String shiftCode;
   final String emailAddress;
@@ -11,6 +13,8 @@ class EmpProfileModel {
   EmpProfileModel({
     required this.empId,
     required this.empName,
+    required this.fatherName,
+    required this.password,
     required this.empCode,
     required this.shiftCode,
     required this.emailAddress,
@@ -23,6 +27,8 @@ class EmpProfileModel {
     return EmpProfileModel(
       empId:  json['empId'] ?? 0,
       empName: json['empName'] ?? '',
+      fatherName: json['fatherName'] ?? '',
+      password: json['pwd'],
       empCode: json['empCode'] ?? '',
       shiftCode: json['shiftCode'] ?? '',
       emailAddress: json['emailAddress'] ?? '',
