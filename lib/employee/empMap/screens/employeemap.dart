@@ -180,9 +180,6 @@ class _EmployeeMapState extends State<EmployeeMap>
               Navigator.pop(context);
             });
             showPopupWithSuccessMessage("Attendance marked successfully!");
-            Timer(const Duration(seconds: 4), () {
-              Navigator.pop(context);
-            });
           } catch (e) {
             showCustomWarningAlert(context,
                 "Internet not connected attendance will be marked when internet is available");
@@ -200,10 +197,7 @@ class _EmployeeMapState extends State<EmployeeMap>
       print(geofenceLongitude);
       Navigator.pop(context);
       showCustomWarningAlert(context, "Geofence not started by office");
-    } else {
-      showCustomWarningAlert(context,
-          "Internet not connected attendance will be marked when internet is available");
-    }
+    } else {}
   }
 
   Future<void> _noWifiAttendence() async {
@@ -216,7 +210,7 @@ class _EmployeeMapState extends State<EmployeeMap>
         await db.transaction((txn) async {
           await txn.rawInsert('''
           INSERT OR REPLACE INTO employeeAttendanceData (empCode, long, lat, location,dateTime, attendeePic)
-          VALUES (?, ?, ?, ?, ?,?)
+          VALUES (?, ?, ?, ?, ?, ?)
         ''', [
             GlobalObjects.empCode,
             currentLat.toString(),
@@ -230,9 +224,9 @@ class _EmployeeMapState extends State<EmployeeMap>
           isDataSaved = true;
           runDbOneTime = runDbOneTime + 1;
         });
-        print(" Data saved");
         showCustomWarningAlert(context,
-            "Internet not connected attendance will be marked when internet is available");
+            'Internet not connected attendance will be marked when internet is available');
+        print(" Data saved");
         await dbHelper.printAttendData();
       } catch (e) {
         print("Error Posting Attendance data: $e");
@@ -288,10 +282,10 @@ class _EmployeeMapState extends State<EmployeeMap>
           Navigator.pop(context);
         });
         showPopupWithSuccessMessage("Attendance successfully marked!");
-        Timer(const Duration(seconds: 4), () {
-          Navigator.pop(context);
-        });
-      } catch (e) {}
+      } catch (e) {
+        showCustomWarningAlert(context,
+            "Internet not connected attendance will be marked when internet is available");
+      }
     }
   }
 
@@ -645,11 +639,12 @@ class _EmployeeMapState extends State<EmployeeMap>
                     child: ElevatedButton(
                       onPressed: () async {
                         if (selectedImage != null) {
-                          if (state is InternetGainedState) {
+                          if (state is InternetGainedState &&
+                              runDbOneTime == 0) {
                             CheckOfficeOrLocation();
-                          }
-                          if (state is InternetLostState && runDbOneTime < 1) {
-                            _noWifiAttendence();
+                          } else if (state is InternetLostState &&
+                              runDbOneTime < 1) {
+                            buildNoWifiOrSavedDataWidget();
                           } else {
                             showCustomFailureAlert(context, 'You Are Offline');
                           }

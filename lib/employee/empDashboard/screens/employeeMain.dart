@@ -292,7 +292,7 @@ class EmpMainPageState extends State<EmpMainPage> {
   String _getStyledTitle(EmpDrawerItem item) {
     switch (item) {
       case EmpDrawerItems.leaves:
-        return "Leaves";
+        return "Leave";
       case EmpDrawerItems.home:
         return "Home";
       case EmpDrawerItems.reports:

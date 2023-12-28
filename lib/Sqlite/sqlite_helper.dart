@@ -46,7 +46,7 @@ class EmployeeDatabaseHelper {
         lat TEXT,
         long TEXT,
         dateTime TEXT,
-        attendeePic TEXT,
+        attendeePic TEXT
       )
     ''');
       await db.execute('''
@@ -61,9 +61,69 @@ class EmployeeDatabaseHelper {
         fatherName TEXT
       )
     ''');
+      await db.execute('''
+      CREATE TABLE IF NOT EXISTS employeeHomePageData (
+        inTime TEXT,
+        outTime TEXT,
+        status TEXT,
+        present TEXT,
+        absent TEXT,
+        leaves TEXT
+      )
+    ''');
       print("Tables created successfully");
     } catch (e) {
       print('Error creating database tables: $e');
+    }
+  }
+
+  Future<void> insertEmployeeHomePageData({
+    required String inTime,
+    required String outTime,
+    required String status,
+    required String present,
+    required String absent,
+    required String leaves,
+  }) async {
+    final db = await database;
+    await db.insert(
+      'employeeHomePageData',
+      {
+        'inTime': inTime,
+        'outTime': outTime,
+        'status': status,
+        'present': present,
+        'absent': absent,
+        'leaves': leaves,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    print("Data inserted in employeeHomePageData table");
+  }
+
+  Future<Map<String, dynamic>> getEmployeeHomePageData() async {
+    final db = await database;
+    List<Map<String, dynamic>> result = await db.query('employeeHomePageData');
+
+    if (result.isNotEmpty) {
+      return {
+        'inTime': result.first['inTime'] as String,
+        'outTime': result.first['outTime'] as String,
+        'status': result.first['status'] as String,
+        'present': result.first['present'] as String,
+        'absent': result.first['absent'] as String,
+        'leaves': result.first['leaves'] as String,
+      };
+    } else {
+      // or any other default values
+      return {
+        'inTime': '',
+        'outTime': '',
+        'status': '',
+        'present': '',
+        'absent': '',
+        'leaves': '',
+      };
     }
   }
 
@@ -259,14 +319,7 @@ class EmployeeDatabaseHelper {
     final db = await database;
     await db.insert(
       'employeeAttendanceData',
-      {
-        'empCode': empCode,
-        'location': location,
-        'long': long,
-        'lat': lat ,
-        'dateTime': dateTime,
-        'attendeePic': attendeePic
-      },
+      {'empCode': empCode, 'location': location, 'long': long, 'lat': lat , 'dateTime': dateTime, 'attendeePic': attendeePic},
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     print("Data inserted in employeeAttendanceData table");
@@ -304,7 +357,7 @@ class EmployeeDatabaseHelper {
 
       result.forEach((row) {
         print(
-            'empCode: ${row['empCode']}, lat: ${row['lat']}, long: ${row['long']} , location: ${row['location']}, dateTime: ${row['dateTime']}, attendeePic: ${row['attendeePic']} ');
+            'empCode: ${row['empCode']}, lat: ${row['lat']}, long: ${row['long']} , location: ${row['location']}, dateTime: ${row['dateTime']} , attendeePic: ${row['attendeePic']}');
       });
     } catch (e) {
       print("Error printing Attendance data: $e");

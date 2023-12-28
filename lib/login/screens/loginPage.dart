@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constants/AnimatedTextPopUp.dart';
@@ -9,6 +10,10 @@ import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../No_internet/no_internet.dart';
 import '../../Sqlite/sqlite_helper.dart';
+import '../../employee/empDashboard/models/empDashModel.dart';
+import '../../employee/empDashboard/models/empDashRepository.dart';
+import '../../employee/empDashboard/models/emp_attendance_status_model.dart';
+import '../../employee/empDashboard/models/emp_attendance_status_repository.dart';
 import '../../employee/empDashboard/models/user_repository.dart';
 import '../../employee/empProfilePage/models/empProfileModel.dart';
 import '../../employee/empProfilePage/models/empProfileRepository.dart';
@@ -28,7 +33,11 @@ enum UserType { employee, admin }
 
 class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   late AnimationController addToCartPopUpAnimationController;
-
+  final EmpDashRepository _repository = EmpDashRepository();
+  late List<EmpDashModel> empDashData;
+  final EmpAttendanceRepository _attendanceRepository =
+      EmpAttendanceRepository();
+  late EmpAttendanceModel empAttendanceData;
   @override
   void initState() {
     addToCartPopUpAnimationController = AnimationController(
@@ -128,6 +137,19 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       final dbHelper = EmployeeDatabaseHelper.instance;
       int loggedInEmployeeId = await dbHelper.getLoggedInEmployeeId();
 
+      // Dash
+      empDashData = await _repository.getData();
+      empAttendanceData = await _attendanceRepository.getData();
+
+      // Insert data into employeeHomePageData table
+      await dbHelper.insertEmployeeHomePageData(
+        inTime: empAttendanceData.in1?.toString() ?? '',
+        outTime: empAttendanceData.out2?.toString() ?? '',
+        status: empAttendanceData.status ?? '',
+        present: empDashData[0].presentCount.toString(),
+        absent: empDashData[0].absentCount.toString(),
+        leaves: empDashData[0].leaveCount.toString(),
+      );
       if (loggedInEmployeeId > 0) {
         final profileRepository = EmpProfileRepository();
         final profileData = await profileRepository.getData();
@@ -161,10 +183,16 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           GlobalObjects.empProfilePic = profileImage;
           GlobalObjects.empName = empProfile.empName;
           GlobalObjects.empMail = empProfile.emailAddress;
-          GlobalObjects.empFatherName=empProfile.fatherName;
-          GlobalObjects.empPassword=empProfile.password;
-          GlobalObjects.empJoinDate=empProfile.dateofJoin;
-          GlobalObjects.empPhone=empProfile.phoneNo;
+          GlobalObjects.empFatherName = empProfile.fatherName;
+          GlobalObjects.empPassword = empProfile.password;
+          GlobalObjects.empJoinDate = empProfile.dateofJoin;
+          GlobalObjects.empPhone = empProfile.phoneNo;
+          GlobalObjects.empIn1 = empAttendanceData.in1;
+          GlobalObjects.empOut2 = empAttendanceData.out2;
+          GlobalObjects.empStatus= empAttendanceData.status?.toString() ?? '';
+          GlobalObjects.empPresent = empDashData[0].presentCount.toString() ?? '';
+          GlobalObjects.empAbsent = empDashData[0].absentCount.toString() ?? '';
+          GlobalObjects.empLeaves = empDashData[0].leaveCount.toString() ?? '';
           setState(() {
             savedEmpCode = empProfile.empCode;
             profileImageUrl = profileImage;
@@ -172,11 +200,16 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             GlobalObjects.empProfilePic = profileImage;
             GlobalObjects.empName = empProfile.empName;
             GlobalObjects.empMail = empProfile.emailAddress;
-            GlobalObjects.empFatherName=empProfile.fatherName;
-            GlobalObjects.empPassword=empProfile.password;
-            GlobalObjects.empJoinDate=empProfile.dateofJoin;
-            GlobalObjects.empPhone=empProfile.phoneNo;
-
+            GlobalObjects.empFatherName = empProfile.fatherName;
+            GlobalObjects.empPassword = empProfile.password;
+            GlobalObjects.empJoinDate = empProfile.dateofJoin;
+            GlobalObjects.empPhone = empProfile.phoneNo;
+            GlobalObjects.empIn1 = empAttendanceData.in1;
+            GlobalObjects.empOut2 = empAttendanceData.out2;
+            GlobalObjects.empStatus= empAttendanceData.status?.toString() ?? '';
+            GlobalObjects.empPresent = empDashData[0].presentCount.toString() ?? '';
+            GlobalObjects.empAbsent = empDashData[0].absentCount.toString() ?? '';
+            GlobalObjects.empLeaves = empDashData[0].leaveCount.toString() ?? '';
           });
         }
 

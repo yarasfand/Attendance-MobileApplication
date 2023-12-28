@@ -77,7 +77,7 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       backgroundColor: AppColors.brightWhite,
       appBar: AppBar(
         title: const Text(
-          'Monthly Reports',
+          'Monthly Report',
           style: AppBarStyles.appBarTextStyle,
         ),
         backgroundColor: AppColors.primaryColor,

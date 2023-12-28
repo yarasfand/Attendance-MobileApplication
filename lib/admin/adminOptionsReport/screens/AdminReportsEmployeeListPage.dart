@@ -64,6 +64,8 @@ class _AdminReportEmployeeListPageState
   List<String> branchNames = [];
   String? companyDropdownValue;
   List<String> companyNames = [];
+  List<Branch> buildCards = [];
+  bool showLoading = true;
 
   @override
   void initState() {
@@ -77,6 +79,26 @@ class _AdminReportEmployeeListPageState
     _fetchBranchNames(); // Fetch department names when the widget initializes
     _fetchCompanyNames(); // Fetch company names when the widget initializes
     companyDropdownValue = null;
+    loadData();
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        showLoading = false;
+      });
+    });
+  }
+
+  Future<void> loadData() async {
+    try {
+      List<Branch> branches =
+          await BranchRepository().getAllActiveBranches(corporateId);
+
+      setState(() {
+        buildCards = branches;
+      });
+    } catch (e) {
+      print('Error: $e');
+      // Handle the error appropriately
+    }
   }
 
   Future<void> _fetchDepartmentNames() async {
@@ -779,35 +801,18 @@ class _AdminReportEmployeeListPageState
                           ),
                         ],
                       ),
-
-                      // Employee List in DataTable form
-                      FutureBuilder<List<Branch>>(
-                        future: BranchRepository()
-                            .getAllActiveBranches(corporateId),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            // Display a CircularProgressIndicator while waiting for data
-                            return Padding(
-                                padding: EdgeInsets.only(
-                                    top: MediaQuery.of(context).size.height *
-                                        0.3),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ));
-                          } else if (snapshot.hasError) {
-                            // Display an error message if there's an error
-                            return Center(
-                              child: Text('Error: ${snapshot.error}'),
-                            );
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return Center(
-                              child: Text('No data available'),
-                            );
-                          } else {
-                            // Data is available, display the ListView with Cards
-                            return LayoutBuilder(
+                      buildCards == null ||
+                              filterEmployees(employees, searchQuery).length ==
+                                  null || showLoading
+                          ? Padding(
+                              padding: EdgeInsets.only(
+                                  top:
+                                      MediaQuery.of(context).size.height * 0.3),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : LayoutBuilder(
                               builder: (context, constraints) {
                                 double cardWidth = constraints.maxWidth > 600
                                     ? 600
@@ -819,121 +824,81 @@ class _AdminReportEmployeeListPageState
                                   height: containerHeight,
                                   margin: const EdgeInsets.all(20),
                                   child: ListView.builder(
-                                      scrollDirection: Axis.vertical,
-                                      itemCount: filterEmployees(
-                                              employees, searchQuery)
-                                          .length,
-                                      itemBuilder: (context, index) {
-                                        var employee = filterEmployees(
-                                            employees, searchQuery)[index];
+                                    scrollDirection: Axis.vertical,
+                                    itemCount:
+                                        filterEmployees(employees, searchQuery)
+                                            .length,
+                                    itemBuilder: (context, index) {
+                                      var employee = filterEmployees(
+                                          employees, searchQuery)[index];
 
-                                        return Card(
-                                          margin: const EdgeInsets.all(8),
-                                          elevation: 3,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Text(
-                                                      'ID: ${employee.empCode}',
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Checkbox(
-                                                          value: employee
-                                                              .isSelected,
-                                                          onChanged: (_) {
-                                                            _toggleEmployeeSelection(
-                                                                employee);
-                                                          },
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: 'Name: ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            '${employee.empName ?? ""}',
-                                                        style: TextStyle(
-                                                            fontSize: 13),
-                                                      ),
-                                                    ],
+                                      return Card(
+                                        margin: const EdgeInsets.all(8),
+                                        elevation: 3,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(
+                                              12), // Adjusted padding
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'ID: ${employee.empCode}',
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
-                                                ),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: 'Branch: ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            '${employee.branchNames ?? ""}',
-                                                        style: TextStyle(
-                                                            fontSize: 13),
-                                                      ),
-                                                    ],
+                                                  Checkbox(
+                                                    value: employee.isSelected,
+                                                    onChanged: (_) {
+                                                      _toggleEmployeeSelection(
+                                                          employee);
+                                                    },
                                                   ),
-                                                ),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: 'Department: ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            '${employee.deptNames ?? ""}',
-                                                        style: TextStyle(
-                                                            fontSize: 13),
-                                                      ),
-                                                    ],
+                                                ],
+                                              ),
+                                              Text(
+                                                '${employee.empName ?? ""}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    '${employee.branchNames ?? ""}',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
+                                                ],
+                                              ),
+                                              Text(
+                                                employee.deptNames ?? "",
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors
+                                                        .grey), // Use the same color
+                                              ),
+                                            ],
                                           ),
-                                        );
-                                      }),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 );
                               },
-                            );
-                          }
-                        },
-                      )
+                            ),
                     ],
                   ),
                 ],

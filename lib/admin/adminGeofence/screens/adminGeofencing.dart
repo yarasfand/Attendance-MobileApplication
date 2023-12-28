@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/AppColor_constants.dart';
+import 'package:project/constants/globalObjects.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,6 +47,8 @@ class _AdminGeofencingState extends State<AdminGeofencing>
   String? companyDropdownValue;
   List<String> companyNames = [];
   late AnimationController addToCartPopUpAnimationController;
+  List<Branch> buildCards = [];
+  bool showLoading = true;
 
   @override
   void dispose() {
@@ -65,6 +68,26 @@ class _AdminGeofencingState extends State<AdminGeofencing>
     _fetchBranchNames(); // Fetch department names when the widget initializes
     _fetchCompanyNames(); // Fetch company names when the widget initializes
     companyDropdownValue = null;
+    loadData();
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        showLoading = false;
+      });
+    });
+  }
+
+  Future<void> loadData() async {
+    try {
+      List<Branch> branches =
+          await BranchRepository().getAllActiveBranches(corporateId);
+
+      setState(() {
+        buildCards = branches;
+      });
+    } catch (e) {
+      print('Error: $e');
+      // Handle the error appropriately
+    }
   }
 
   void showPopupWithMessage(String message) {
@@ -785,175 +808,133 @@ class _AdminGeofencingState extends State<AdminGeofencing>
                         ),
                       ),
                       // Employee List in DataTable form
-                      FutureBuilder<List<Branch>>(
-                          future: BranchRepository()
-                              .getAllActiveBranches(corporateId),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              // Display a CircularProgressIndicator while waiting for data
-                              return Padding(
-                                  padding: EdgeInsets.only(
-                                      top: MediaQuery.of(context).size.height *
-                                          0.3),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ));
-                            } else if (snapshot.hasError) {
-                              // Display an error message if there's an error
-                              return Center(
-                                child: Text('Error: ${snapshot.error}'),
-                              );
-                            } else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return Center(
-                                child: Text('No data available'),
-                              );
-                            } else {
-                              return LayoutBuilder(
-                                builder: (context, constraints) {
-                                  double cardWidth = constraints.maxWidth > 600
-                                      ? 600
-                                      : constraints.maxWidth;
-                                  double screenHeight =
-                                      MediaQuery.of(context).size.height;
-                                  double containerHeight = screenHeight;
-                                  return Container(
-                                    height: containerHeight,
-                                    margin: const EdgeInsets.all(20),
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.vertical,
-                                      itemCount: filterEmployees(
-                                              employees, searchQuery)
-                                          .length,
-                                      itemBuilder: (context, index) {
-                                        var employee = filterEmployees(
-                                            employees, searchQuery)[index];
+                      buildCards == null ||
+                              filterEmployees(employees, searchQuery).length ==
+                                  null ||
+                              showLoading
+                          ? Padding(
+                              padding: EdgeInsets.only(
+                                  top:
+                                      MediaQuery.of(context).size.height * 0.3),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : LayoutBuilder(
+                              builder: (context, constraints) {
+                                double cardWidth = constraints.maxWidth > 600
+                                    ? 600
+                                    : constraints.maxWidth;
+                                double screenHeight =
+                                    MediaQuery.of(context).size.height;
+                                double containerHeight = screenHeight;
+                                return Container(
+                                  height: containerHeight,
+                                  margin: const EdgeInsets.all(20),
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    itemCount:
+                                        filterEmployees(employees, searchQuery)
+                                            .length,
+                                    itemBuilder: (context, index) {
+                                      var employee = filterEmployees(
+                                          employees, searchQuery)[index];
 
-                                        return Card(
-                                          margin: const EdgeInsets.all(8),
-                                          elevation: 3,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Text(
-                                                      'ID: ${employee.empCode}',
-                                                      style: const TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.bold),
+                                      return Card(
+                                        margin: const EdgeInsets.all(8),
+                                        elevation: 3,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(
+                                              12), // Adjusted padding
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'ID: ${employee.empCode}',
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Checkbox(
+                                                    value: employee.isSelected,
+                                                    onChanged: (_) {
+                                                      _toggleEmployeeSelection(
+                                                          employee);
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              Text(
+                                                '${employee.empName ?? ""}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    '${employee.branchNames ?? ""}',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey),
+                                                  ),
+                                                  ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      _showRemarksDialog(
+                                                          employee);
+                                                    },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      shape:
+                                                          const CircleBorder(), // Make the button circular
+                                                      padding: const EdgeInsets
+                                                          .all(
+                                                          0), // No padding around the icon
+                                                      minimumSize: Size(36,
+                                                          36), // Set a fixed size for the button
                                                     ),
-                                                    Row(
-                                                      children: [
-                                                        Checkbox(
-                                                          value: employee
-                                                              .isSelected,
-                                                          onChanged: (_) {
-                                                            _toggleEmployeeSelection(
-                                                                employee);
-                                                          },
-                                                        ),
-                                                      ],
+                                                    icon: CircleAvatar(
+                                                      backgroundColor: Colors
+                                                          .blue, // Set your desired background color
+                                                      radius:
+                                                          18, // Adjust the radius to control the size
+                                                      child: Icon(Icons.comment,
+                                                          size: 18,
+                                                          color: Colors
+                                                              .white), // Adjust icon size and color
                                                     ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    children: [
-                                                      const TextSpan(
-                                                        text: 'Name: ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            '${employee.empName ?? ""}',
-                                                        style: const TextStyle(
-                                                            fontSize: 13),
-                                                      ),
-                                                    ],
+                                                    label: Text(
+                                                        ""), // Set label to null
                                                   ),
-                                                ),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    children: [
-                                                      const TextSpan(
-                                                        text: 'Branch: ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            '${employee.branchNames ?? ""}',
-                                                        style: const TextStyle(
-                                                            fontSize: 13),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    children: [
-                                                      const TextSpan(
-                                                        text: 'Department: ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            '${employee.deptNames ?? ""}',
-                                                        style: const TextStyle(
-                                                            fontSize: 13),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    _showRemarksDialog(
-                                                        employee);
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    padding: const EdgeInsets
-                                                        .all(
-                                                        10), // Remove padding around the button text
-                                                  ),
-                                                  child: const Text(
-                                                    'Remarks',
-                                                    style:
-                                                        TextStyle(fontSize: 12),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                                ],
+                                              ),
+                                              Text(
+                                                employee.deptNames ?? "",
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors
+                                                        .grey), // Use the same color
+                                              ),
+                                            ],
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                          })
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                     ],
                   ),
                 ],

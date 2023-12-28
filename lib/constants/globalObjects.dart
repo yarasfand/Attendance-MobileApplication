@@ -12,6 +12,13 @@ class GlobalObjects {
   static String? empFatherName;
   static String? empPassword;
   static String? empPhone;
+  static DateTime? empIn1;
+  static DateTime? empOut2;
+  static String? empStatus;
+  static String? empPresent;
+  static String? empAbsent;
+  static String? empLeaves;
+
   // admin objects
   static String? adminCorpId;
   int? adminId;

@@ -12,7 +12,10 @@ class LeavesHistoryPage extends StatefulWidget {
   _LeavesHistoryPageState createState() => _LeavesHistoryPageState();
 }
 
-class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
+class _LeavesHistoryPageState extends State<LeavesHistoryPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   final LeaveHistoryRepository _repository = LeaveHistoryRepository();
   final EmpLeaveRepository _leaveTypeRepository = EmpLeaveRepository();
   List<LeaveHistoryModel> leaveDetails = [];
@@ -22,6 +25,7 @@ class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     loadData();
     // Create a timer to update the time every second
   }
@@ -44,6 +48,19 @@ class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
     }
   }
 
+  List<LeaveHistoryModel> getApprovedLeaves() {
+    return leaveDetails
+        .where((leave) => leave.approvedStatus == "Approved")
+        .toList();
+  }
+
+  List<LeaveHistoryModel> getPendingLeaves() {
+    return leaveDetails
+        .where((leave) => leave.approvedStatus == "UnApproved")
+        .toList();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,31 +73,57 @@ class _LeavesHistoryPageState extends State<LeavesHistoryPage> {
         backgroundColor: AppColors.primaryColor,
         iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: FutureBuilder(
-              future: _repository.getLeaveHistory(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // While waiting for the data, show a centered loading indicator
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // If there's an error, display an error message
-                  return Center(
-                    child: Text("Error loading leave history: ${snapshot.error}"),
-                  );
-                } else {
-                  // Data is loaded successfully, display the sorted list
-                  return _buildLeaveCards();
-                }
-              },
+      body: Column(
+        children: [
+          TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: "Approved",),
+              Tab(text: "Pending"),
+            ],
+            labelColor: Colors.black,
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildLeaveList(getApprovedLeaves()),
+                _buildLeaveList(getPendingLeaves()),
+              ],
             ),
           ),
-        ),
+        ],
       ),
     );
+  }
+
+
+  Widget _buildLeaveList(List<LeaveHistoryModel> leaves) {
+    if (isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (leaves.isEmpty) {
+      return Center(
+        child: Text("No leaves to display."),
+      );
+    } else {
+      return ListView.builder(
+        itemCount: leaves.length,
+        itemBuilder: (BuildContext context, int index) {
+          final leave = leaves[index];
+          return LeaveCard(
+            fromDate: leave.fromDate,
+            toDate: leave.toDate,
+            reason: leave.reason,
+            leaveId: leave.leaveId,
+            approvedStatus: leave.approvedStatus,
+            applicationDate: leave.applicationDate,
+            leaveTypeName: "Sample Leave Type", // You need to provide the actual leave type name
+          );
+        },
+      );
+    }
   }
 
   Widget _buildLeaveCards() {

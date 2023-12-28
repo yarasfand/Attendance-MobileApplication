@@ -94,7 +94,7 @@ class LeaveRequestPage extends StatelessWidget {
                 },
                 child: CardWidget(
                   image: Image.asset("assets/images/history.png"),
-                  text: 'LEAVES DETAILS',
+                  text: 'LEAVE DETAILS',
                 ),
               ),
             ],

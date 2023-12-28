@@ -87,7 +87,7 @@ class ReportsMainPage extends StatelessWidget {
                 },
                 child: CardWidget(
                   image: Image.asset("assets/icons/monthly_report.png"),
-                  text: 'MONTHLY REPORTS',
+                  text: 'MONTHLY REPORT',
                 ),
               ),
               const SizedBox(height: 20),
@@ -101,7 +101,7 @@ class ReportsMainPage extends StatelessWidget {
                 },
                 child: CardWidget(
                   image: Image.asset("assets/icons/daily_report.png"),
-                  text: 'DAILY REPORTS',
+                  text: 'DAILY REPORT',
                 ),
               ),
             ],
