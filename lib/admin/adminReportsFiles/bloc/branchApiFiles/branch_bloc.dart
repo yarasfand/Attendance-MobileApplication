@@ -19,7 +19,7 @@ class BranchBloc extends Bloc<BranchEvent, BranchState> {
       yield BranchLoading();
       try {
         final List<Branch> branches =
-        await branchRepository.getAllActiveBranches(event.corporateId);
+        await branchRepository.getAllActiveBranches();
         yield BranchLoaded(branches);
       } catch (e) {
         yield BranchError(e.toString());

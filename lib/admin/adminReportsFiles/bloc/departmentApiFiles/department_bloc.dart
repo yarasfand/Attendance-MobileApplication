@@ -20,7 +20,7 @@ class DepartmentBloc extends Bloc<DepartmentEvent, DepartmentState> {
       yield DepartmentLoading();
       try {
         final List<Department> departments =
-        await departmentRepository.getAllActiveDepartments(event.corporateId);
+        await departmentRepository.getAllActiveDepartments();
         yield DepartmentLoaded(departments);
       } catch (e) {
         yield DepartmentError(e.toString());

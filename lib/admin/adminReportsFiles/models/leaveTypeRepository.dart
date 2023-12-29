@@ -1,18 +1,25 @@
-  import 'dart:convert';
-  import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../Sqlite/admin_sqliteHelper.dart';
 
-  class LeaveTypeRepository {
-    List<Map<String, dynamic>> leaveTypes = []; // Add this property
+class LeaveTypeRepository {
+  Future<List<Map<String, dynamic>>?> fetchLeaveTypes() async {
+    try {
+      // Retrieve corporate_id from SQLite table
+      final adminDbHelper = AdminDatabaseHelper();
+      final adminData = await adminDbHelper.getAdmins();
 
-    Future<List<Map<String, dynamic>>?> fetchLeaveTypes() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String corporateId = prefs.getString("corporate_id") ?? "ptsoffice";
-      print(corporateId);
-      final String baseUrl = 'http://62.171.184.216:9595/api/admin/leave/getleavetype?CorporateId=$corporateId';
+      if (adminData.isNotEmpty) {
+        final String? corporateId = adminData.first['corporate_id'];
 
+        if (corporateId == null) {
+          print('Corporate ID is null in SQLite table');
+          return null;
+        }
 
-      try {
+        final String baseUrl = 'http://62.171.184.216:9595/api/admin/leave/getleavetype?CorporateId=$corporateId';
+
         final response = await http.get(Uri.parse(baseUrl));
 
         if (response.statusCode == 200) {
@@ -22,9 +29,12 @@ import 'package:shared_preferences/shared_preferences.dart';
         } else {
           throw Exception('Failed to fetch leave types');
         }
-      } catch (e) {
-        throw Exception('Error: $e');
+      } else {
+        print('No admin data found in the SQLite table');
+        return null;
       }
+    } catch (e) {
+      throw Exception('Error: $e');
     }
-
   }
+}

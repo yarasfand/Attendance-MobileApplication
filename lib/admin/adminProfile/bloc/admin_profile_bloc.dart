@@ -20,7 +20,7 @@ class AdminProfileBloc extends Bloc<AdminProfileEvent, AdminProfileState> {
     emit(AdminProfileLoading());
 
     try {
-      final adminProfile = await repository.fetchAdminProfile(event.corporateId, event.employeeId);
+      final adminProfile = await repository.fetchAdminProfile(event.employeeId);
       if (adminProfile != null) {
         emit(AdminProfileLoaded(adminProfile: adminProfile));
       } else {

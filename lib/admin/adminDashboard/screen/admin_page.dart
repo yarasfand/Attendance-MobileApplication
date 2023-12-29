@@ -40,7 +40,7 @@ class _AdminPageState extends State<AdminPage> {
     final corporateId = prefs.getString('corporate_id') ?? '';
     try {
       final adminDashboardData = await adminDashboardRepository
-          .fetchDashboardData(corporateId, selectedDate);
+          .fetchDashboardData(selectedDate);
       setState(() {
         adminData = adminDashboardData;
       });
@@ -65,7 +65,7 @@ class _AdminPageState extends State<AdminPage> {
   void _fetchDataForSelectedDate(DateTime date, String corporateId) async {
     try {
       final adminDashboardData =
-          await adminDashboardRepository.fetchDashboardData(corporateId, date);
+          await adminDashboardRepository.fetchDashboardData(date);
       // Update the UI with the fetched data
       setState(() {
         adminData =

@@ -25,8 +25,8 @@ class GlobalObjects {
   static String? adminMail;
   static String? adminusername;
   static String? adminpassword;
-  static String? adminemail;
   static String? adminphonenumber;
+  static String? adminJoinedDate;
 
   static void checkForSelection(BuildContext context) {
     showDialog(

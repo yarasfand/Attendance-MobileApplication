@@ -20,7 +20,7 @@ class CompanyBloc extends Bloc<CompanyEvent, CompanyState> {
       yield CompanyLoading();
       try {
         final List<Company> companies =
-        await companyRepository.getAllActiveCompanies(event.corporateId);
+        await companyRepository.getAllActiveCompanies();
         yield CompanyLoaded(companies);
       } catch (e) {
         yield CompanyError(e.toString());

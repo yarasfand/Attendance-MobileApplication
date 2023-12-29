@@ -81,7 +81,7 @@ class _GeoFenceMainPageState extends State<GeoFenceMainPage> {
           ),
           Expanded(
             child: CardButton(
-              text: 'GeoFence Approval',
+              text: 'GeoPunch Approval',
               image: Image.asset('assets/icons/geoapproval.png'),
               // Replace with your image path
               onPressed: () {

@@ -6,6 +6,7 @@ import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants/AnimatedTextPopUp.dart';
 import '../../../No_internet/no_internet.dart';
 import '../models/AdminEditProfileModel.dart';
@@ -51,9 +52,10 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
   }
 
   Future<bool> _submitForm() async {
+    final sharedPref = await SharedPreferences.getInstance();
     if (_formKey.currentState!.validate()) {
       final adminEditProfile = AdminEditProfile(
-        userLoginId: 'ptsadmin',
+        userLoginId: sharedPref.getString('admin_username').toString(),
         userName: _usernameController.text,
         userPassword: _passwordController.text,
         email: _emailController.text,
@@ -64,10 +66,12 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
           await _editProfileRepository.updateAdminProfile(adminEditProfile);
 
       if (success) {
+        GlobalObjects.adminphonenumber = adminEditProfile.mobile;
         GlobalObjects.adminMail = adminEditProfile.email;
-        GlobalObjects.empName = adminEditProfile.userName;
+        GlobalObjects.adminusername = adminEditProfile.userName;
+        GlobalObjects.adminpassword = adminEditProfile.userPassword;
         addToCartPopUpAnimationController.forward();
-        // Delay for a few seconds and then reverse the animation
+
         Timer(const Duration(seconds: 3), () {
           addToCartPopUpAnimationController.reverse();
           Navigator.pop(context);
@@ -78,7 +82,6 @@ class _AdminEditProfilePageState extends State<AdminEditProfilePage>
       }
       else {
         addToCartPopUpAnimationController.forward();
-        // Delay for a few seconds and then reverse the animation
         Timer(const Duration(seconds: 3), () {
           addToCartPopUpAnimationController.reverse();
           Navigator.pop(context,false);

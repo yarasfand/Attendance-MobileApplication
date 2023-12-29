@@ -17,7 +17,7 @@ class AdminDashboardBloc extends Bloc<AdminDashboardEvent, AdminDashboardState> 
       yield state.copyWith(isLoading: true, error: null);
 
       try {
-        final dashboardData = await repository.fetchDashboardData(event.corporateId, event.date);
+        final dashboardData = await repository.fetchDashboardData(event.date);
         yield state.copyWith(isLoading: false, dashboardData: dashboardData);
       } catch (e) {
         yield state.copyWith(isLoading: false, error: 'Failed to fetch data');

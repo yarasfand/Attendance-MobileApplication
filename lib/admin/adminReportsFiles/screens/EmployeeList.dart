@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +11,7 @@ import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../No_internet/no_internet.dart';
+import '../../../constants/AnimatedTextPopUp.dart';
 import '../bloc/getActiveEmployeeApiFiles/get_active_employee_bloc.dart';
 import '../bloc/getActiveEmployeeApiFiles/get_active_employee_event.dart';
 import '../bloc/getActiveEmployeeApiFiles/get_active_employee_state.dart';
@@ -25,7 +28,8 @@ class EmployeeList extends StatefulWidget {
   _EmployeeListState createState() => _EmployeeListState();
 }
 
-class _EmployeeListState extends State<EmployeeList> {
+class _EmployeeListState extends State<EmployeeList>
+    with TickerProviderStateMixin {
   String corporateId = '';
   List<GetActiveEmpModel> employees = [];
   List<GetActiveEmpModel> selectedEmployees = [];
@@ -43,9 +47,19 @@ class _EmployeeListState extends State<EmployeeList> {
   List<String> companyNames = [];
   List<Branch> buildCards = [];
   bool showLoading = true;
+  late AnimationController addToCartPopUpAnimationController;
+
+  void dispose() {
+    addToCartPopUpAnimationController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
+    addToCartPopUpAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
     super.initState();
     _fetchCorporateIdFromPrefs();
     _fetchDepartmentNames();
@@ -62,8 +76,7 @@ class _EmployeeListState extends State<EmployeeList> {
 
   Future<void> loadData() async {
     try {
-      List<Branch> branches =
-          await BranchRepository().getAllActiveBranches(corporateId);
+      List<Branch> branches = await BranchRepository().getAllActiveBranches();
 
       setState(() {
         buildCards = branches;
@@ -74,10 +87,20 @@ class _EmployeeListState extends State<EmployeeList> {
     }
   }
 
+  void showPopupWithMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return addToCartPopUpNoCrossMessage(
+            addToCartPopUpAnimationController, message);
+      },
+    );
+  }
+
   Future<void> _fetchDepartmentNames() async {
     try {
       final departments =
-          await DepartmentRepository().getAllActiveDepartments(corporateId);
+          await DepartmentRepository().getAllActiveDepartments();
 
       // Extract department names from the departments list and filter out null values
       final departmentNames = departments
@@ -114,20 +137,25 @@ class _EmployeeListState extends State<EmployeeList> {
         ),
       );
     } else {
-      GlobalObjects.checkForSelection(context);
+      addToCartPopUpAnimationController.forward();
+
+      // Delay for a few seconds and then reverse the animation
+      Timer(const Duration(seconds: 2), () {
+        addToCartPopUpAnimationController.reverse();
+        Navigator.pop(context);
+      });
+      showPopupWithMessage("Please Select Employee!");
     }
   }
 
   Future<void> _fetchBranchNames() async {
     try {
-      final branches =
-          await BranchRepository().getAllActiveBranches(corporateId);
+      final branches = await BranchRepository().getAllActiveBranches();
 
-      // Extract branch names from the branches list and filter out null values
       final branchNames = branches
           .map((branch) => branch.branchName)
           .where((name) => name != null) // Filter out null values
-          .map((name) => name) // Convert non-nullable String? to String
+          .map((name) => name)
           .toList();
 
       setState(() {
@@ -141,8 +169,7 @@ class _EmployeeListState extends State<EmployeeList> {
   Future<void> _fetchCompanyNames() async {
     try {
       // Replace with the actual method to fetch company names
-      final companies =
-          await CompanyRepository().getAllActiveCompanies(corporateId);
+      final companies = await CompanyRepository().getAllActiveCompanies();
 
       // Extract company names from the companies list and filter out null values
       final companyNames = companies
@@ -389,7 +416,7 @@ class _EmployeeListState extends State<EmployeeList> {
                                       0), // Remove default padding
                                   shape: const RoundedRectangleBorder(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
+                                        BorderRadius.all(Radius.circular(10)),
                                   ),
                                   content: SingleChildScrollView(
                                     child: Container(
@@ -402,7 +429,7 @@ class _EmployeeListState extends State<EmployeeList> {
                                             padding: const EdgeInsets.all(20.0),
                                             child: Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
+                                                  CrossAxisAlignment.stretch,
                                               children: <Widget>[
                                                 Text(
                                                   "FILTERS",
@@ -411,7 +438,7 @@ class _EmployeeListState extends State<EmployeeList> {
                                                       color: Colors.white,
                                                       fontSize: 18,
                                                       fontWeight:
-                                                      FontWeight.bold,
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                   textAlign: TextAlign.center,
@@ -421,18 +448,18 @@ class _EmployeeListState extends State<EmployeeList> {
                                                 // Department Dropdown
                                                 Column(
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
                                                       'Department:',
                                                       style:
-                                                      GoogleFonts.openSans(
+                                                          GoogleFonts.openSans(
                                                         textStyle:
-                                                        const TextStyle(
+                                                            const TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 16,
                                                           fontWeight:
-                                                          FontWeight.bold,
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -444,15 +471,15 @@ class _EmployeeListState extends State<EmployeeList> {
                                                           width: 2.0,
                                                         ),
                                                         borderRadius:
-                                                        BorderRadius
-                                                            .circular(4.0),
+                                                            BorderRadius
+                                                                .circular(4.0),
                                                       ),
                                                       child:
-                                                      DropdownButtonFormField<
-                                                          String>(
+                                                          DropdownButtonFormField<
+                                                              String>(
                                                         isExpanded: true,
                                                         value:
-                                                        departmentDropdownValue,
+                                                            departmentDropdownValue,
                                                         onChanged: (newValue) {
                                                           departmentDropdownValue =
                                                               newValue;
@@ -466,18 +493,18 @@ class _EmployeeListState extends State<EmployeeList> {
                                                               style: GoogleFonts
                                                                   .openSans(
                                                                 textStyle:
-                                                                const TextStyle(
+                                                                    const TextStyle(
                                                                   fontSize: 14,
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                                      FontWeight
+                                                                          .bold,
                                                                 ),
                                                               ),
                                                             ),
                                                           ),
                                                           ...departmentNames
                                                               .map((String
-                                                          value) {
+                                                                  value) {
                                                             return DropdownMenuItem<
                                                                 String>(
                                                               value: value,
@@ -486,14 +513,14 @@ class _EmployeeListState extends State<EmployeeList> {
                                                                 style: GoogleFonts
                                                                     .openSans(
                                                                   textStyle:
-                                                                  const TextStyle(
+                                                                      const TextStyle(
                                                                     fontSize:
-                                                                    14,
+                                                                        14,
                                                                     color: Colors
                                                                         .black,
                                                                     fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                                        FontWeight
+                                                                            .bold,
                                                                   ),
                                                                 ),
                                                               ),
@@ -509,18 +536,18 @@ class _EmployeeListState extends State<EmployeeList> {
                                                 // Branch Dropdown
                                                 Column(
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
                                                       'Branch:',
                                                       style:
-                                                      GoogleFonts.openSans(
+                                                          GoogleFonts.openSans(
                                                         textStyle:
-                                                        const TextStyle(
+                                                            const TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 16,
                                                           fontWeight:
-                                                          FontWeight.bold,
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -532,18 +559,18 @@ class _EmployeeListState extends State<EmployeeList> {
                                                           width: 2.0,
                                                         ),
                                                         borderRadius:
-                                                        BorderRadius
-                                                            .circular(4.0),
+                                                            BorderRadius
+                                                                .circular(4.0),
                                                       ),
                                                       child:
-                                                      DropdownButtonFormField<
-                                                          String>(
+                                                          DropdownButtonFormField<
+                                                              String>(
                                                         isExpanded: true,
                                                         value:
-                                                        branchDropdownValue,
+                                                            branchDropdownValue,
                                                         onChanged: (newValue) {
                                                           branchDropdownValue =
-                                                          newValue!;
+                                                              newValue!;
                                                         },
                                                         items: [
                                                           DropdownMenuItem<
@@ -554,38 +581,38 @@ class _EmployeeListState extends State<EmployeeList> {
                                                               style: GoogleFonts
                                                                   .openSans(
                                                                 textStyle:
-                                                                const TextStyle(
+                                                                    const TextStyle(
                                                                   fontSize: 14,
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                                      FontWeight
+                                                                          .bold,
                                                                 ),
                                                               ),
                                                             ),
                                                           ),
                                                           ...branchNames.map(
-                                                                  (String value) {
-                                                                return DropdownMenuItem<
-                                                                    String>(
-                                                                  value: value,
-                                                                  child: Text(
-                                                                    value,
-                                                                    style: GoogleFonts
-                                                                        .openSans(
-                                                                      textStyle:
+                                                              (String value) {
+                                                            return DropdownMenuItem<
+                                                                String>(
+                                                              value: value,
+                                                              child: Text(
+                                                                value,
+                                                                style: GoogleFonts
+                                                                    .openSans(
+                                                                  textStyle:
                                                                       const TextStyle(
-                                                                        fontSize:
+                                                                    fontSize:
                                                                         14,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontWeight:
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontWeight:
                                                                         FontWeight
                                                                             .bold,
-                                                                      ),
-                                                                    ),
                                                                   ),
-                                                                );
-                                                              }).toList(),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }).toList(),
                                                         ],
                                                       ),
                                                     ),
@@ -595,18 +622,18 @@ class _EmployeeListState extends State<EmployeeList> {
                                                 // Company Dropdown
                                                 Column(
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
                                                       'Company:',
                                                       style:
-                                                      GoogleFonts.openSans(
+                                                          GoogleFonts.openSans(
                                                         textStyle:
-                                                        const TextStyle(
+                                                            const TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 16,
                                                           fontWeight:
-                                                          FontWeight.bold,
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -618,18 +645,18 @@ class _EmployeeListState extends State<EmployeeList> {
                                                           width: 2.0,
                                                         ),
                                                         borderRadius:
-                                                        BorderRadius
-                                                            .circular(4.0),
+                                                            BorderRadius
+                                                                .circular(4.0),
                                                       ),
                                                       child:
-                                                      DropdownButtonFormField<
-                                                          String>(
+                                                          DropdownButtonFormField<
+                                                              String>(
                                                         isExpanded: true,
                                                         value:
-                                                        companyDropdownValue,
+                                                            companyDropdownValue,
                                                         onChanged: (newValue) {
                                                           companyDropdownValue =
-                                                          newValue!;
+                                                              newValue!;
                                                         },
                                                         items: [
                                                           DropdownMenuItem<
@@ -640,38 +667,38 @@ class _EmployeeListState extends State<EmployeeList> {
                                                               style: GoogleFonts
                                                                   .openSans(
                                                                 textStyle:
-                                                                const TextStyle(
+                                                                    const TextStyle(
                                                                   fontSize: 14,
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                                      FontWeight
+                                                                          .bold,
                                                                 ),
                                                               ),
                                                             ),
                                                           ),
                                                           ...companyNames.map(
-                                                                  (String value) {
-                                                                return DropdownMenuItem<
-                                                                    String>(
-                                                                  value: value,
-                                                                  child: Text(
-                                                                    value,
-                                                                    style: GoogleFonts
-                                                                        .openSans(
-                                                                      textStyle:
+                                                              (String value) {
+                                                            return DropdownMenuItem<
+                                                                String>(
+                                                              value: value,
+                                                              child: Text(
+                                                                value,
+                                                                style: GoogleFonts
+                                                                    .openSans(
+                                                                  textStyle:
                                                                       const TextStyle(
-                                                                        fontSize:
+                                                                    fontSize:
                                                                         14,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontWeight:
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontWeight:
                                                                         FontWeight
                                                                             .bold,
-                                                                      ),
-                                                                    ),
                                                                   ),
-                                                                );
-                                                              }).toList(),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }).toList(),
                                                         ],
                                                       ),
                                                     ),
@@ -681,8 +708,8 @@ class _EmployeeListState extends State<EmployeeList> {
                                                 // Search Bar
                                                 Row(
                                                   mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
                                                     ElevatedButton(
                                                       onPressed: () {
@@ -691,7 +718,7 @@ class _EmployeeListState extends State<EmployeeList> {
                                                             .pop();
                                                       },
                                                       child:
-                                                      const Text("Apply"),
+                                                          const Text("Apply"),
                                                     ),
                                                     ElevatedButton(
                                                       onPressed: () {
@@ -699,7 +726,7 @@ class _EmployeeListState extends State<EmployeeList> {
                                                             .pop();
                                                       },
                                                       child:
-                                                      const Text("Close"),
+                                                          const Text("Close"),
                                                     ),
                                                   ],
                                                 ),
@@ -747,7 +774,7 @@ class _EmployeeListState extends State<EmployeeList> {
                             bottom: 15, left: 15, right: 15),
                         decoration: BoxDecoration(
                           color:
-                          Colors.white, // Change background color to white
+                              Colors.white, // Change background color to white
                           border: Border.all(
                             color: Colors.black,
                           ),
@@ -780,125 +807,153 @@ class _EmployeeListState extends State<EmployeeList> {
                     ],
                   ),
                   buildCards == null ||
-                      filterEmployees(employees, searchQuery).length ==
-                          null ||
-                      showLoading
+                          filterEmployees(employees, searchQuery).length ==
+                              null ||
+                          showLoading
                       ? Padding(
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.3),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
+                          padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height * 0.3),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
                       : LayoutBuilder(
-                    builder: (context, constraints) {
-                      double cardWidth = constraints.maxWidth > 600
-                          ? 600
-                          : constraints.maxWidth;
-                      double screenHeight =
-                          MediaQuery.of(context).size.height;
-                      double containerHeight = screenHeight;
-                      return Container(
-                        height: containerHeight,
-                        margin: const EdgeInsets.all(20),
-                        child: ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          itemCount:
-                          filterEmployees(employees, searchQuery)
-                              .length,
-                          itemBuilder: (context, index) {
-                            var employee = filterEmployees(
-                                employees, searchQuery)[index];
+                          builder: (context, constraints) {
+                            double cardWidth = constraints.maxWidth > 600
+                                ? 600
+                                : constraints.maxWidth;
+                            double screenHeight =
+                                MediaQuery.of(context).size.height * 0.65;
+                            double containerHeight = screenHeight;
+                            return Container(
+                              height: containerHeight,
+                              margin: const EdgeInsets.all(10),
+                              child: ListView.separated(
+                                separatorBuilder: (context, index) => Divider(),
+                                itemCount:
+                                    filterEmployees(employees, searchQuery)
+                                        .length,
+                                itemBuilder: (context, index) {
+                                  var employee = filterEmployees(
+                                      employees, searchQuery)[index];
 
-                            return Card(
-                              margin: const EdgeInsets.all(8),
-                              elevation: 3,
-                              child: Padding(
-                                padding: const EdgeInsets.all(
-                                    12), // Adjusted padding
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          'ID: ${employee.empCode}',
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight:
-                                              FontWeight.bold),
-                                        ),
-                                        Checkbox(
-                                          value: employee.isSelected,
-                                          onChanged: (_) {
-                                            _toggleEmployeeSelection(
-                                                employee);
-                                          },
+                                        Row(
+                                          children: [
+                                            Container(
+                                              transform: Matrix4.diagonal3Values(
+                                                  1.2,
+                                                  1.2,
+                                                  1), // Adjust the scale factor as needed
+                                              child: Checkbox(
+                                                value: employee.isSelected,
+                                                onChanged: (_) {
+                                                  _toggleEmployeeSelection(
+                                                      employee);
+                                                },
+                                                shape: CircleBorder(),
+                                                activeColor: Colors.blue,
+                                              ),
+                                            ),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        '${employee.empName ?? ""}',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width:
+                                                            33, // Adjust the width to change the size of the circle
+                                                        height:
+                                                            33, // Adjust the height to change the size of the circle
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors
+                                                              .blue, // Background color
+                                                        ),
+                                                        child: IconButton(
+                                                          padding: EdgeInsets
+                                                              .zero, // Remove padding around the icon
+                                                          onPressed: () {
+                                                            _showRemarksDialog(
+                                                                employee);
+                                                          },
+                                                          icon: Icon(
+                                                              Icons.comment,
+                                                              size: 18,
+                                                              color: Colors
+                                                                  .white), // Adjust the icon size
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        '${employee.branchNames ?? ""}',
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        employee.deptNames ??
+                                                            "",
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'ID: ${employee.empCode}',
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                    Text(
-                                      '${employee.empName ?? ""}',
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          '${employee.branchNames ?? ""}',
-                                          style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey),
-                                        ),
-                                        ElevatedButton.icon(
-                                          onPressed: () {
-                                            _showRemarksDialog(employee);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            shape:
-                                            const CircleBorder(), // Make the button circular
-                                            padding: const EdgeInsets.all(
-                                                0), // No padding around the icon
-                                            minimumSize: Size(36,
-                                                36), // Set a fixed size for the button
-                                          ),
-                                          icon: CircleAvatar(
-                                            backgroundColor: Colors
-                                                .blue, // Set your desired background color
-                                            radius:
-                                            18, // Adjust the radius to control the size
-                                            child: Icon(Icons.comment,
-                                                size: 18,
-                                                color: Colors
-                                                    .white), // Adjust icon size and color
-                                          ),
-                                          label: Text(
-                                              ""), // Set label to null
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      employee.deptNames ?? "",
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors
-                                              .grey), // Use the same color
-                                    ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
                             );
                           },
                         ),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),

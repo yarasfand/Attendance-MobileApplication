@@ -9,7 +9,9 @@ import 'package:project/constants/AppColor_constants.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../No_internet/no_internet.dart';
+import '../../Sqlite/admin_sqliteHelper.dart';
 import '../../Sqlite/sqlite_helper.dart';
+import '../../admin/adminProfile/models/AdminProfileRepository.dart';
 import '../../employee/empDashboard/models/empDashModel.dart';
 import '../../employee/empDashboard/models/empDashRepository.dart';
 import '../../employee/empDashboard/models/emp_attendance_status_model.dart';
@@ -249,18 +251,22 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     await fetchProfileData();
   }
 
-  EmpProfileRepository profileRepository = EmpProfileRepository();
+
   String? profileImageUrl;
   Future<void> saveEmpAllToShared() async {
     try {
-      final profileData = await profileRepository.getData();
-      if (profileData.isNotEmpty) {
-        EmpProfileModel? empProfile = profileData.first;
+      final repository = AdminProfileRepository();
+      final employeeData = await repository
+          .fetchAdminProfile(GlobalObjects.adminCorpId.toString());
+
+      if (employeeData != null) {
         final sharedPrefEmp = await SharedPreferences.getInstance();
 
         setState(() {
-          sharedPrefEmp.setString('empName', empProfile.empName);
-          sharedPrefEmp.setString('empMail', empProfile.emailAddress);
+          sharedPrefEmp.setString('empName', employeeData.userName);
+          sharedPrefEmp.setString('empMail', employeeData.email);
+          GlobalObjects.adminusername = employeeData.userName;
+          GlobalObjects.adminMail = employeeData.email;
         });
       }
     } catch (e) {
@@ -277,10 +283,41 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     GlobalObjects.empCode = empCode;
     GlobalObjects.empId = employeeId;
   }
-
   void _loginAsAdmin() async {
-    showCustomSuccessAlertAdmin(context, "Login Succesful!");
+    showCustomSuccessAlertAdmin(context, "Login Successful!");
+
+    // Extract the admin's data
+    String? username = GlobalObjects.adminusername;
+    String? corporateId = GlobalObjects.adminCorpId;
+
+    // Check for null values
+    if (username != null && corporateId != null) {
+      try {
+        await saveAdminToDatabase(username, corporateId);
+      } catch (e) {
+        print("Error saving admin data to SQLite: $e");
+        // Handle the error gracefully, e.g., show an error message to the user
+      }
+    } else {
+      print("Error: Admin data is null.");
+    }
   }
+
+  Future<void> saveAdminToDatabase(String username, String corporateId) async {
+    try {
+      print(username);
+      print(corporateId);
+      final adminDbHelper = AdminDatabaseHelper();
+      await adminDbHelper.insertAdmin({'username': username, 'corporate_id': corporateId});
+      print("Admin data saved successfully!");
+    } catch (e) {
+      // Rethrow the exception to let the calling function handle it
+      throw Exception("Error saving admin data to SQLite: $e");
+    }
+  }
+
+
+
 
   void showPopupWithMessageFailed(String message) {
     showDialog(

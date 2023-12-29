@@ -31,22 +31,7 @@ class _AdminDataState extends State<AdminData> {
 
     return Column(
       children: [
-        const SizedBox(
-          height: 30,
-        ),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Status",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ],
-        ),
+
         const SizedBox(height: defaultPadding),
         AdminResponsive(
           mobile: FileInfoCardGridView(
@@ -109,28 +94,28 @@ class FileInfoCardGridView extends StatelessWidget {
           case 0:
             return AdminFileInfoCard(
               imageSrc: "assets/icons/employees.png",
-              title: "Total Employee",
+              title: "Total",
               numOfEmployees: totalEmployees,
               color: Colors.blue,
             );
           case 1:
             return AdminFileInfoCard(
               imageSrc: "assets/icons/present.png",
-              title: "Present Employee",
+              title: "Present",
               numOfEmployees: presentEmployees,
               color: const Color(0xFFFFA113),
             );
           case 2:
             return AdminFileInfoCard(
               imageSrc: "assets/icons/absent.png",
-              title: "Absent Employee",
+              title: "Absent",
               numOfEmployees: absentEmployees,
               color: const Color(0xFFA4CDFF),
             );
           case 3:
             return AdminFileInfoCard(
               imageSrc: "assets/icons/late.png",
-              title: "Late Employee",
+              title: "Late",
               numOfEmployees: lateEmployees,
               color: Colors.red,
             );

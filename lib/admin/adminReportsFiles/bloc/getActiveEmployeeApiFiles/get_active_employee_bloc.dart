@@ -20,7 +20,7 @@ class GetEmployeeBloc
       FetchEmployees event, Emitter<GetActiveEmployeeState> emit) async {
     emit(GetEmployeeLoading());
     try {
-      final employees = await repository.getActiveEmployees(event.corporateId);
+      final employees = await repository.getActiveEmployees();
       emit(GetEmployeeLoaded(employees));
     } catch (e) {
       emit(GetEmployeeError('Failed to fetch employees: $e'));

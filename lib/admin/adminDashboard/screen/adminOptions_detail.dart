@@ -43,7 +43,7 @@ class AdminStorageDetails extends StatelessWidget {
             },
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/present.png",
-              title: "Mark Attendance",
+              title: "Manual Punch",
             ),
           ),
           const SizedBox(height: 5),
@@ -57,7 +57,7 @@ class AdminStorageDetails extends StatelessWidget {
             },
             child: const AdminStorageInfoCard(
               svgSrc: "assets/icons/leave.png",
-              title: "Leaves",
+              title: "Leave",
             ),
           ),
           const SizedBox(height: 5),

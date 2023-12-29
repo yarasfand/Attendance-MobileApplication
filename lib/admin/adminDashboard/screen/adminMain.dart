@@ -7,6 +7,7 @@ import 'package:project/admin/adminReportsFiles/screens/AdminReportsMainPage.dar
 import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
+import '../../../Sqlite/admin_sqliteHelper.dart';
 import '../../../constants/AppColor_constants.dart';
 import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
@@ -39,20 +40,30 @@ class AdminMainPageState extends State<AdminMainPage> {
     prefs.setBool('isLoggedIn', false);
     prefs.setBool('isEmployee', false);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return Builder(
-            builder: (context) => BlocProvider(
-              create: (context) => SignInBloc(),
-              child: LoginPage(),
-            ),
-          );
-        },
-      ),
-    );
+    try {
+      // Delete all data inside the admin table
+      final adminDbHelper = AdminDatabaseHelper();
+      await adminDbHelper.deleteAllAdmins();
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return Builder(
+              builder: (context) => BlocProvider(
+                create: (context) => SignInBloc(),
+                child: LoginPage(),
+              ),
+            );
+          },
+        ),
+      );
+    } catch (e) {
+      print('Error during logout: $e');
+      // Handle any errors that might occur during the process
+    }
   }
+
 
   AdminDrawerItem item = AdminDrawerItems.home;
   AdminProfileModel? profileData;
@@ -72,7 +83,7 @@ class AdminMainPageState extends State<AdminMainPage> {
       String corporateId, String username) async {
     try {
       final data =
-          await profileRepository.fetchAdminProfile(corporateId, username);
+          await profileRepository.fetchAdminProfile(username);
       setState(() {
         GlobalObjects.adminusername = data!.userName;
         GlobalObjects.adminMail = data.email;
@@ -254,7 +265,7 @@ class AdminMainPageState extends State<AdminMainPage> {
       case AdminDrawerItems.profile:
         return "Profile";
       case AdminDrawerItems.leaves:
-        return "Leaves";
+        return "Leave";
       case AdminDrawerItems.reports:
         return "Reports";
       case AdminDrawerItems.logout:

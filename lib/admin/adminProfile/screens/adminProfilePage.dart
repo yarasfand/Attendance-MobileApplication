@@ -3,6 +3,7 @@ import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/admin/adminProfile/models/AdminProfileRepository.dart';
 import 'package:project/constants/AppColor_constants.dart';
@@ -62,15 +63,19 @@ class AdminProfilePageState extends State<AdminProfilePage> {
       },
     );
   }
+
   @override
   void initState() {
     super.initState();
     fetchProfileData();
+    if (GlobalObjects.adminusername == null ||
+        GlobalObjects.adminphonenumber == null) {
+      fetchProfileData();
+    }
   }
 
   @override
   void dispose() {
-    adminProfileBloc.close();
     super.dispose();
   }
 
@@ -110,7 +115,6 @@ class AdminProfilePageState extends State<AdminProfilePage> {
     exit(0);
   }
 
-
   String formatDate(String dateString) {
     final DateTime? joinedDate = DateTime.tryParse(dateString);
     return joinedDate != null ? DateFormat.yMMMd().format(joinedDate) : '---';
@@ -123,268 +127,223 @@ class AdminProfilePageState extends State<AdminProfilePage> {
   bool isInternetLost = false;
 
   Future<void> fetchProfileData() async {
-    if (widget.onRefreshData != null) {
-      widget.onRefreshData!();
-    }
     SharedPreferences prefAdmin = await SharedPreferences.getInstance();
     GlobalObjects.adminusername = prefAdmin.getString('admin_username');
     GlobalObjects.adminCorpId = prefAdmin.getString('admin_corporateId');
-    adminProfileBloc.add(FetchAdminProfile(
-      corporateId: GlobalObjects.adminCorpId ?? 'ptsoffice',
-      employeeId: GlobalObjects.adminusername ?? 'ptsadmin',
-    ));
+    final repository = AdminProfileRepository();
+    final employeeData = await repository
+        .fetchAdminProfile(prefAdmin.getString('admin_username').toString());
+
+    setState(() {
+      GlobalObjects.adminMail = employeeData!.email;
+      GlobalObjects.adminusername = employeeData.userName;
+      GlobalObjects.adminpassword = employeeData.userPassword;
+      GlobalObjects.adminphonenumber = employeeData.mobile;
+      GlobalObjects.adminJoinedDate = employeeData.onDate;
+    });
     print(GlobalObjects.adminMail);
     print(GlobalObjects.adminusername);
   }
 
   @override
   Widget build(BuildContext context) {
-    adminProfileBloc = AdminProfileBloc(AdminProfileRepository());
-    adminProfileBloc.add(FetchAdminProfile(
-      corporateId: GlobalObjects.adminCorpId ?? 'ptsoffice',
-      employeeId: GlobalObjects.adminusername ?? "ptsadmin",
-    ));
-
-    return Scaffold(
-      body: BlocBuilder<AdminProfileBloc, AdminProfileState>(
-        bloc: adminProfileBloc,
-        builder: (context, state) {
-          if (state is AdminProfileLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is AdminProfileLoaded) {
-            final adminProfile = state.adminProfile;
-            final joinedDate = formatDate(adminProfile.onDate);
-
-            GlobalObjects.adminphonenumber = adminProfile.mobile;
-            GlobalObjects.adminpassword = adminProfile.userPassword;
-            GlobalObjects.adminusername = adminProfile.userName;
-            GlobalObjects.adminMail = adminProfile.email;
-
-            return SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                    0, MediaQuery.of(context).size.height / 15, 0, 0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    WillPopScope(
-                      onWillPop: () async {
-                        return _onBackPressed(context)
-                            .then((value) => value ?? false);
-                      },
-                      child: const SizedBox(),
+    return GlobalObjects.adminusername == null ||
+            GlobalObjects.adminphonenumber == null
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                  0, MediaQuery.of(context).size.height / 15, 0, 0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  WillPopScope(
+                    onWillPop: () async {
+                      return _onBackPressed(context)
+                          .then((value) => value ?? false);
+                    },
+                    child: const SizedBox(),
+                  ),
+                  Card(
+                    elevation: 4.0,
+                    margin: const EdgeInsets.all(32.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    Card(
-                      elevation: 4.0,
-                      margin: const EdgeInsets.all(32.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Center(
-                              child: CircleAvatar(
-                                backgroundImage:
-                                    AssetImage('assets/icons/userrr.png'),
-                                radius: 70,
-                              ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Center(
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  AssetImage('assets/icons/userrr.png'),
+                              radius: 70,
                             ),
-                            const SizedBox(height: 16),
-                            Center(
-                              child: Column(
-                                children: [
-                                  Text(
-                                    adminProfile.userName ?? '---',
-                                    style: GoogleFonts.roboto(
+                          ),
+                          const SizedBox(height: 16),
+                          Center(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  GlobalObjects.adminusername ?? "---",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  ),
-                                  Text(
-                                    adminProfile.email ?? '---',
-                                    style: GoogleFonts.roboto(
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 16,
+                                      // Increase font size
                                       color: Colors.black,
                                     ),
                                   ),
-                                  Text(
-                                    'Joined $joinedDate',
-                                    style: GoogleFonts.roboto(
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: const EdgeInsets.all(16),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.all(16),
-                                      child: Center(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                              ),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.red,
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(5),
-                                                child: IconButton(
-                                                  icon: const Icon(Icons.call,
-                                                      color: Colors.white),
-                                                  onPressed: () {
-                                                    call(
-                                                        adminProfile.mobile);
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                            Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                              ),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.blue,
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(5),
-                                                child: IconButton(
-                                                  icon: const Icon(
-                                                      Icons.message,
-                                                      color: Colors.white),
-                                                  onPressed: () {
-                                                    sendSms(
-                                                        adminProfile.mobile);
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                            Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                              ),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.green,
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(5),
-                                                child: IconButton(
-                                                  icon: const Icon(Icons.mail,
-                                                      color: Colors.white),
-                                                  onPressed: () {
-                                                    sendEmail(
-                                                        adminProfile.email);
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  softWrap: true,
                                 ),
-                              ),
+                                Text(
+                                  GlobalObjects.adminMail ?? "---",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 16,
+                                      // Increase font size
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  "Join Date: ${formatDate(GlobalObjects.adminJoinedDate.toString())}",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          Container(
+                            margin:
+                                const EdgeInsets.only(top: 20.0, bottom: 20.0),
+                            // Add margin from the top and bottom
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .blue, // Change the color as needed
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      icon: const Icon(FontAwesomeIcons.phone,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        call(GlobalObjects.adminphonenumber ??
+                                            "---");
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .grey, // Change the color as needed
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      icon: const Icon(
+                                          FontAwesomeIcons.envelope,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        sendEmail(
+                                            GlobalObjects.adminMail ?? "---");
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .green, // Change the color as needed
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      icon: const Icon(FontAwesomeIcons.message,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        sendSms(
+                                            GlobalObjects.adminphonenumber ??
+                                                "---");
+                                        // Add your call functionality here
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const SizedBox(height: 10),
-                            _buildTileWidget(
-                              title: 'Edit Profile',
-                              icon: Icons.edit,
-                              onTap: () async {
-                                final result = await Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    child: const AdminEditProfilePage(),
-                                    type: PageTransitionType.rightToLeft,
-                                  ),
-                                );
-                                if (result == true) {
-                                  // Refresh the admin profile data when the user returns from EditProfile
-                                  fetchProfileData();
-                                }
-                              },
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            _buildTileWidget(
-                              title: 'Logout',
-                              icon: Icons.logout,
-                              onTap: () => _logout(context),
-                            ),
-                          ],
-                        ),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Container(
+                      color: Colors.white,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const SizedBox(height: 10),
+                          _buildTileWidget(
+                            title: 'Edit Profile',
+                            icon: Icons.edit,
+                            onTap: () async {
+                              final result = await Navigator.push(
+                                context,
+                                PageTransition(
+                                  child: const AdminEditProfilePage(),
+                                  type: PageTransitionType.rightToLeft,
+                                ),
+                              );
+                              if (result == true) {
+                                // Refresh the admin profile data when the user returns from EditProfile
+                                fetchProfileData();
+                              }
+                            },
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          _buildTileWidget(
+                            title: 'Logout',
+                            icon: Icons.logout,
+                            onTap: () => _logout(context),
+                          ),
+                        ],
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  )
+                ],
               ),
-            );
-          } else if (state is AdminProfileError) {
-            return Center(
-              child: Text(
-                "Error: ${state.error}",
-                style: GoogleFonts.roboto(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.red,
-                ),
-              ),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.grey,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                strokeWidth: 5.0,
-              ),
-            );
-          }
-        },
-      ),
-    );
+            ),
+          );
   }
 
   Widget _buildTileWidget({

@@ -79,7 +79,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
   Future<void> loadData() async {
     try {
       List<Branch> branches =
-          await BranchRepository().getAllActiveBranches(corporateId);
+          await BranchRepository().getAllActiveBranches();
 
       setState(() {
         buildCards = branches;
@@ -103,7 +103,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
   Future<void> _fetchDepartmentNames() async {
     try {
       final departments =
-          await DepartmentRepository().getAllActiveDepartments(corporateId);
+          await DepartmentRepository().getAllActiveDepartments();
 
       // Extract department names from the departments list and filter out null values
       final departmentNames = departments
@@ -134,7 +134,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
   Future<void> _fetchBranchNames() async {
     try {
       final branches =
-          await BranchRepository().getAllActiveBranches(corporateId);
+          await BranchRepository().getAllActiveBranches();
 
       // Extract branch names from the branches list and filter out null values
       final branchNames = branches
@@ -154,7 +154,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
   Future<void> _fetchCompanyNames() async {
     try {
       final companies =
-          await CompanyRepository().getAllActiveCompanies(corporateId);
+          await CompanyRepository().getAllActiveCompanies();
 
       final companyNames = companies
           .map((company) => company.companyName)
@@ -801,7 +801,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
                               child: Text(
                                 selectAll ? 'Deselect All' : 'Select All',
                                 style: const TextStyle(
-                                    fontSize: 16, color: Colors.blueAccent),
+                                    fontSize: 16),
                               ),
                             ),
                           ],
@@ -820,121 +820,144 @@ class _AdminGeofencingState extends State<AdminGeofencing>
                                 child: CircularProgressIndicator(),
                               ),
                             )
-                          : LayoutBuilder(
-                              builder: (context, constraints) {
-                                double cardWidth = constraints.maxWidth > 600
-                                    ? 600
-                                    : constraints.maxWidth;
-                                double screenHeight =
-                                    MediaQuery.of(context).size.height;
-                                double containerHeight = screenHeight;
-                                return Container(
-                                  height: containerHeight,
-                                  margin: const EdgeInsets.all(20),
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.vertical,
-                                    itemCount:
-                                        filterEmployees(employees, searchQuery)
-                                            .length,
-                                    itemBuilder: (context, index) {
-                                      var employee = filterEmployees(
-                                          employees, searchQuery)[index];
+                          :  LayoutBuilder(
+                        builder: (context, constraints) {
+                          double cardWidth = constraints.maxWidth > 600
+                              ? 600
+                              : constraints.maxWidth;
+                          double screenHeight =
+                              MediaQuery.of(context).size.height * 0.65;
+                          double containerHeight = screenHeight;
+                          return Container(
+                            height: containerHeight,
+                            margin: const EdgeInsets.all(10),
+                            child: ListView.separated(
+                              separatorBuilder: (context, index) => Divider(),
+                              itemCount:
+                              filterEmployees(employees, searchQuery)
+                                  .length,
+                              itemBuilder: (context, index) {
+                                var employee = filterEmployees(
+                                    employees, searchQuery)[index];
 
-                                      return Card(
-                                        margin: const EdgeInsets.all(8),
-                                        elevation: 3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(
-                                              12), // Adjusted padding
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    'ID: ${employee.empCode}',
-                                                    style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  Checkbox(
-                                                    value: employee.isSelected,
-                                                    onChanged: (_) {
-                                                      _toggleEmployeeSelection(
-                                                          employee);
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                              Text(
-                                                '${employee.empName ?? ""}',
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    '${employee.branchNames ?? ""}',
-                                                    style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey),
-                                                  ),
-                                                  ElevatedButton.icon(
-                                                    onPressed: () {
-                                                      _showRemarksDialog(
-                                                          employee);
-                                                    },
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      shape:
-                                                          const CircleBorder(), // Make the button circular
-                                                      padding: const EdgeInsets
-                                                          .all(
-                                                          0), // No padding around the icon
-                                                      minimumSize: Size(36,
-                                                          36), // Set a fixed size for the button
-                                                    ),
-                                                    icon: CircleAvatar(
-                                                      backgroundColor: Colors
-                                                          .blue, // Set your desired background color
-                                                      radius:
-                                                          18, // Adjust the radius to control the size
-                                                      child: Icon(Icons.comment,
-                                                          size: 18,
-                                                          color: Colors
-                                                              .white), // Adjust icon size and color
-                                                    ),
-                                                    label: Text(
-                                                        ""), // Set label to null
-                                                  ),
-                                                ],
-                                              ),
-                                              Text(
-                                                employee.deptNames ?? "",
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors
-                                                        .grey), // Use the same color
-                                              ),
-                                            ],
+                                return Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            transform: Matrix4.diagonal3Values(
+                                                1.2,
+                                                1.2,
+                                                1), // Adjust the scale factor as needed
+                                            child: Checkbox(
+                                              value: employee.isSelected,
+                                              onChanged: (_) {
+                                                _toggleEmployeeSelection(
+                                                    employee);
+                                              },
+                                              shape: CircleBorder(),
+                                              activeColor: Colors.blue,
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    },
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      '${employee.empName ?? ""}',
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                        FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      width:
+                                                      33, // Adjust the width to change the size of the circle
+                                                      height:
+                                                      33, // Adjust the height to change the size of the circle
+                                                      decoration:
+                                                      BoxDecoration(
+                                                        shape:
+                                                        BoxShape.circle,
+                                                        color: Colors
+                                                            .blue, // Background color
+                                                      ),
+                                                      child: IconButton(
+                                                        padding: EdgeInsets
+                                                            .zero, // Remove padding around the icon
+                                                        onPressed: () {
+                                                          _showRemarksDialog(
+                                                              employee);
+                                                        },
+                                                        icon: Icon(
+                                                            Icons.comment,
+                                                            size: 18,
+                                                            color: Colors
+                                                                .white), // Adjust the icon size
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      '${employee.branchNames ?? ""}',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      employee.deptNames ??
+                                                          "",
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      'ID: ${employee.empCode}',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                        FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 );
                               },
                             ),
+                          );
+                        },
+                      ),
+
                     ],
                   ),
                 ],
