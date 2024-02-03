@@ -17,7 +17,7 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 55),
+        padding: EdgeInsets.symmetric(horizontal: 30, vertical: MediaQuery.of(context).size.height > 720? 30 : 30),
         child: buildDrawerItems(context),
       ),
     );
@@ -29,7 +29,7 @@ class MyDrawer extends StatelessWidget {
     double optTopDiff;
 
     if (screenWidth <= 370) {
-      optTopDiff = screenHeight / 30;
+      optTopDiff = MediaQuery.of(context).size.height > 720 ? screenHeight / 30 : screenHeight / 40;
     } else {
       optTopDiff = screenHeight / 30;
     }
@@ -47,7 +47,7 @@ class MyDrawer extends StatelessWidget {
                 item.title,
                 style: const TextStyle(
                   color: Colors.black,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
 
                 ),

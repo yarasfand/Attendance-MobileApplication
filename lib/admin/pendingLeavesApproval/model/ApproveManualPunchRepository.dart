@@ -23,8 +23,10 @@ class ApproveManualPunchRepository {
           'Content-Type': 'application/json',
         };
 
-        final body =
-        json.encode(data); // Convert the list of data objects to a JSON string
+        final body = json.encode(data);
+
+        // Print the data before making the HTTP request
+        print('Posting data: $body');
 
         final response = await http.post(
           Uri.parse(apiUrl),

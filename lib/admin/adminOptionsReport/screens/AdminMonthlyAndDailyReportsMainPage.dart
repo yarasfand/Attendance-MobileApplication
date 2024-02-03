@@ -117,7 +117,7 @@ class AdminMonthlyAndDailyReportsMainPage extends StatelessWidget {
                           )),
                       child: LeaveCard(
                         title: 'DAILY REPORTS',
-                        image: Image.asset('assets/icons/submission.png'),
+                        image: Image.asset('assets/icons/dailyReport.png'),
                       ),
                     ),
                   ),
@@ -135,7 +135,7 @@ class AdminMonthlyAndDailyReportsMainPage extends StatelessWidget {
                           )),
                       child: LeaveCard(
                         title: 'MONTHLY REPORTS',
-                        image: Image.asset('assets/icons/approval.png'),
+                        image: Image.asset('assets/icons/monthlyReport.png'),
                       ),
                     ),
                   ),

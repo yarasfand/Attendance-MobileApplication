@@ -14,12 +14,14 @@ class FetchAdminMonthlyReports extends AdminMonthlyReportsEvent {
   final String corporateId;
   final int employeeId;
   final int selectedMonth;
+  final int year;
 
   FetchAdminMonthlyReports({
     required this.employeeIds,
     required this.corporateId,
     required this.employeeId,
     required this.selectedMonth,
+    required this.year,
   });
 
   @override

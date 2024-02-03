@@ -36,8 +36,8 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> _loadData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final corporateId = prefs.getString('corporate_id') ?? '';
+    // final prefs = await SharedPreferences.getInstance();
+    // final corporateId = prefs.getString('corporate_id') ?? '';
     try {
       final adminDashboardData = await adminDashboardRepository
           .fetchDashboardData(selectedDate);
@@ -134,7 +134,7 @@ class _AdminPageState extends State<AdminPage> {
             key: _scaffoldKey,
             body: SingleChildScrollView(
               primary: false,
-              padding: const EdgeInsets.all(defaultPadding),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   // TO ASK WANT TO GO BACK OR NOT
@@ -229,19 +229,7 @@ class _AdminPageState extends State<AdminPage> {
                               const AdminStorageDetails(),
                             const SizedBox(height: defaultPadding),
                             if (AdminResponsive.isMobile(context))
-                               Column(
-                                children: [
-                                  // Text(
-                                  //   "POWERED BY: PIONEER 2023",
-                                  //   style: TextStyle(
-                                  //       color: Colors.black, fontSize: 10),
-                                  // ),
-                                  SizedBox(
-                                      height: 60,
-                                      width: 60,
-                                      child: Image.asset('assets/images/pioneer_logo_app.png')),
-                                ],
-                              ),
+
                             const SizedBox(
                               height: 20,
                             ),

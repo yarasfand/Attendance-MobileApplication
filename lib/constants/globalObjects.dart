@@ -19,6 +19,12 @@ class GlobalObjects {
   static String? empAbsent;
   static String? empLeaves;
 
+  // DropDowns
+
+  static String globalDep = "";
+  static String globalBranch = "";
+  static String globalCompany = "";
+
   // admin objects
   static String? adminCorpId;
   int? adminId;

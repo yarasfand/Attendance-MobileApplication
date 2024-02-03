@@ -10,10 +10,10 @@ class EmpDrawerItem {
   const EmpDrawerItem({
     required this.title,
     required this.icon,
-    this.titleStyle = AppBarStyles.appBarTextStyle, // Provide a default TextStyle
+    this.titleStyle =
+        AppBarStyles.appBarTextStyle, // Provide a default TextStyle
   });
 }
-
 
 class EmpDrawer extends StatelessWidget {
   final ValueChanged<EmpDrawerItem> onSelectedItems;
@@ -23,13 +23,13 @@ class EmpDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-
       child: SingleChildScrollView(
         child: Column(
           children: [
-
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 25),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: MediaQuery.of(context).size.height < 650 ? 10 : 25),
               child: buildDrawerItems(context),
             ),
           ],
@@ -42,10 +42,14 @@ class EmpDrawer extends StatelessWidget {
         children: EmpDrawerItems.all
             .map(
               (item) => ListTile(
-                contentPadding: EdgeInsets.fromLTRB(
-                    0, MediaQuery.of(context).size.height / 28, 0, 0),
+                contentPadding: MediaQuery.of(context).size.height < 650
+                    ? EdgeInsets.fromLTRB(
+                        0, MediaQuery.of(context).size.height / 55, 0, 0)
+                    : EdgeInsets.fromLTRB(
+                        0, MediaQuery.of(context).size.height / 25, 0, 0),
                 leading: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 20, 0), // Adjust the padding as needed
+                  padding: const EdgeInsets.fromLTRB(
+                      0, 0, 20, 0), // Adjust the padding as needed
                   child: Icon(item.icon, color: Colors.black87),
                 ),
                 title: Text(

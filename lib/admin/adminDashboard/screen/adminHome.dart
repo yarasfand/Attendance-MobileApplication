@@ -12,7 +12,7 @@ class AdminDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<InternetBloc, InternetStates>(builder: (context, state) {
       if (state is InternetGainedState) {
-        return const Scaffold(
+        return  Scaffold(
           backgroundColor: Colors.transparent,
           body: AdminPage(),
         );

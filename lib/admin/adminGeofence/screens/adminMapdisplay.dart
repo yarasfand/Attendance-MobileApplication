@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:lottie/lottie.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:page_transition/page_transition.dart';
@@ -34,8 +37,11 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
   double? currentLong;
   double? sendLat;
   double? sendLong;
-  double? sendRadius = 100.0;
+  double? sendRadius = 1.0;
   String address = "";
+  bool isKeyboardVisible = false;
+
+
 
   bool locationError = false;
   final adminGeoFenceRepository = AdminGeoFenceRepository();
@@ -43,6 +49,11 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
   @override
   void initState() {
     super.initState();
+    KeyboardVisibilityController().onChange.listen((bool visible) {
+      setState(() {
+        isKeyboardVisible = visible;
+      });
+    });
     checkLocationPermissionAndFetchLocation();
   }
 
@@ -63,11 +74,11 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
 
       // Use the employee data to create the geofence model
       final geofenceModel = AdminGeoFenceModel(
-        empId: employee.empId ?? 0,
+        empId: employee.empId  ?? 0,
         empName: employee.empName,
         lat: sendLat.toString(),
         lon: sendLong.toString(),
-        radius: sendRadius.toString(),
+        radius: (sendRadius!*1000).toString(),
         emailAddress: null,
         fatherName: null,
         phoneNo: null,
@@ -151,6 +162,15 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
 
   bool isInternetLost = false;
 
+  void _updateLocation(double latitude, double longitude, String addressName) {
+    setState(() {
+      sendLat = latitude;
+      sendLong = longitude;
+      address = addressName;
+      _submitGeofenceDataForSelectedEmployees();
+      saveLocationToSharedPreferences(sendLat!, sendLong!);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final adminGeofenceBloc = BlocProvider.of<AdminGeoFenceBloc>(context);
@@ -187,7 +207,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                 child: Padding(
                   padding: EdgeInsets.only(right: 55.0), // Add right padding
                   child: Text(
-                    "GEOFENCE",
+                    "Maps",
                     style: AppBarStyles.appBarTextStyle,
                   ),
                 ),
@@ -196,35 +216,59 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
             ),
             body: Stack(
               children: [
-                OpenStreetMapSearchAndPick(
-                  center: LatLong(currentLat!, currentLong!),
-                  buttonColor: AppColors.primaryColor,
-                  buttonText: 'Set Geofence',
-                  onPicked: (pickedData) {
-                    getAddress(pickedData.latLong.latitude,
-                        pickedData.latLong.longitude);
-                    setState(() {
-                      sendLat = pickedData.latLong.latitude;
-                      sendLong = pickedData.latLong.longitude;
-                      _submitGeofenceDataForSelectedEmployees();
-                      saveLocationToSharedPreferences(sendLat!, sendLong!);
-                    });
-                    showSnackbar(context, "Cordinates Are Saved");
-                    popPage();
-                  },
-                  locationPinIconColor: AppColors.secondaryColor,
-                  locationPinText: "${address}",
+                Container(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height >700? 60 : 70),
+                  child: OpenStreetMapSearchAndPick(
+                    onPicked: (pickedData) {
+                      setState(() {
+                        // Update the state for locationPin and other relevant data
+                        address = pickedData.addressName;
+                        sendLat = pickedData.latLong.latitude;
+                        sendLong = pickedData.latLong.longitude;
+                        _submitGeofenceDataForSelectedEmployees();
+                        saveLocationToSharedPreferences(sendLat!, sendLong!);
+                      });
+                      print("Picked data value $pickedData");
+                      showSnackbar(context, "Coordinates Are Saved");
+                      // popPage();
+                    },
+
+
+                    zoomOutIcon: Icons.zoom_out, // Change this as needed
+                    zoomInIcon: Icons.zoom_in,   // Change this as needed
+                    currentLocationIcon: Icons.my_location,
+                    locationPinIcon: Icons.location_on,
+                    buttonWidth: 50,
+                    buttonColor: AppColors.primaryColor,
+                    buttonTextColor: Colors.white, // Change this as needed
+                    buttonText: 'Set Geofence',
+                    locationPinIconColor: AppColors.secondaryColor,
+                    locationPinText: "", // Use the state directly
+                    locationPinTextStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    hintText: 'Search Location',
+                    buttonTextStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
+                if (!isKeyboardVisible)
                 Positioned(
-                  top: (MediaQuery.of(context).size.height /
-                      2.5), // Adjust position as needed
-                  left: (MediaQuery.of(context).size.width / 1.24),
+                  top: MediaQuery.of(context).size.height > 700 ? (MediaQuery.of(context).size.height /
+                      3.5): (MediaQuery.of(context).size.height /
+                      8), // Adjust position as needed
+                  left: (MediaQuery.of(context).size.width / 1.22),
                   child: Container(
                     child: SfSlider.vertical(
-                      min: 100.0,
-                      max: 300.0,
+                      min: 1.0,
+                      max: 5.0,
                       value: sendRadius,
-                      interval: 50,
+                      interval: 1,
                       showTicks: true,
                       showLabels: true,
                       inactiveColor: AppColors.darkGrey,
@@ -234,12 +278,46 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                       onChanged: (dynamic value) {
                         setState(() {
                           sendRadius = value;
-                          print(sendRadius);
+                          print("Radius is: $sendRadius");
                         });
                       },
                     ),
                   ),
                 ),
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 220,
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent, // Use your desired warning color
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 8), // Adjust the spacing between icon and text
+                          Text(
+                            "Pick location and set geofence",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+
               ],
             ),
           );
@@ -253,7 +331,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
                 child: Padding(
                   padding: EdgeInsets.only(right: 55.0), // Add right padding
                   child: Text(
-                    "GEOFENCING",
+                    "Maps",
                     style: AppBarStyles.appBarTextStyle,
                   ),
                 ),
@@ -284,7 +362,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
               child: Padding(
                 padding: EdgeInsets.only(right: 55.0), // Add right padding
                 child: Text(
-                  "GEOFENCING",
+                  "Maps",
                   style: AppBarStyles.appBarTextStyle,
                 ),
               ),
@@ -308,3 +386,7 @@ class _AdminMapDisplayState extends State<AdminMapDisplay> {
     });
   }
 }
+
+
+
+

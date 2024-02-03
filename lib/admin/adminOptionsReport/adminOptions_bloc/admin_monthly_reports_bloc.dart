@@ -20,6 +20,7 @@ class AdminMonthlyReportsBloc extends Bloc<AdminMonthlyReportsEvent, AdminMonthl
       final reports = await repository.fetchMonthlyReports(
         event.employeeIds,
         event.selectedMonth ?? 1,
+        event.year
       );
       // Emit the loaded state with the fetched data
       emit(AdminMonthlyReportsLoaded(reports: reports));

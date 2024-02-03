@@ -13,7 +13,7 @@ class EmpDashboardkBloc extends Bloc<EmpDashboardkEvent, EmpDashboardkState> {
     on<NavigateToLogoutEvent>(navigateToLogoutEvent);
     on<NavigateToHomeEvent>(navigateToHomeEvent);
     on<NavigateToLeaveEvent>(navigateToLeaveEvent);
-
+    on<NavigateToGeoPunchEvent>(navigateToGeoPunchEvent);
   }
 
   FutureOr<void> navigateToProfileEvent(
@@ -41,4 +41,8 @@ class EmpDashboardkBloc extends Bloc<EmpDashboardkEvent, EmpDashboardkState> {
     emit(NavigateToHomeState());
   }
 
+  FutureOr<void> navigateToGeoPunchEvent(
+      NavigateToGeoPunchEvent event, Emitter<EmpDashboardkState> emit) {
+    emit(NavigateToGeoPunchState());
+  }
 }

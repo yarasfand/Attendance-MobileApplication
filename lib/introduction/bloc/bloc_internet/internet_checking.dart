@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
@@ -10,46 +11,84 @@ import 'internet_state.dart';
 class AfterIntro extends StatelessWidget {
   const AfterIntro({Key? key});
 
+  Future<bool> _onBackPressed(BuildContext context) async {
+    bool? exitConfirmed = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Exit'),
+        content: const Text('Are you sure you want to exit the app?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (exitConfirmed == true) {
+      exitApp();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void exitApp() {
+    SystemNavigator.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: BlocConsumer<InternetBloc, InternetStates>(
-          builder: (context, state) {
-            if (state is InternetLostState) {
-              return _buildNoInternetWidget();
-            } else if (state is InternetGainedState) {
-              return Container();
-            } else {
-              return _buildNoInternetWidget();
-            }
-          },
-          listener: (context, state) async {
-            if (state is InternetGainedState) {
-              Navigator.pushReplacement(
-                context,
-                PageTransition(
-                  duration: const Duration(seconds: 1),
-                  type: PageTransitionType
-                      .rightToLeft, // Choose your desired transition type
-                  child: Builder(
-                    builder: (context) => BlocProvider(
-                      create: (context) => SignInBloc(),
-                      child: LoginPage(),
+    return WillPopScope(
+      onWillPop: () async => await _onBackPressed(context),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: BlocConsumer<InternetBloc, InternetStates>(
+            builder: (context, state) {
+              if (state is InternetLostState) {
+                return _buildNoInternetWidget();
+              } else if (state is InternetGainedState) {
+                return Container();
+              } else {
+                return _buildNoInternetWidget();
+              }
+            },
+            listener: (context, state) async {
+              if (state is InternetGainedState) {
+                Navigator.pushReplacement(
+                  context,
+                  PageTransition(
+                    duration: const Duration(seconds: 1),
+                    type: PageTransitionType
+                        .rightToLeft, // Choose your desired transition type
+                    child: Builder(
+                      builder: (context) => BlocProvider(
+                        create: (context) => SignInBloc(),
+                        child: LoginPage(),
+                      ),
                     ),
                   ),
-                ),
-              );
-            } else if (state is InternetLostState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("No internet connection!"),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          },
+                );
+              } else if (state is InternetLostState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("No internet connection!"),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+          ),
         ),
       ),
     );

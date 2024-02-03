@@ -11,7 +11,6 @@ class AdminDashboardBloc extends Bloc<AdminDashboardEvent, AdminDashboardState> 
 
   AdminDashboardBloc({required this.repository}) : super(AdminDashboardState());
 
-  @override
   Stream<AdminDashboardState> mapEventToState(AdminDashboardEvent event) async* {
     if (event is FetchDashboardData) {
       yield state.copyWith(isLoading: true, error: null);

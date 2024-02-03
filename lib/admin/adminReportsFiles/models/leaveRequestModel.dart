@@ -1,6 +1,8 @@
 class LeaveRequest {
   final int rwId;
   final String empId;
+  final String empName;
+  final String department;
   final DateTime fromdate;
   final DateTime todate;
   final String reason;
@@ -18,6 +20,8 @@ class LeaveRequest {
   LeaveRequest({
     required this.rwId,
     required this.empId,
+    required this.empName,
+    required this.department,
     required this.fromdate,
     required this.todate,
     required this.reason,
@@ -41,6 +45,8 @@ class LeaveRequest {
     return LeaveRequest(
       rwId: json['rwId'] ?? 0,
       empId: json['empId'] ?? "",
+      empName: json['empName'] ?? "",
+      department: json['department'] ?? "",
       fromdate: DateTime.tryParse(json['fromdate'] ?? "") ?? DateTime.now(),
       todate: DateTime.tryParse(json['todate'] ?? "") ?? DateTime.now(),
       reason: json['reason'] ?? "",

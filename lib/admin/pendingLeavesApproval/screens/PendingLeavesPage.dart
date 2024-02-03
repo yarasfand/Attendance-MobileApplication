@@ -1,16 +1,17 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:project/constants/AppBar_constant.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'package:project/introduction/bloc/bloc_internet/internet_state.dart';
-
 import '../../../No_internet/no_internet.dart';
+import '../../../constants/AnimatedTextPopUp.dart';
 import '../bloc/pending_leaves_bloc.dart';
 import '../bloc/pending_leaves_event.dart';
 import '../bloc/pending_leaves_state.dart';
-import '../model/ApproveManualPunchModel.dart';
 import '../model/ApproveManualPunchRepository.dart';
 import '../model/PendingLeavesModel.dart';
 
@@ -25,20 +26,38 @@ class PendingLeavesPage extends StatefulWidget {
       _PendingLeavesPageState(approveRepository);
 }
 
-class _PendingLeavesPageState extends State<PendingLeavesPage> {
+class _PendingLeavesPageState extends State<PendingLeavesPage> with TickerProviderStateMixin{
   String? errorMessage; // Declare the errorMessage variable
   final ApproveManualPunchRepository approveRepository;
 
   // Constructor to inject the repository
   _PendingLeavesPageState(this.approveRepository);
+  late AnimationController addToCartPopUpAnimationController;
 
+  void dispose() {
+    addToCartPopUpAnimationController.dispose();
+    super.dispose();
+  }
   @override
   void initState() {
+    addToCartPopUpAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
     super.initState();
     // Trigger the fetch event when the widget is initialized.
     BlocProvider.of<PendingLeavesBloc>(context).add(FetchPendingLeaves());
   }
 
+  void showPopupWithMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return addToCartPopUpSuccess(
+            addToCartPopUpAnimationController, message);
+      },
+    );
+  }
   void _refreshPendingLeaves() {
     BlocProvider.of<PendingLeavesBloc>(context).add(FetchPendingLeaves());
   }
@@ -108,6 +127,16 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
   }
 
   Widget _buildList(List<PendingLeavesModel> leaves) {
+    if(leaves.isEmpty)
+      {
+        return Center(
+          child: Text(
+            'No Data Available',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        );
+      }
+
     return ListView.builder(
       itemCount: leaves.length,
       itemBuilder: (context, index) {
@@ -123,12 +152,27 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+
                   Icon(Icons.credit_card, size: 36), // Icon for Card No
                   Text(
                     '${leave.cardNo}',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
+                  // Icon(Icons.person, size: 36), // Icon for Card No
+                  Text(
+                    '${leave.empName}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+
+                  // Icon(FontAwesomeIcons.building, size: 36), // Icon for Card No
+                  Text(
+                    '${leave.deptName}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+
                   Icon(Icons.access_time, size: 36), // Icon for Punch Date Time
                   Text(
                     '$formattedDateTime',
@@ -137,7 +181,7 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
                   SizedBox(height: 10),
                   Icon(Icons.location_on, size: 36), // Icon for Location
                   Container(
-                    width: 250,
+                    width: 200,
                     child: Center(
                       child: Text(
                         '${leave.location}',
@@ -149,7 +193,7 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
                   ElevatedButton(
                     onPressed: () {
                       // Call the method to approve the leave and show feedback with FutureBuilder
-                      _approveLeave(leave.cardNo, leave.punchDatetime);
+                      _approveLeave(leave.cardNo, leave.punchDatetime, leave.id);
                     },
                     child: Text('Approve'),
                   ),
@@ -162,13 +206,15 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
     );
   }
 
-  void _approveLeave(String cardNo, DateTime punchDatetime) {
+  void _approveLeave(String cardNo, DateTime punchDatetime, int id) {
     final dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     final formattedPunchDatetime = dateFormat.format(punchDatetime);
     final formattedDateTime1 = dateFormat.format(DateTime.now().toUtc());
 
     final data = [
       {
+        "id": id,
+        // id should be added same
         "cardNo": cardNo, // Pass cardNo as leave.cardNo
         "punchDatetime":
             formattedPunchDatetime, // Punch Date-Time = formatted punchDatetime
@@ -185,9 +231,14 @@ class _PendingLeavesPageState extends State<PendingLeavesPage> {
 
     approveRepository.postApproveManualPunch(data).then((_) {
       // Handle success if needed
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Leave approved successfully')),
-      );
+      addToCartPopUpAnimationController.forward();
+
+      // Delay for a few seconds and then reverse the animation
+      Timer(const Duration(seconds: 2), () {
+        addToCartPopUpAnimationController.reverse();
+        Navigator.pop(context);
+      });
+      showPopupWithMessage("Attendance Approved Successfully!");
       _refreshPendingLeaves();
     }).catchError((error) {
       // Handle the error

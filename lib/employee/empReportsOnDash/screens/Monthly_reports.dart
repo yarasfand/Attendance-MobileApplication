@@ -13,7 +13,7 @@ class MonthlyReportsPage extends StatefulWidget {
 
 class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
   int selectedMonth = DateTime.now().month; // Default to current month
-
+  int selectedYear = DateTime.now().year;
   // Declare monthNames here
   List<String> monthNames = [
     'January',
@@ -38,10 +38,12 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
   Future<void> loadSelectedMonth() async {
     final prefs = await SharedPreferences.getInstance();
     final storedMonth = prefs.getInt('selectedMonth');
+    final storedYear = prefs.getInt('selectedYear');
 
-    if (storedMonth != null) {
+    if (storedMonth != null && storedYear != null) {
       setState(() {
         selectedMonth = storedMonth;
+        selectedYear = storedYear;
       });
     }
   }
@@ -86,21 +88,43 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       ),
       body: Column(
         children: [
-          DropdownButton<String>(
-            value: monthNames[selectedMonth - 1], // Adjust for 0-based index
-            onChanged: (String? newValue) {
-              if (newValue != null) {
-                int monthIndex = monthNames.indexOf(newValue) + 1;
-                _onMonthSelected(monthIndex);
-              }
-            },
-            items: monthNames.map((String month) {
-              return DropdownMenuItem<String>(
-                value: month,
-                child: Text(month),
-              );
-            }).toList(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownButton<String>(
+                value: monthNames[selectedMonth - 1], // Adjust for 0-based index
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    int monthIndex = monthNames.indexOf(newValue) + 1;
+                    _onMonthSelected(monthIndex);
+                  }
+                },
+                items: monthNames.map((String month) {
+                  return DropdownMenuItem<String>(
+                    value: month,
+                    child: Text(month),
+                  );
+                }).toList(),
+              ),
+              DropdownButton<int>(
+                value: selectedYear,
+                onChanged: (int? newValue) {
+                  if (newValue != null) {
+                    _onYearSelected(newValue);
+                  }
+                },
+                items: List.generate(10, (index) {
+                  return DropdownMenuItem<int>(
+                    value: DateTime.now().year - index,
+                    child: Text((DateTime.now().year - index).toString()),
+                  );
+                }),
+              ),
+
+            ],
           ),
+
+
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
               // Replace with your API call using the MonthlyReportsRepository
@@ -113,7 +137,7 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
                     child: Text('Error: ${snapshot.error.toString()}'),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No monthly reports available.'));
+                  return Center(child: Text('No data available.'));
                 } else {
                   // If data has been successfully fetched, display it
                   final monthlyReports = snapshot.data!;
@@ -130,6 +154,16 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
     );
   }
 
+  Future<void> _onYearSelected(int year) async {
+    // Save the selected year to shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('selectedYear', year);
+
+    // Trigger API call with the new selected year
+    setState(() {
+      selectedYear = year;
+    });
+  }
   // Replace this function with your actual API call using the MonthlyReportsRepository
   Future<List<Map<String, dynamic>>> fetchMonthlyReportsData({
     required int selectedMonth,
@@ -145,6 +179,7 @@ class _MonthlyReportsPageState extends State<MonthlyReportsPage> {
       final reportsData = await repository.getMonthlyReports(
 
         month: selectedMonth,
+        year: selectedYear,
       );
 
       // Map MonthlyReportsModel objects to the desired format
@@ -358,35 +393,42 @@ class MonthlyReportsListView extends StatelessWidget {
                   TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        "Worked: ${hoursWorked}",
-                        style: TextStyle(color: Colors.grey),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0), // Add the desired top padding
+                        child: Text(
+                          "Worked: ${hoursWorked/60}",
+                          style: TextStyle(color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),
                   TableCell(
-                    child: Row(
-                      children: [
-                        SizedBox(width: 60,),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green, // Status color
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          padding: EdgeInsets.all(8),
-                          child: Text(
-                            "Status: ${status != null ? (status.length > 15 ? status.substring(0, 15) + '...' : status) : '---'}",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10.0), // Add the desired top padding
+                      child: Row(
+                        children: [
+                          SizedBox(width: 60,),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green, // Status color
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            padding: EdgeInsets.all(8),
+                            child: Text(
+                              "Status: ${status != null ? (status.length > 15 ? status.substring(0, 15) + '...' : status) : '---'}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
               )
+
 
 
 

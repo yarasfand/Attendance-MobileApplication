@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:project/admin/adminOptionsReport/adminOptions_bloc/admin_monthly_reports_bloc.dart';
 import 'package:project/admin/adminOptionsReport/models/AdminDailyReportsRepository.dart';
 import 'package:project/admin/adminOptionsReport/models/AdminMonthlyReportsRepository.dart';
@@ -51,8 +53,15 @@ import 'employee/empReportsOnDash/models/empPostLeaveRequestRepository.dart';
 import 'introduction/bloc/bloc_internet/internet_bloc.dart';
 import 'introduction/utilities/api_integration_files/api_intigration_bloc.dart';
 import 'login/bloc/loginBloc/loginbloc.dart';
+import 'package:device_preview/device_preview.dart';
 
-void main() {
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Future.delayed(Duration(seconds: 3));
+  FlutterNativeSplash.remove();
+  // runApp(DevicePreview(builder: (BuildContext context) {
+  //   return MyApp();
+  // }));
   runApp(MyApp());
 }
 
@@ -201,13 +210,16 @@ class MyApp extends StatelessWidget {
             create: (context) {
               return AdminProfileBloc(AdminProfileRepository());
             },
-            child: AdminProfilePage(),
+            child: AdminProfilePage(
+              onProfileEdit: () {},
+            ),
           ),
           BlocProvider(
             create: (context) => AdminEditProfileBloc(
                 AdminEditProfileRepository("http://62.171.184.216:9595")),
-            child:
-                const AdminEditProfilePage(), // Replace with your main UI page
+            child: AdminEditProfilePage(
+              onSave: () {},
+            ), // Replace with your main UI page
           ),
           BlocProvider(
             create: (context) => AdminReportsBloc(
@@ -218,6 +230,9 @@ class MyApp extends StatelessWidget {
           ),
         ],
         child: MaterialApp(
+          // useInheritedMediaQuery: true,
+          // locale: DevicePreview.locale(context),
+          // builder: DevicePreview.appBuilder,
           debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: ThemeData(

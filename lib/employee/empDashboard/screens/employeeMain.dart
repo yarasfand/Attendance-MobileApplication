@@ -14,6 +14,7 @@ import '../../../introduction/bloc/bloc_internet/internet_bloc.dart';
 import '../../../introduction/bloc/bloc_internet/internet_state.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
+import '../../empMap/screens/employeemap.dart';
 import '../../empProfilePage/models/empProfileModel.dart';
 import '../../empProfilePage/models/empProfileRepository.dart';
 import '../../empProfilePage/screens/profilepage.dart';
@@ -54,21 +55,8 @@ class EmpMainPageState extends State<EmpMainPage> {
 
         await dbHelper.deleteAttendenceData();
 
-        List<Map<String, dynamic>> remainingEmployees =
-            await dbHelper.getEmployees();
-        print("Remaining Employees: $remainingEmployees");
-
-        bool isDataDeleted = remainingEmployees.isEmpty;
-
-        if (!isDataDeleted) {
-          // Data not deleted
-          print("data not deleted");
-          return false;
-        }
       }
 
-      print("Executing return");
-      Navigator.popUntil(context, (route) => route.isFirst);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -78,8 +66,6 @@ class EmpMainPageState extends State<EmpMainPage> {
           ),
         ),
       );
-      print("After deletion");
-      await EmployeeDatabaseHelper.instance.printProfileData();
 
       // Data successfully deleted
       return true;
@@ -95,6 +81,7 @@ class EmpMainPageState extends State<EmpMainPage> {
     super.initState();
     profileRepository = EmpProfileRepository();
 
+    print("Drawer opens and closed");
     fetchProfileData();
   }
 
@@ -181,6 +168,9 @@ class EmpMainPageState extends State<EmpMainPage> {
                             case EmpDrawerItems.profile:
                               dashBloc.add(NavigateToProfileEvent());
                               break;
+                            case EmpDrawerItems.geoPunch:
+                              dashBloc.add(NavigateToGeoPunchEvent());
+                              break;
                             case EmpDrawerItems.leaves:
                               dashBloc.add(NavigateToLeaveEvent());
                               break;
@@ -252,6 +242,9 @@ class EmpMainPageState extends State<EmpMainPage> {
             return LeaveRequestPage(
               viaDrawer: true,
             );
+          }else if (state is NavigateToGeoPunchState) {
+            print("This is leave state");
+            return EmployeeMap(viaDrawer: true);
           } else if (state is NavigateToHomeState) {
             return EmpDashHome();
           } else if (state is NavigateToReportsState) {
@@ -270,12 +263,7 @@ class EmpMainPageState extends State<EmpMainPage> {
                   await _logout(context);
                 },
                 onCancelBtnTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EmpMainPage(),
-                    ),
-                  );
+
                 },
               );
             });
@@ -299,6 +287,8 @@ class EmpMainPageState extends State<EmpMainPage> {
         return "Reports";
       case EmpDrawerItems.profile:
         return "Profile";
+      case EmpDrawerItems.geoPunch:
+        return "Geo Punch";
       case EmpDrawerItems.logout:
         return "Home"; // You can return an empty string if needed
       default:

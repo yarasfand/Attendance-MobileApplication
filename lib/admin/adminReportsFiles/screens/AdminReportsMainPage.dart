@@ -107,8 +107,8 @@ class AdminReportsMainPage extends StatelessWidget {
                           ),
                         ),
                         child: LeaveCard(
-                          title: 'Leave Submission',
-                          image: Image.asset('assets/icons/submission.png'),
+                          title: 'Leave Application',
+                          image: Image.asset('assets/icons/leaveApplication.png'),
                         ),
                       ),
                     ),
@@ -126,7 +126,7 @@ class AdminReportsMainPage extends StatelessWidget {
                         ),
                         child: LeaveCard(
                           title: 'Leave Approval',
-                          image: Image.asset('assets/icons/approval.png'),
+                          image: Image.asset('assets/icons/leaveApprovalAdmin.png'),
                         ),
                       ),
                     ),

@@ -12,19 +12,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:project/constants/globalObjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../Sqlite/admin_sqliteHelper.dart';
 import '../../../login/bloc/loginBloc/loginbloc.dart';
 import '../../../login/screens/loginPage.dart';
+import '../../adminDashboard/screen/adminMain.dart';
 import '../bloc/admin_profile_bloc.dart';
 import '../bloc/admin_profile_event.dart';
 import '../bloc/admin_profile_state.dart';
 import 'AdminEditProfilePage.dart';
 
-typedef void RefreshDataCallbackAdmin();
 
 class AdminProfilePage extends StatefulWidget {
-  final RefreshDataCallbackAdmin? onRefreshData;
+  final Function onProfileEdit;
 
-  AdminProfilePage({Key? key, this.onRefreshData}) : super(key: key);
+  const AdminProfilePage({Key? key, required this.onProfileEdit}) : super(key: key);
 
   @override
   AdminProfilePageState createState() => AdminProfilePageState();
@@ -32,38 +33,56 @@ class AdminProfilePage extends StatefulWidget {
 
 class AdminProfilePageState extends State<AdminProfilePage> {
   late AdminProfileBloc adminProfileBloc;
+  bool _didEditProfile = false; // Add this variable
 
-  void _logout(BuildContext context) {
-    CoolAlert.show(
-      context: context,
-      type: CoolAlertType.warning,
-      text: 'Do you want to logout?',
-      confirmBtnText: 'Logout!',
-      cancelBtnText: 'No',
-      confirmBtnColor: Colors.blue,
-      onConfirmBtnTap: () async {
-        // Handle logout logic
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('isLoggedIn', false);
-        prefs.setBool('isEmployee', false);
+  void updateProfileData() {
+    // Fetch and update the profile data
+    fetchProfileData();
+    // Trigger a rebuild of the widget tree
+    setState(() {});
+  }
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return Builder(
+  Future<void> _logout(BuildContext context) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isLoggedIn', false);
+      prefs.setBool('isEmployee', false);
+
+      // Get the employee ID from the SQLite table
+      final adminDbHelper = AdminDatabaseHelper();
+
+      // Wait for the data deletion to complete
+      CoolAlert.show(context: context, type: CoolAlertType.confirm,
+          title: 'Confirm Logout',
+          text: 'Are you sure?',
+          confirmBtnText: 'Logout',
+          cancelBtnText: 'Cancel',
+          onConfirmBtnTap: () async{
+            await adminDbHelper.deleteAllAdmins();
+            Navigator.of(context).pop();
+
+            // Perform logout after confirmation
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
                 builder: (context) => BlocProvider(
                   create: (context) => SignInBloc(),
                   child: LoginPage(),
                 ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+              ),
+            );
+          },
+        onCancelBtnTap: ()  {
 
+        }
+      );
+      // Show the custom confirmation dialog
+
+    } catch (e) {
+      print("Error during logout: $e");
+      print("Logout failed: Data not deleted");
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -143,6 +162,59 @@ class AdminProfilePageState extends State<AdminProfilePage> {
     });
     print(GlobalObjects.adminMail);
     print(GlobalObjects.adminusername);
+  }
+  Future<bool> _confirmLogout(BuildContext context) async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Confirm Logout',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            // Add any other styles you want
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Are you sure you want to logout?',
+              style: TextStyle(
+                fontSize: 16,
+                // Add any other styles you want
+              ),
+            ),
+            // Add any additional content here
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text(
+              'No',
+              style: TextStyle(
+                // Add any styles you want for the 'No' button
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text(
+              'Yes',
+              style: TextStyle(
+                // Add any styles you want for the 'Yes' button
+                color: Colors.red, // For example, making the text red
+              ),
+            ),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
   @override
@@ -302,7 +374,7 @@ class AdminProfilePageState extends State<AdminProfilePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: MediaQuery.of(context).size.height > 720 ? 20: 0),
                   Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: Container(
@@ -318,13 +390,27 @@ class AdminProfilePageState extends State<AdminProfilePage> {
                               final result = await Navigator.push(
                                 context,
                                 PageTransition(
-                                  child: const AdminEditProfilePage(),
+                                  child:  AdminEditProfilePage(
+                                    onSave: () {
+                                      // Callback function triggered when data is saved in EditProfilePage
+                                      updateProfileData();
+                                    },
+                                    onSaveSuccess: () {
+                                      // Set the boolean value to true when the user comes back
+                                      setState(() {
+                                        _didEditProfile = true;
+                                      });
+                                    },
+                                  ),
                                   type: PageTransitionType.rightToLeft,
                                 ),
                               );
-                              if (result == true) {
-                                // Refresh the admin profile data when the user returns from EditProfile
-                                fetchProfileData();
+                              if (_didEditProfile) {
+                                widget.onProfileEdit(); // Call the callback function here
+                                updateProfileData();
+                                setState(() {
+                                  _didEditProfile = false; // Reset the boolean value
+                                });
                               }
                             },
                           ),
@@ -334,8 +420,11 @@ class AdminProfilePageState extends State<AdminProfilePage> {
                           _buildTileWidget(
                             title: 'Logout',
                             icon: Icons.logout,
-                            onTap: () => _logout(context),
+                            onTap: () async {
+                                await _logout(context);
+                            },
                           ),
+
                         ],
                       ),
                     ),

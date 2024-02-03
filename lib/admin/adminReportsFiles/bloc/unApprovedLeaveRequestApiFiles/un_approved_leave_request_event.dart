@@ -1,3 +1,4 @@
+// un_approved_leave_request_event.dart
 import 'package:equatable/equatable.dart';
 
 abstract class UnapprovedLeaveRequestEvent extends Equatable {
@@ -8,3 +9,5 @@ abstract class UnapprovedLeaveRequestEvent extends Equatable {
 }
 
 class FetchUnapprovedLeaveRequests extends UnapprovedLeaveRequestEvent {}
+
+class ClearUnapprovedLeaveRequests extends UnapprovedLeaveRequestEvent {}

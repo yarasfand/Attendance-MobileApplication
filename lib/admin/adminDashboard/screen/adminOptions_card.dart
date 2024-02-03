@@ -6,20 +6,24 @@ class AdminStorageInfoCard extends StatelessWidget {
   const AdminStorageInfoCard({
     Key? key,
     required this.title,
-    required this.svgSrc,
+    required this.imageOrIcon, // Modified property
   }) : super(key: key);
 
-  final String title, svgSrc;
+  final String title;
+  final Widget imageOrIcon; // Modified property
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFFFAF9F6), //Cream color
+      color: const Color(0xFFFAF9F6), // Cream color
       elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: MediaQuery.of(context).size.height > 720
+          ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Container(
-        // margin: EdgeInsets.only(top: defaultPadding),
-        padding: const EdgeInsets.all(20),
+        padding: MediaQuery.of(context).size.height > 720
+            ? EdgeInsets.all(20)
+            : EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(
             Radius.circular(defaultPadding),
@@ -28,13 +32,14 @@ class AdminStorageInfoCard extends StatelessWidget {
         child: Row(
           children: [
             SizedBox(
-              height: 20,
-              width: 20,
-              child: Image.asset(svgSrc),
+              height: 25,
+              width: 25,
+              child: imageOrIcon, // Use the provided image or icon
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+                padding:
+                const EdgeInsets.symmetric(horizontal: defaultPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -42,7 +47,9 @@ class AdminStorageInfoCard extends StatelessWidget {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: AppColors.black),
+                      style: const TextStyle(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

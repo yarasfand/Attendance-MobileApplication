@@ -175,33 +175,37 @@ class HomePageState extends State<EmpDashHome> {
       if (loggedInEmployeeId > 0) {
         final profileData = await dbHelper.getEmployeeProfileData();
 
+        if (mounted) {  // Add this check to avoid calling setState on a disposed widget
+          setState(() {
+            GlobalObjects.empCode = profileData['empCode'];
+            GlobalObjects.empProfilePic = profileData['profilePic'];
+            GlobalObjects.empName = profileData['empName'];
+            GlobalObjects.empMail = profileData['emailAddress'];
+            GlobalObjects.empIn1 = empAttendanceData.in1;
+            GlobalObjects.empOut2 = empAttendanceData.out2;
+            GlobalObjects.empStatus = empAttendanceData.status?.toString() ?? '';
+            GlobalObjects.empPresent = empDashData[0].presentCount.toString() ?? '';
+            GlobalObjects.empAbsent = empDashData[0].absentCount.toString() ?? '';
+            GlobalObjects.empLeaves = empDashData[0].leaveCount.toString() ?? '';
+            setState(() {
+              loadingData = false;
+            });
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching profile data: $e");
+    } finally {
+      if (mounted) {
         setState(() {
-          GlobalObjects.empCode = profileData['empCode'];
-          GlobalObjects.empProfilePic = profileData['profilePic'];
-          GlobalObjects.empName = profileData['empName'];
-          GlobalObjects.empMail = profileData['emailAddress'];
           GlobalObjects.empIn1 = empAttendanceData.in1;
           GlobalObjects.empOut2 = empAttendanceData.out2;
           GlobalObjects.empStatus = empAttendanceData.status?.toString() ?? '';
           GlobalObjects.empPresent = empDashData[0].presentCount.toString() ?? '';
           GlobalObjects.empAbsent = empDashData[0].absentCount.toString() ?? '';
           GlobalObjects.empLeaves = empDashData[0].leaveCount.toString() ?? '';
-          setState(() {
-            loadingData = false;
-          });
         });
       }
-    } catch (e) {
-      print("Error fetching profile data: $e");
-    } finally {
-      setState(() {
-        GlobalObjects.empIn1 = empAttendanceData.in1;
-        GlobalObjects.empOut2 = empAttendanceData.out2;
-        GlobalObjects.empStatus = empAttendanceData.status?.toString() ?? '';
-        GlobalObjects.empPresent = empDashData[0].presentCount.toString() ?? '';
-        GlobalObjects.empAbsent = empDashData[0].absentCount.toString() ?? '';
-        GlobalObjects.empLeaves = empDashData[0].leaveCount.toString() ?? '';
-      });
     }
   }
 
@@ -259,20 +263,20 @@ class HomePageState extends State<EmpDashHome> {
     bool? exitConfirmed = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirm Exit'),
-        content: Text('Are you sure you want to exit the app?'),
+        title: const Text('Confirm Exit'),
+        content: const Text('Are you sure you want to exit the app?'),
         actions: <Widget>[
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: Text('No'),
+            child: const Text('No'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
             },
-            child: Text('Yes'),
+            child: const Text('Yes'),
           ),
         ],
       ),
@@ -379,7 +383,7 @@ class HomePageState extends State<EmpDashHome> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => EmployeeMap(),
+          builder: (context) => EmployeeMap(viaDrawer: false,),
         ),
       );
     }
@@ -400,7 +404,7 @@ class HomePageState extends State<EmpDashHome> {
       lowerButtonsVertical = 5;
     } else {
       lowerButtonsHorizontal = 10;
-      lowerButtonsVertical = 35;
+      lowerButtonsVertical = 15;
     }
 
     //FIRST APPROACH
@@ -410,33 +414,7 @@ class HomePageState extends State<EmpDashHome> {
       },
       builder: (context, state) {
         if (state is InternetGainedState) {
-          return loadingData
-              ? Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                )
-              : RefreshIndicator(
-                  onRefresh: () async {
-                    showDialog(
-                      context: context,
-                      barrierDismissible:
-                          false, // Prevent user from dismissing the dialog
-                      builder: (BuildContext context) {
-                        return Scaffold(
-                          body: Center(child: CircularProgressIndicator()),
-                        );
-                      },
-                    );
-
-                    // Simulate a delay for 2 seconds (replace this with your actual data fetching logic)
-                    await Future.delayed(Duration(seconds: 2));
-
-                    // Close the dialog
-                    Navigator.of(context).pop();
-
-                    // Fetch profile data
-                    await fetchProfileData();
-                  },
-                  child: Scaffold(
+          return Scaffold(
                     appBar: AppBar(
                       leading: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
@@ -474,7 +452,7 @@ class HomePageState extends State<EmpDashHome> {
                                   barrierDismissible:
                                       false, // Prevent user from dismissing the dialog
                                   builder: (BuildContext context) {
-                                    return Scaffold(
+                                    return const Scaffold(
                                       body: Center(
                                           child: CircularProgressIndicator()),
                                     );
@@ -482,7 +460,7 @@ class HomePageState extends State<EmpDashHome> {
                                 );
 
                                 // Simulate a delay for 2 seconds (replace this with your actual data fetching logic)
-                                await Future.delayed(Duration(seconds: 2));
+                                await Future.delayed(const Duration(seconds: 2));
 
                                 // Close the dialog
                                 Navigator.of(context).pop();
@@ -490,12 +468,12 @@ class HomePageState extends State<EmpDashHome> {
                                 // Fetch profile data
                                 await fetchProfileData();
                               },
-                              icon: Icon(Icons.refresh, color: Colors.white),
+                              icon: const Icon(Icons.refresh, color: Colors.white),
                             ),
                           ),
                         ),
                       ],
-                      toolbarHeight: MediaQuery.of(context).size.height / 10,
+                      toolbarHeight: MediaQuery.of(context).size.height < 700? MediaQuery.of(context).size.height / 8 : MediaQuery.of(context).size.height / 10,
                     ),
                     body: SingleChildScrollView(
                       child: Column(
@@ -711,8 +689,9 @@ class HomePageState extends State<EmpDashHome> {
                           ),
                         ],
                       ),
-                    ),
-                  ));
+                    )
+          );
+
         } else if (state is InternetLostState) {
           return Expanded(
             child: Scaffold(
@@ -721,7 +700,7 @@ class HomePageState extends State<EmpDashHome> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Slow or No Internet Connection!",
+                      "Slow or No Internet Connection homepage no internet state!",
                       style: TextStyle(
                         color: Colors.red,
                         fontSize: 30,
@@ -746,7 +725,7 @@ class HomePageState extends State<EmpDashHome> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        "No Internet Connection!",
+                        "Slow or No Internet Connection homepage no internet state!",
                         style: TextStyle(
                           color: Colors.red,
                           fontSize: 30,

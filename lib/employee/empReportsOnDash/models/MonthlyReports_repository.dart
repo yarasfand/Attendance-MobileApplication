@@ -31,6 +31,7 @@ class MonthlyReportsRepository {
 
   Future<List<MonthlyReportsModel>> getMonthlyReports({
     required int month,
+    required int year,
   }) async {
     try {
       final employeeData = await getEmployeeData();
@@ -38,7 +39,7 @@ class MonthlyReportsRepository {
       final int employeeId = employeeData['employeeId'] as int;
 
       final Uri uri = Uri.parse(
-          '$baseUrl?CorporateId=$corporateId&employeeId=$employeeId&Month=$month');
+          '$baseUrl?CorporateId=$corporateId&employeeId=$employeeId&Month=$month&year=$year');
 
       final response = await http.get(uri);
 
@@ -58,4 +59,7 @@ class MonthlyReportsRepository {
       throw Exception('Failed to load monthly reports: $e');
     }
   }
+
+
+
 }

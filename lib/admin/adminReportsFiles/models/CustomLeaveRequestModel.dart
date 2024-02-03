@@ -1,4 +1,5 @@
 class CustomLeaveRequestModel {
+  final int id;
   final String employeeId;
   final String fromDate;
   final String toDate;
@@ -11,6 +12,7 @@ class CustomLeaveRequestModel {
   final String? remark;
 
   CustomLeaveRequestModel({
+    required this.id,
     required this.employeeId,
     required this.fromDate,
     required this.toDate,
@@ -25,6 +27,7 @@ class CustomLeaveRequestModel {
 
   factory CustomLeaveRequestModel.fromJson(Map<String, dynamic> json) {
     return CustomLeaveRequestModel(
+      id: json['id'],
       employeeId: json['employeeId'],
       fromDate: json['fromDate'],
       toDate: json['toDate'],
@@ -40,6 +43,7 @@ class CustomLeaveRequestModel {
 
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
       "employeeId": employeeId,
       "fromDate": fromDate,
       "toDate": toDate,

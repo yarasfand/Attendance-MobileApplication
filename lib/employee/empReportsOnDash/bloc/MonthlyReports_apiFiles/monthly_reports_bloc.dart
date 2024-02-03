@@ -21,6 +21,7 @@ class MonthlyReportsBloc extends Bloc<MonthlyReportsEvent, MonthlyReportsState> 
           final reports = await repository.getMonthlyReports(
 
             month: event.month,
+            year: event.year,
           );
 
           emit(MonthlyReportsLoaded(reports: reports));

@@ -56,21 +56,22 @@ class LeaveRequestPage extends StatelessWidget {
 
       ),
       backgroundColor: Colors.white,
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              viaDrawer
-                  ? WillPopScope(
-                onWillPop: () async {
-                  return _onBackPressed(context)
-                      .then((value) => value ?? false);
-                },
-                child: const SizedBox(),
-              )
-                  : SizedBox(),
-              GestureDetector(
+      body: Column(
+        children:[
+          viaDrawer
+              ? WillPopScope(
+            onWillPop: () async {
+              return _onBackPressed(context)
+                  .then((value) => value ?? false);
+            },
+            child: const SizedBox(),
+          )
+              : SizedBox(),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.all(30),
+              width: double.infinity, // Make the width full
+              child: GestureDetector(
                 onTap: () {
                   Navigator.push(
                       context,
@@ -78,13 +79,18 @@ class LeaveRequestPage extends StatelessWidget {
                         builder: (context) => LeaveRequestForm(),
                       ));
                 },
-                child: CardWidget(
-                  image: Image.asset("assets/images/request.png"),
-                  text: 'LEAVE APPLICATION',
+                child: LeaveCard(
+                  image: Image.asset("assets/icons/leaveApplication.png"),
+                  title: 'LEAVE APPLICATION',
                 ),
               ),
-              const SizedBox(height: 20),
-              GestureDetector(
+            ),
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.all(30),
+              width: double.infinity, // Make the width full
+              child: GestureDetector(
                 onTap: () {
                   Navigator.push(
                       context,
@@ -92,52 +98,46 @@ class LeaveRequestPage extends StatelessWidget {
                         builder: (context) => LeavesHistoryPage(),
                       ));
                 },
-                child: CardWidget(
+                child: LeaveCard(
                   image: Image.asset("assets/images/history.png"),
-                  text: 'LEAVE DETAILS',
+                  title: 'LEAVE DETAILS',
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-class CardWidget extends StatelessWidget {
+class LeaveCard extends StatelessWidget {
+  final String title;
   final Image image;
-  final String text;
 
-  CardWidget({required this.image, required this.text});
+  LeaveCard({required this.title, required this.image});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width *
-          0.8, // Adjust card width as needed
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: AppColors.secondaryColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+    return Card(
+      elevation: 4.0,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: 50, width: 50, child: image),
+          children: [
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: image, // Use the provided image here
+            ),
             const SizedBox(height: 20),
             Text(
-              text,
-              style: const TextStyle(fontSize: 20, color: Colors.white,fontWeight: FontWeight.bold),
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),

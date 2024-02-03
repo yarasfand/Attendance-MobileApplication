@@ -35,6 +35,25 @@ class AdminMainPageState extends State<AdminMainPage> {
   late String corporateId;
   late String username;
 
+  Future<void> fetchProfileData() async {
+    SharedPreferences prefAdmin = await SharedPreferences.getInstance();
+    GlobalObjects.adminusername = prefAdmin.getString('admin_username');
+    GlobalObjects.adminCorpId = prefAdmin.getString('admin_corporateId');
+    final repository = AdminProfileRepository();
+    final employeeData = await repository
+        .fetchAdminProfile(prefAdmin.getString('admin_username').toString());
+
+    setState(() {
+      GlobalObjects.adminMail = employeeData!.email;
+      GlobalObjects.adminusername = employeeData.userName;
+      GlobalObjects.adminpassword = employeeData.userPassword;
+      GlobalObjects.adminphonenumber = employeeData.mobile;
+      GlobalObjects.adminJoinedDate = employeeData.onDate;
+    });
+    print(GlobalObjects.adminMail);
+    print(GlobalObjects.adminusername);
+  }
+
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', false);
@@ -206,9 +225,11 @@ class AdminMainPageState extends State<AdminMainPage> {
         bloc: dashBloc,
         builder: (context, state) {
           if (state is NavigateToProfileState) {
-            return AdminProfilePage(onRefreshData: () {
-              fetchAdminProfileData(corporateId, username);
-            });
+            return AdminProfilePage(onProfileEdit: () {
+              // Call fetchProfileData when the profile is edited
+              fetchProfileData();
+            },
+            );
           }
           else if (state is NavigateToLeavesState) {
             return AdminReportsMainPage(viaDrawer: true,);
@@ -238,12 +259,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                   await _logout(context);
                 },
                 onCancelBtnTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdminMainPage(),
-                    ),
-                  );
+
                 },
               );
             });

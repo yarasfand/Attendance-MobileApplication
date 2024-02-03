@@ -136,331 +136,324 @@ class _LeaveRequestFormState extends State<LeaveRequestForm>
         centerTitle: true,
         iconTheme: IconThemeData(color: AppBarStyles.appBarIconColor),
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: BlocProvider(
-              create: (context) {
-                return EmpLeaveRequestBloc(
-                  RepositoryProvider.of<EmpLeaveRepository>(context),
-                )..add(EmpLeaveRequestLoadingEvent());
-              },
-              child: BlocConsumer<EmpLeaveRequestBloc, EmpLeaveRequestState>(
-                listener: (context, state) {
-                  // TODO: implement listener
-                },
-                builder: (context, state) {
-                  if (state is EmpLeaveRequestLoadingState) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (state is EmpLeaveRequestLoadedState) {
-                    int selectedTypeId = 0;
-                    List<EmpLeaveModel> userList = state.users;
-                    final employeeLeave1 = userList.isNotEmpty
-                        ? userList[0]
-                        : EmpLeaveModel(
-                            leaveTypeId: 0, ltypeCode: '', ltypeName: '');
-                    final employeeLeave2 = userList.length > 1
-                        ? userList[1]
-                        : EmpLeaveModel(
-                            leaveTypeId: 0, ltypeCode: '', ltypeName: '');
-                    final employeeLeave3 = userList.length > 2
-                        ? userList[2]
-                        : EmpLeaveModel(
-                            leaveTypeId: 0, ltypeCode: '', ltypeName: '');
+      body: BlocProvider(
+        create: (context) {
+          return EmpLeaveRequestBloc(
+            RepositoryProvider.of<EmpLeaveRepository>(context),
+          )..add(EmpLeaveRequestLoadingEvent());
+        },
+        child: BlocConsumer<EmpLeaveRequestBloc, EmpLeaveRequestState>(
+          listener: (context, state) {
+          },
+          builder: (context, state) {
+            if (state is EmpLeaveRequestLoadingState) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is EmpLeaveRequestLoadedState) {
+              int selectedTypeId = 0;
+              List<EmpLeaveModel> userList = state.users;
+              final employeeLeave1 = userList.isNotEmpty
+                  ? userList[0]
+                  : EmpLeaveModel(
+                      leaveTypeId: 0, ltypeCode: '', ltypeName: '');
+              final employeeLeave2 = userList.length > 1
+                  ? userList[1]
+                  : EmpLeaveModel(
+                      leaveTypeId: 0, ltypeCode: '', ltypeName: '');
+              final employeeLeave3 = userList.length > 2
+                  ? userList[2]
+                  : EmpLeaveModel(
+                      leaveTypeId: 0, ltypeCode: '', ltypeName: '');
 
-                    selectedTypeId = employeeLeave1.leaveTypeId ?? 0;
+              selectedTypeId = employeeLeave1.leaveTypeId ?? 0;
 
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Center(
-                        child: Container(
-                          margin: EdgeInsets.only(top: 50),
-                          color: AppColors.brightWhite,
-                          width: MediaQuery.of(context).size.width /
-                              1.2, // Adjust the width as needed
-                          child: Card(
-                            color: AppColors.brightWhite,
-                            elevation: 5,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: <Widget>[
-                                  Text(
-                                    'Leave Request Form',
-                                    style: GoogleFonts.openSans(
-                                      textStyle: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  const Text(
-                                    'From Date',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextFormField(
-                                          readOnly: true,
-                                          onTap: () => _selectFromDate(context),
-                                          decoration: const InputDecoration(
-                                            hintText: 'Select Date',
-                                            suffixIcon:
-                                                Icon(Icons.calendar_today),
-                                          ),
-                                          controller: TextEditingController(
-                                            text: "${_fromDate.toLocal()}"
-                                                .split(' ')[0],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'To Date',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextFormField(
-                                          readOnly: true,
-                                          onTap: () => _selectToDate(context),
-                                          decoration: const InputDecoration(
-                                            hintText: 'Select Date',
-                                            suffixIcon:
-                                                Icon(Icons.calendar_today),
-                                          ),
-                                          controller: TextEditingController(
-                                            text: "${_toDate.toLocal()}"
-                                                .split(' ')[0],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'Leave Type',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  DropdownButtonFormField<String>(
-                                    value: _selectedReason,
-                                    items: [
-                                      "",
-                                      employeeLeave1.ltypeName,
-                                      employeeLeave2.ltypeName,
-                                      employeeLeave3.ltypeName,
-                                    ].map((String reason) {
-                                      return DropdownMenuItem<String>(
-                                        value: reason,
-                                        child: Text(reason),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedReason = value!;
-                                        _reasonController.text =
-                                            _selectedReason;
-                                        selectedTypeId =
-                                            _reasonToLTypeId[value] ?? 0;
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'Reason for Leave',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  TextField(
-                                    controller: _reasonTextController,
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter your reason for leave',
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 16),
-                                  // const Text(
-                                  //   'Leave Duration',
-                                  //   style: TextStyle(fontSize: 16),
-                                  // ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'Leave Duration',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  DropdownButtonFormField<String>(
-                                    value: _selectedLeaveDuration,
-                                    items: [
-                                      "",
-                                      "Full Day",
-                                      "Half Day",
-                                    ].map((String duration) {
-                                      return DropdownMenuItem<String>(
-                                        value: duration,
-                                        child: Text(duration),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedLeaveDuration = value!;
-                                        _leaveDurationController.text =
-                                            _selectedLeaveDuration;
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(height: 32),
-                                  ElevatedButton(
-                                    style: (_reasonTextController.text == null ||
-                                        _reasonTextController.text.isEmpty ||
-                                        _reasonController.text == null ||
-                                        _reasonController.text.isEmpty ||
-                                        _leaveDurationController.text == null ||
-                                        _leaveDurationController.text.isEmpty)
-                                        ? ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30.0),
-                                      ),
-                                      backgroundColor: Colors.grey,
-                                      padding: EdgeInsets.all(16.0),
-                                      minimumSize: Size(200, 40),
-                                    )
-                                        : ElevatedButton.styleFrom(
-
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30.0),
-                                      ),
-                                      backgroundColor: Colors.blue,
-                                      padding: EdgeInsets.all(16.0),
-                                      minimumSize: Size(200, 40),
-                                    ),
-                                    onPressed: () async {
-                                      if (_reasonTextController.text == null ||
-                                          _reasonTextController.text.isEmpty ||
-                                          _reasonController.text == null ||
-                                          _reasonController.text.isEmpty ||
-                                          _leaveDurationController.text == null ||
-                                          _leaveDurationController.text.isEmpty) {
-                                        GlobalObjects.checkForLeaveForm(
-                                            context);
-                                      } else {
-                                        final selectedLeaveDuration =
-                                            _leaveDurationController.text;
-                                        final selectedTextReason =
-                                            _reasonTextController
-                                                .text; // Get the reason from the text field
-                                        final selectedReason = _reasonController
-                                            .text; // Get the reason from the text field
-                                        print(
-                                            "Selected Reason: $selectedReason ");
-                                        final selectedTypeId =
-                                            _reasonToLTypeId[selectedReason] ??
-                                                0;
-
-                                        final submissionModel = SubmissionModel(
-                                          employeeId: empId.toString(),
-                                          fromDate:
-                                              "${_fromDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
-                                          toDate:
-                                              "${_toDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
-                                          reason: selectedTextReason,
-                                          leaveId: selectedTypeId,
-                                          leaveDuration: selectedLeaveDuration,
-                                          status: 'UnApproved',
-                                          applicationDate:
-                                              "${DateTime.now().toIso8601String().split('T')[0]}T00:00:00Z",
-                                          remark: '',
-                                        );
-
-                                        _postRequestBloc.add(Create(
-                                          submissionModel.employeeId,
-                                          submissionModel.fromDate,
-                                          submissionModel.toDate,
-                                          submissionModel.reason,
-                                          submissionModel.leaveId,
-                                          submissionModel.leaveDuration,
-                                          submissionModel.status,
-                                          submissionModel.applicationDate,
-                                          submissionModel.remark,
-                                        ));
-
-                                        await Future.delayed(
-                                            const Duration(seconds: 2));
-
-                                        if (_postRequestBloc.state
-                                            is SubmissionSuccess) {
-                                          print("Successful");
-                                          addToCartPopUpAnimationController
-                                              .forward();
-
-                                          // Delay for a few seconds and then reverse the animation
-                                          Timer(const Duration(seconds: 3), () {
-                                            addToCartPopUpAnimationController
-                                                .reverse();
-                                          });
-                                          showPopupWithMessage(
-                                              "Request Submitted Successfully",context);
-
-                                          _popPage();
-                                        } else if (_postRequestBloc.state
-                                            is SubmissionError) {
-                                          print("Not Successful");
-                                          addToCartPopUpAnimationController
-                                              .forward();
-
-                                          // Delay for a few seconds and then reverse the animation
-                                          Timer(const Duration(seconds: 3), () {
-                                            addToCartPopUpAnimationController
-                                                .reverse();
-                                          });
-                                          showPopupWithMessage(
-                                            "Error: ${(_postRequestBloc.state as SubmissionError).error}",context
-                                          );
-                                        }
-                                      }
-                                    },
-                                    child: Text(
-                                      'Submit',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+              return Align(
+                alignment: Alignment.center,
+                child: SingleChildScrollView(
+                  child: Container(
+                    color: AppColors.brightWhite,
+                    width: MediaQuery.of(context).size.width /
+                        1.2, // Adjust the width as needed
+                    child: Card(
+                      color: AppColors.brightWhite,
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                              'Leave Request Form',
+                              style: GoogleFonts.openSans(
+                                textStyle: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
+                            SizedBox(height: 10),
+                            const Text(
+                              'From Date',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    onTap: () => _selectFromDate(context),
+                                    decoration: const InputDecoration(
+                                      hintText: 'Select Date',
+                                      suffixIcon:
+                                          Icon(Icons.calendar_today),
+                                    ),
+                                    controller: TextEditingController(
+                                      text: "${_fromDate.toLocal()}"
+                                          .split(' ')[0],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'To Date',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    onTap: () => _selectToDate(context),
+                                    decoration: const InputDecoration(
+                                      hintText: 'Select Date',
+                                      suffixIcon:
+                                          Icon(Icons.calendar_today),
+                                    ),
+                                    controller: TextEditingController(
+                                      text: "${_toDate.toLocal()}"
+                                          .split(' ')[0],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Leave Type',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            DropdownButtonFormField<String>(
+                              value: _selectedReason,
+                              items: [
+                                "",
+                                employeeLeave1.ltypeName,
+                                employeeLeave2.ltypeName,
+                                employeeLeave3.ltypeName,
+                              ].map((String reason) {
+                                return DropdownMenuItem<String>(
+                                  value: reason,
+                                  child: Text(reason),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedReason = value!;
+                                  _reasonController.text =
+                                      _selectedReason;
+                                  selectedTypeId =
+                                      _reasonToLTypeId[value] ?? 0;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Reason for Leave',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            TextField(
+                              controller: _reasonTextController,
+                              decoration: InputDecoration(
+                                hintText: 'Enter your reason for leave',
+                              ),
+                            ),
+                  
+                            const SizedBox(height: 16),
+                            // const Text(
+                            //   'Leave Duration',
+                            //   style: TextStyle(fontSize: 16),
+                            // ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Leave Duration',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            DropdownButtonFormField<String>(
+                              value: _selectedLeaveDuration,
+                              items: [
+                                "",
+                                "Full Day",
+                                "Half Day",
+                              ].map((String duration) {
+                                return DropdownMenuItem<String>(
+                                  value: duration,
+                                  child: Text(duration),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLeaveDuration = value!;
+                                  _leaveDurationController.text =
+                                      _selectedLeaveDuration;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 32),
+                            ElevatedButton(
+                              style: (_reasonTextController.text == null ||
+                                  _reasonTextController.text.isEmpty ||
+                                  _reasonController.text == null ||
+                                  _reasonController.text.isEmpty ||
+                                  _leaveDurationController.text == null ||
+                                  _leaveDurationController.text.isEmpty)
+                                  ? ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                                backgroundColor: Colors.grey,
+                                padding: EdgeInsets.all(16.0),
+                                minimumSize: Size(200, 40),
+                              )
+                                  : ElevatedButton.styleFrom(
+                  
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                                backgroundColor: Colors.blue,
+                                padding: EdgeInsets.all(16.0),
+                                minimumSize: Size(200, 40),
+                              ),
+                              onPressed: () async {
+                                if (_reasonTextController.text == null ||
+                                    _reasonTextController.text.isEmpty ||
+                                    _reasonController.text == null ||
+                                    _reasonController.text.isEmpty ||
+                                    _leaveDurationController.text == null ||
+                                    _leaveDurationController.text.isEmpty) {
+                                  GlobalObjects.checkForLeaveForm(
+                                      context);
+                                } else {
+                                  final selectedLeaveDuration =
+                                      _leaveDurationController.text;
+                                  final selectedTextReason =
+                                      _reasonTextController
+                                          .text; // Get the reason from the text field
+                                  final selectedReason = _reasonController
+                                      .text; // Get the reason from the text field
+                                  print(
+                                      "Selected Reason: $selectedReason ");
+                                  final selectedTypeId =
+                                      _reasonToLTypeId[selectedReason] ??
+                                          0;
+                  
+                                  final submissionModel = SubmissionModel(
+                  
+                                    employeeId: empId.toString(),
+                                    fromDate:
+                                        "${_fromDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
+                                    toDate:
+                                        "${_toDate.toLocal().toIso8601String().split('T')[0]}T00:00:00Z",
+                                    reason: selectedTextReason,
+                                    leaveId: selectedTypeId,
+                                    leaveDuration: selectedLeaveDuration,
+                                    status: 'UnApproved',
+                                    applicationDate:
+                                        "${DateTime.now().toIso8601String().split('T')[0]}T00:00:00Z",
+                                    remark: '',
+                                  );
+                  
+                                  _postRequestBloc.add(Create(
+                                    submissionModel.employeeId,
+                                    submissionModel.fromDate,
+                                    submissionModel.toDate,
+                                    submissionModel.reason,
+                                    submissionModel.leaveId,
+                                    submissionModel.leaveDuration,
+                                    submissionModel.status,
+                                    submissionModel.applicationDate,
+                                    submissionModel.remark,
+                                  ));
+                  
+                                  await Future.delayed(
+                                      const Duration(seconds: 2));
+                  
+                                  if (_postRequestBloc.state
+                                      is SubmissionSuccess) {
+                                    print("Successful");
+                                    addToCartPopUpAnimationController
+                                        .forward();
+                  
+                                    // Delay for a few seconds and then reverse the animation
+                                    Timer(const Duration(seconds: 3), () {
+                                      addToCartPopUpAnimationController
+                                          .reverse();
+                                    });
+                                    showPopupWithMessage(
+                                        "Request Submitted Successfully",context);
+                  
+                                    _popPage();
+                                  } else if (_postRequestBloc.state
+                                      is SubmissionError) {
+                                    print("Not Successful");
+                                    addToCartPopUpAnimationController
+                                        .forward();
+                  
+                                    // Delay for a few seconds and then reverse the animation
+                                    Timer(const Duration(seconds: 3), () {
+                                      addToCartPopUpAnimationController
+                                          .reverse();
+                                    });
+                                    showPopupWithMessage(
+                                      "Error: ${(_postRequestBloc.state as SubmissionError).error}",context
+                                    );
+                                  }
+                                }
+                              },
+                              child: Text(
+                                'Submit',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  } else if (state is EmpLeaveRequestErrorState) {
-                    return Text("Error: ${state.message}");
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                },
-              ),
-            ),
-          ),
-        ],
+                    ),
+                  ),
+                ),
+              );
+            } else if (state is EmpLeaveRequestErrorState) {
+              return Text("Error: ${state.message}");
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
+        ),
       ),
     );
   }

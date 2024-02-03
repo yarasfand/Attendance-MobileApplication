@@ -24,6 +24,7 @@ class MonthlyReportsScreen extends StatefulWidget {
 class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
   int? selectedMonth = 1; // Initialize with a default value
   String corporateId = "ptsoffice";
+  int selectedYear = DateTime.now().year; // Add a variable for selected year
 
 
   @override
@@ -41,9 +42,9 @@ class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
 
   void fetchMonthlyReports() {
     final adminMonthlyReportsBloc =
-        BlocProvider.of<AdminMonthlyReportsBloc>(context);
+    BlocProvider.of<AdminMonthlyReportsBloc>(context);
 
-    if (corporateId != null) {
+    if (corporateId != null && selectedYear != null) {
       final effectiveMonth = selectedMonth ?? 1;
 
       adminMonthlyReportsBloc.add(FetchAdminMonthlyReports(
@@ -51,9 +52,11 @@ class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
         corporateId: corporateId,
         employeeId: 1,
         selectedMonth: effectiveMonth,
+        year: selectedYear, // Pass selected year to API call
       ));
     }
   }
+
 
   final List<String> monthNames = [
     'January',
@@ -111,25 +114,48 @@ class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
             ),
             body: Column(
               children: [
-                DropdownButton<int>(
-                  hint: const Text('Select Month'),
-                  value: selectedMonth,
-                  items: List.generate(12, (index) {
-                    final monthIndex = index + 1;
-                    print(monthIndex);
-                    final monthName = monthNames[monthIndex - 1];
-                    return DropdownMenuItem<int>(
-                      value: monthIndex,
-                      child: Text(monthName),
-                    );
-                  }),
-                  onChanged: (int? value) {
-                    setState(() {
-                      selectedMonth = value;
-                      fetchMonthlyReports();
-                    });
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    DropdownButton<int>(
+                      hint: const Text('Select Month'),
+                      value: selectedMonth,
+                      items: List.generate(12, (index) {
+                        final monthIndex = index + 1;
+                        print(monthIndex);
+                        final monthName = monthNames[monthIndex - 1];
+                        return DropdownMenuItem<int>(
+                          value: monthIndex,
+                          child: Text(monthName),
+                        );
+                      }),
+                      onChanged: (int? value) {
+                        setState(() {
+                          selectedMonth = value;
+                          fetchMonthlyReports();
+                        });
+                      },
+                    ),
+                    DropdownButton<int>(
+                      hint: const Text('Select Year'),
+                      value: selectedYear,
+                      items: List.generate(5, (index) {
+                        final currentYear = DateTime.now().year;
+                        return DropdownMenuItem<int>(
+                          value: currentYear - index,
+                          child: Text((currentYear - index).toString()),
+                        );
+                      }),
+                      onChanged: (int? value) {
+                        setState(() {
+                          selectedYear = value!;
+                          fetchMonthlyReports();
+                        });
+                      },
+                    ),
+                  ],
                 ),
+
                 Expanded(
                   child: BlocBuilder<AdminMonthlyReportsBloc,
                       AdminMonthlyReportsState>(
@@ -319,10 +345,13 @@ class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
                                       TableCell(
                                         child: Padding(
                                           padding: const EdgeInsets.all(16.0),
-                                          child: Text(
-                                            "Worked: ${report.hoursWorked}",
-                                            style:
-                                                TextStyle(color: Colors.grey),
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(top:10.0),
+                                            child: Text(
+                                              "Worked: ${report.hoursWorked/60}",
+                                              style:
+                                                  TextStyle(color: Colors.grey),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -333,6 +362,7 @@ class _MonthlyReportsScreenState extends State<MonthlyReportsScreen> {
                                               width: 60,
                                             ),
                                             Container(
+                                              margin: EdgeInsets.only(top: 15),
                                               decoration: BoxDecoration(
                                                 color: Colors
                                                     .green, // Status color

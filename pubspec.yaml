@@ -28,7 +28,7 @@ dependencies:
   line_icons: ^2.0.3
   percent_indicator: ^4.2.3
   font_awesome_flutter: ^10.5.0
-  open_street_map_search_and_pick: ^0.1.0
+  open_street_map_search_and_pick: ^0.1.1
   geolocator: ^10.0.1
   geocoding: ^2.1.0
   table_calendar: ^3.0.9
@@ -38,7 +38,7 @@ dependencies:
   open_file: ^3.3.2
   syncfusion_flutter_xlsio: ^22.2.12
   intl: ^0.18.1
-  flutter_native_splash: ^2.3.2
+  flutter_native_splash: ^2.3.9
   equatable: ^2.0.5
   fluttertoast: ^8.0.9
   permission_handler: ^11.0.1
@@ -50,6 +50,16 @@ dependencies:
   flutter_image_compress: ^2.1.0
   cool_alert: ^2.0.1
   sqflite: ^2.3.0
+  device_preview: ^1.1.0
+  flutter_keyboard_visibility: ^6.0.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+
+flutter_native_splash:
+  color: "#FFFFFF"    # Set the background color of your splash screen
+  image: "assets/images/pioneer_logo_new_v2.png"   # Set the image path for your splash screen
+  android: true
+  ios: true
 
 
 dev_dependencies:
@@ -87,4 +97,3 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   # fonts:
-

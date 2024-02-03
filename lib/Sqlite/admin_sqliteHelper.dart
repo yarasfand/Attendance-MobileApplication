@@ -26,19 +26,43 @@ class AdminDatabaseHelper {
       await Directory(databasesPath).create(recursive: true);
     }
 
-    Database db = await openDatabase(path, version: 1, onCreate: _createTable);
-    await _createTable(db, 1); // Ensure the table is created
-    return db;
+    // Close the existing database if it's open
+    if (_database != null && _database!.isOpen) {
+      await _database!.close();
+    }
+
+    try {
+      Database db = await openDatabase(
+        path,
+        version: 1,
+        onCreate: (db, version) async {
+          await _createTable(db);
+        },
+      );
+
+      // Ensure that the table creation is completed
+      await _createTable(db);
+
+      return db;
+    } catch (e) {
+      print('Error initializing database: $e');
+      rethrow; // Rethrow the exception to propagate it further if needed
+    }
   }
 
-  Future<void> _createTable(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS admin (
-        username TEXT UNIQUE,
-        corporate_id TEXT
-      )
-    ''');
-    print("Table created successfully");
+  Future<void> _createTable(Database db) async {
+    try {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS admin (
+          username TEXT UNIQUE,
+          corporate_id TEXT
+        )
+      ''');
+      print("Table created successfully admin");
+    } catch (e) {
+      print('Error creating table: $e');
+      rethrow; // Rethrow the exception to propagate it further if needed
+    }
   }
 
   Future<int> insertAdmin(Map<String, dynamic> adminData) async {
@@ -62,6 +86,7 @@ class AdminDatabaseHelper {
     Database db = await database;
     await db.delete('admin', where: 'username = ?', whereArgs: [username]);
   }
+
   Future<void> deleteAllAdmins() async {
     try {
       Database db = await database;
@@ -71,5 +96,4 @@ class AdminDatabaseHelper {
       print('Error deleting all data from the admin table: $e');
     }
   }
-
 }

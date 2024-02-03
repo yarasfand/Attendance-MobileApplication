@@ -9,7 +9,7 @@ class AdminMonthlyReportsRepository {
   final String baseUrl = 'http://62.171.184.216:9595/api/admin/report/getmonthlyreport';
 
   Future<List<AdminMonthlyReportsModel>> fetchMonthlyReports(
-      List<int> employeeIds, int selectedMonth) async {
+      List<int> employeeIds, int selectedMonth, int selectedYear) async {
     try {
       // Retrieve corporate_id from SQLite table
       final adminDbHelper = AdminDatabaseHelper();
@@ -23,7 +23,7 @@ class AdminMonthlyReportsRepository {
         }
 
         final employeeIdsQuery = employeeIds.map((id) => 'employeeIds=$id').join('&');
-        final fullUrl = '$baseUrl?CorporateId=$corporateId&Month=$selectedMonth&$employeeIdsQuery';
+        final fullUrl = '$baseUrl?CorporateId=$corporateId&Month=$selectedMonth&Year=$selectedYear&$employeeIdsQuery';
 
         final response = await http.get(Uri.parse(fullUrl));
 
@@ -47,4 +47,5 @@ class AdminMonthlyReportsRepository {
       return [];
     }
   }
+
 }

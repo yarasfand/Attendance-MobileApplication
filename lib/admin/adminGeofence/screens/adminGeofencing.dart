@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
@@ -50,29 +51,39 @@ class _AdminGeofencingState extends State<AdminGeofencing>
   List<Branch> buildCards = [];
   bool showLoading = true;
 
-  @override
   void dispose() {
     addToCartPopUpAnimationController.dispose();
+    GlobalObjects.globalDep = "";
+    GlobalObjects.globalCompany = "";
+    GlobalObjects.globalBranch = "";
     super.dispose();
   }
 
   @override
   void initState() {
+    super.initState();
+    _initializePage();
+  }
+
+  Future<void> _initializePage() async {
     addToCartPopUpAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    super.initState();
-    _fetchCorporateIdFromPrefs();
-    _fetchDepartmentNames();
-    _fetchBranchNames(); // Fetch department names when the widget initializes
-    _fetchCompanyNames(); // Fetch company names when the widget initializes
+    await _fetchCorporateIdFromPrefs();
+    await _fetchDepartmentNames();
+    await _fetchBranchNames();
+    await _fetchCompanyNames();
     companyDropdownValue = null;
-    loadData();
-    Future.delayed(Duration(seconds: 2), () {
-      setState(() {
-        showLoading = false;
+    await loadData();
+
+    // Uncheck all checkboxes
+    setState(() {
+      selectedEmployees.clear();
+      employees.forEach((employee) {
+        employee.isSelected = false;
       });
+      showLoading = false;
     });
   }
 
@@ -107,7 +118,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
 
       // Extract department names from the departments list and filter out null values
       final departmentNames = departments
-          .map((department) => department?.deptName)
+          .map((department) => department.deptName)
           .where((name) => name != null) // Filter out null values
           .map((name) => name!) // Convert non-nullable String? to String
           .toList();
@@ -159,7 +170,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
       final companyNames = companies
           .map((company) => company.companyName)
           .where((name) => name != null) // Filter out null values
-          .map((name) => name!) // Convert non-nullable String? to String
+          .map((name) => name) // Convert non-nullable String? to String
           .toList();
 
       setState(() {
@@ -217,6 +228,7 @@ class _AdminGeofencingState extends State<AdminGeofencing>
         selectedEmployees = List.from(employees);
       } else {
         selectedEmployees.clear();
+        print("Employees cleared");
       }
       print('Selected Employees: $selectedEmployees');
     });
@@ -322,6 +334,23 @@ class _AdminGeofencingState extends State<AdminGeofencing>
 
   bool isInternetLost = false;
 
+  void onDepartmentChanged(String value) {
+    setState(() {
+      // Update the department state in the parent widget
+    });
+  }
+
+  void onBranchChanged(String value) {
+    setState(() {
+      // Update the branch state in the parent widget
+    });
+  }
+
+  void onCompanyChanged(String value) {
+    setState(() {
+      // Update the company state in the parent widget
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InternetBloc, InternetStates>(
@@ -355,611 +384,269 @@ class _AdminGeofencingState extends State<AdminGeofencing>
               iconTheme: IconThemeData(color: Colors.white),
               backgroundColor: AppColors.primaryColor,
               elevation: 0,
-              title: const Center(
-                child: Padding(
-                  padding: EdgeInsets.only(right: 55.0), // Add right padding
-                  child: Text(
-                    "Geofencing",
-                    style: AppBarStyles.appBarTextStyle,
+              title: Text(
+                "Geofencing",
+                style: AppBarStyles.appBarTextStyle,
+              ),
+              centerTitle: true,
+              actions: <Widget>[
+                // Add a Save button to the app bar
+                IconButton(
+                  onPressed: () {
+                    _navigateToNextScreen();
+                  },
+                  icon: Icon(
+                    Icons.check,
+                    color: Colors.white, // Change color to green
+                    size: 24,
                   ),
                 ),
-              ),
+              ],
             ),
             body: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Column(
-                children: [
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (selectedEmployees != null &&
-                              selectedEmployees.isNotEmpty) {
-                            // Selected employees are not null or empty
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AdminMapDisplay(
-                                    selectedEmployees: selectedEmployees),
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    margin: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.black,
+                      ),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                searchQuery = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Search by name or code...',
+                              icon: const Icon(
+                                Icons.search,
+                                color: Colors.black,
                               ),
-                            );
-                          } else {
-                            addToCartPopUpAnimationController.forward();
-
-                            // Delay for a few seconds and then reverse the animation
-                            Timer(const Duration(seconds: 2), () {
-                              addToCartPopUpAnimationController.reverse();
-                              Navigator.pop(context);
-                            });
-                            showPopupWithMessage("Please Select Employee!");
-                          }
-                        },
-                        style: selectedEmployees != null &&
-                                selectedEmployees.isNotEmpty
-                            ? ElevatedButton.styleFrom(
-                                primary: Colors.blue,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 24,
-                                ),
-                              )
-                            : ElevatedButton.styleFrom(
-                                primary: Colors.grey,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 24,
+                              hintStyle: GoogleFonts.openSans(
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black,
                                 ),
                               ),
-                        child: const Text(
-                          "Start Geofencing",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
-                      ),
+                        Container(
+                          width: 30,
+                          margin: EdgeInsets.only(left: 10, right: 10),
+                          child: IconButton(
+                            onPressed: () async {
+                              final selectedValues =
+                              await showModalBottomSheet<
+                                  Map<String, String?>>(
+                                context: context,
+                                builder: (context) => FilterBottomSheet(
+                                  departmentNames: departmentNames,
+                                  branchNames: branchNames,
+                                  companyNames: companyNames,
+                                  onDepartmentChanged: onDepartmentChanged,
+                                  onBranchChanged: onBranchChanged,
+                                  onCompanyChanged: onCompanyChanged,
+                                  onApplyFilters: () {
+                                    // Apply your filter logic here
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              );
+
+                              if (selectedValues != null) {
+                                final Map<String, String> resultMap =
+                                selectedValues.cast<String, String>();
+                                setState(() {
+                                  departmentDropdownValue =
+                                      resultMap['department'] ?? '';
+                                  branchDropdownValue =
+                                      resultMap['branch'] ?? '';
+                                  companyDropdownValue =
+                                      resultMap['company'] ?? '';
+                                });
+                              }
+                            },
+                            icon: Icon(FontAwesomeIcons.slidersH),
+                          ),
+                        ),
+                        Container(
+                          width: 30,
+                          margin: EdgeInsets.only(right: 5),
+                          child: IconButton(
+                            onPressed: _toggleSelectAll,
+                            icon: Icon(
+                              color: Colors.black,
+                              selectAll
+                                  ? Icons.library_add_check
+                                  : Icons.library_add_check_outlined,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      contentPadding: const EdgeInsets.all(
-                                          0), // Remove default padding
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10)),
-                                      ),
-                                      content: SingleChildScrollView(
-                                        child: SizedBox(
-                                          width: 900,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Card(
-                                              color: AppColors.primaryColor,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(20.0),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .stretch,
-                                                  children: <Widget>[
-                                                    Text(
-                                                      "FILTERS",
-                                                      style:
-                                                          GoogleFonts.openSans(
-                                                        textStyle:
-                                                            const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                    const SizedBox(height: 10),
-                                                    // Department Dropdown
-                                                    // Department Dropdown
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Department:',
-                                                          style: GoogleFonts
-                                                              .openSans(
-                                                            textStyle:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.white,
-                                                            border: Border.all(
-                                                              color:
-                                                                  Colors.white,
-                                                              width: 2.0,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        4.0),
-                                                          ),
-                                                          child:
-                                                              DropdownButtonFormField<
-                                                                  String>(
-                                                            isExpanded: true,
-                                                            value:
-                                                                departmentDropdownValue,
-                                                            onChanged:
-                                                                (newValue) {
-                                                              departmentDropdownValue =
-                                                                  newValue;
-                                                            },
-                                                            items: [
-                                                              DropdownMenuItem<
-                                                                  String>(
-                                                                value: '',
-                                                                child: Text(
-                                                                  'All',
-                                                                  style: GoogleFonts
-                                                                      .openSans(
-                                                                    textStyle:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              ...departmentNames
-                                                                  .map((String
-                                                                      value) {
-                                                                return DropdownMenuItem<
-                                                                    String>(
-                                                                  value: value,
-                                                                  child: Text(
-                                                                    value,
-                                                                    style: GoogleFonts
-                                                                        .openSans(
-                                                                      textStyle:
-                                                                          const TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
+                  buildCards == null ||
+                          filterEmployees(employees, searchQuery).length ==
+                              null ||
+                          showLoading
+                      ? Padding(
+                          padding: EdgeInsets.only(
+                              top:
+                                  MediaQuery.of(context).size.height * 0.3),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      :  LayoutBuilder(
+                    builder: (context, constraints) {
+                      double cardWidth = constraints.maxWidth > 600
+                          ? 600
+                          : constraints.maxWidth;
+                      double screenHeight =
+                      MediaQuery.of(context).size.height > 720 ? MediaQuery.of(context).size.height* 0.73: MediaQuery.of(context).size.height *0.73;
+                      double containerHeight = screenHeight;
+                      return Container(
+                        height: containerHeight,
+                        margin: const EdgeInsets.all(10),
+                        child: ListView.separated(
+                          separatorBuilder: (context, index) => Divider(),
+                          itemCount:
+                          filterEmployees(employees, searchQuery)
+                              .length,
+                          itemBuilder: (context, index) {
+                            var employee = filterEmployees(
+                                employees, searchQuery)[index];
 
-                                                    const SizedBox(height: 10),
-                                                    // Branch Dropdown
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Branch:',
-                                                          style: GoogleFonts
-                                                              .openSans(
-                                                            textStyle:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.white,
-                                                            border: Border.all(
-                                                              color:
-                                                                  Colors.white,
-                                                              width: 2.0,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        4.0),
-                                                          ),
-                                                          child:
-                                                              DropdownButtonFormField<
-                                                                  String>(
-                                                            isExpanded: true,
-                                                            value:
-                                                                branchDropdownValue,
-                                                            onChanged:
-                                                                (newValue) {
-                                                              branchDropdownValue =
-                                                                  newValue!;
-                                                            },
-                                                            items: [
-                                                              DropdownMenuItem<
-                                                                  String>(
-                                                                value: '',
-                                                                child: Text(
-                                                                  'All',
-                                                                  style: GoogleFonts
-                                                                      .openSans(
-                                                                    textStyle:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              ...branchNames
-                                                                  .map((String
-                                                                      value) {
-                                                                return DropdownMenuItem<
-                                                                    String>(
-                                                                  value: value,
-                                                                  child: Text(
-                                                                    value,
-                                                                    style: GoogleFonts
-                                                                        .openSans(
-                                                                      textStyle:
-                                                                          const TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 10),
-                                                    // Company Dropdown
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Company:',
-                                                          style: GoogleFonts
-                                                              .openSans(
-                                                            textStyle:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.white,
-                                                            border: Border.all(
-                                                              color:
-                                                                  Colors.white,
-                                                              width: 2.0,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        4.0),
-                                                          ),
-                                                          child:
-                                                              DropdownButtonFormField<
-                                                                  String>(
-                                                            isExpanded: true,
-                                                            value:
-                                                                companyDropdownValue,
-                                                            onChanged:
-                                                                (newValue) {
-                                                              companyDropdownValue =
-                                                                  newValue!;
-                                                            },
-                                                            items: [
-                                                              DropdownMenuItem<
-                                                                  String>(
-                                                                value: '',
-                                                                child: Text(
-                                                                  'All',
-                                                                  style: GoogleFonts
-                                                                      .openSans(
-                                                                    textStyle:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              ...companyNames
-                                                                  .map((String
-                                                                      value) {
-                                                                return DropdownMenuItem<
-                                                                    String>(
-                                                                  value: value,
-                                                                  child: Text(
-                                                                    value,
-                                                                    style: GoogleFonts
-                                                                        .openSans(
-                                                                      textStyle:
-                                                                          const TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 10),
-                                                    // Search Bar
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            setState(() {});
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child: const Text(
-                                                              "Apply"),
-                                                        ),
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child: const Text(
-                                                              "close"),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                            return Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        transform: Matrix4.diagonal3Values(
+                                            1.2,
+                                            1.2,
+                                            1), // Adjust the scale factor as needed
+                                        child: Checkbox(
+                                          value: employee.isSelected,
+                                          onChanged: (_) {
+                                            _toggleEmployeeSelection(
+                                                employee);
+                                          },
+                                          shape: CircleBorder(),
+                                          activeColor: Colors.blue,
                                         ),
                                       ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: const Text("Apply Filters"),
-                            ),
-                            ElevatedButton(
-                              onPressed: _toggleSelectAll,
-                              child: Text(
-                                selectAll ? 'Deselect All' : 'Select All',
-                                style: const TextStyle(
-                                    fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Employee List in DataTable form
-                      buildCards == null ||
-                              filterEmployees(employees, searchQuery).length ==
-                                  null ||
-                              showLoading
-                          ? Padding(
-                              padding: EdgeInsets.only(
-                                  top:
-                                      MediaQuery.of(context).size.height * 0.3),
-                              child: Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            )
-                          :  LayoutBuilder(
-                        builder: (context, constraints) {
-                          double cardWidth = constraints.maxWidth > 600
-                              ? 600
-                              : constraints.maxWidth;
-                          double screenHeight =
-                              MediaQuery.of(context).size.height * 0.65;
-                          double containerHeight = screenHeight;
-                          return Container(
-                            height: containerHeight,
-                            margin: const EdgeInsets.all(10),
-                            child: ListView.separated(
-                              separatorBuilder: (context, index) => Divider(),
-                              itemCount:
-                              filterEmployees(employees, searchQuery)
-                                  .length,
-                              itemBuilder: (context, index) {
-                                var employee = filterEmployees(
-                                    employees, searchQuery)[index];
-
-                                return Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            transform: Matrix4.diagonal3Values(
-                                                1.2,
-                                                1.2,
-                                                1), // Adjust the scale factor as needed
-                                            child: Checkbox(
-                                              value: employee.isSelected,
-                                              onChanged: (_) {
-                                                _toggleEmployeeSelection(
-                                                    employee);
-                                              },
-                                              shape: CircleBorder(),
-                                              activeColor: Colors.blue,
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment
+                                                  .spaceBetween,
                                               children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  children: [
-                                                    Text(
-                                                      '${employee.empName ?? ""}',
-                                                      style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                        FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      width:
-                                                      33, // Adjust the width to change the size of the circle
-                                                      height:
-                                                      33, // Adjust the height to change the size of the circle
-                                                      decoration:
-                                                      BoxDecoration(
-                                                        shape:
-                                                        BoxShape.circle,
+                                                Text(
+                                                  '${employee.empName ?? ""}',
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                    FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width:
+                                                  33, // Adjust the width to change the size of the circle
+                                                  height:
+                                                  33, // Adjust the height to change the size of the circle
+                                                  decoration:
+                                                  BoxDecoration(
+                                                    shape:
+                                                    BoxShape.circle,
+                                                    color: Colors
+                                                        .blue, // Background color
+                                                  ),
+                                                  child: IconButton(
+                                                    padding: EdgeInsets
+                                                        .zero, // Remove padding around the icon
+                                                    onPressed: () {
+                                                      _showRemarksDialog(
+                                                          employee);
+                                                    },
+                                                    icon: Icon(
+                                                        Icons.comment,
+                                                        size: 18,
                                                         color: Colors
-                                                            .blue, // Background color
-                                                      ),
-                                                      child: IconButton(
-                                                        padding: EdgeInsets
-                                                            .zero, // Remove padding around the icon
-                                                        onPressed: () {
-                                                          _showRemarksDialog(
-                                                              employee);
-                                                        },
-                                                        icon: Icon(
-                                                            Icons.comment,
-                                                            size: 18,
-                                                            color: Colors
-                                                                .white), // Adjust the icon size
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      '${employee.branchNames ?? ""}',
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  children: [
-                                                    Text(
-                                                      employee.deptNames ??
-                                                          "",
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      'ID: ${employee.empCode}',
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                        FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
+                                                            .white), // Adjust the icon size
+                                                  ),
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                        ],
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '${employee.branchNames ?? ""}',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment
+                                                  .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  employee.deptNames ??
+                                                      "",
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'ID: ${employee.empCode}',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                    FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-
-                    ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
+
                 ],
               ),
             ),
@@ -970,6 +657,371 @@ class _AdminGeofencingState extends State<AdminGeofencing>
           );
         }
       },
+    );
+  }
+
+  void _navigateToNextScreen() {
+    if (selectedEmployees != null &&
+        selectedEmployees.isNotEmpty) {
+      // Selected employees are not null or empty
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdminMapDisplay(
+              selectedEmployees: selectedEmployees),
+        ),
+      );
+    } else {
+      addToCartPopUpAnimationController.forward();
+
+      // Delay for a few seconds and then reverse the animation
+      Timer(const Duration(seconds: 2), () {
+        addToCartPopUpAnimationController.reverse();
+        Navigator.pop(context);
+      });
+      showPopupWithMessage("Please Select Employee!");
+    }
+
+  }
+}
+class FilterBottomSheet extends StatefulWidget {
+  final List<String> departmentNames;
+  final List<String> branchNames;
+  final List<String> companyNames;
+  final Function(String)? onDepartmentChanged;
+  final Function(String)? onBranchChanged;
+  final Function(String)? onCompanyChanged;
+  final Function()? onApplyFilters; // Updated callback
+
+  FilterBottomSheet({
+    required this.departmentNames,
+    required this.branchNames,
+    required this.companyNames,
+    this.onDepartmentChanged,
+    this.onBranchChanged,
+    this.onCompanyChanged,
+    this.onApplyFilters,
+  });
+
+  @override
+  _FilterBottomSheetState createState() => _FilterBottomSheetState();
+}
+
+class _FilterBottomSheetState extends State<FilterBottomSheet> {
+  String departmentDropdownValue = '';
+  String branchDropdownValue = '';
+  String companyDropdownValue = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize dropdown values with the values passed from the parent widget
+    departmentDropdownValue = GlobalObjects.globalDep;
+    branchDropdownValue = GlobalObjects.globalBranch;
+    companyDropdownValue = GlobalObjects.globalCompany;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[50], // Slightly off-white color
+        borderRadius: BorderRadius.circular(30), // Adjust the radius as needed
+      ),
+      height: MediaQuery.of(context).size.height * 0.9,
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.99,
+        minChildSize: 0.1,
+        maxChildSize: 0.99,
+        expand: true,
+        builder: (BuildContext context, ScrollController scrollController) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 10,
+                width: 50,
+                margin: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: 30),
+                    child: GestureDetector(
+                      onTap: () {
+                        // Return the selected values when "Apply" is clicked
+                        Navigator.of(context).pop({
+                          'department': departmentDropdownValue,
+                          'branch': branchDropdownValue,
+                          'company': companyDropdownValue,
+                        });
+                      },
+                      child: Text(
+                        "Apply",
+                        style: TextStyle(
+                          color: AppColors
+                              .primaryColor, // or any other bright color you prefer
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15, // Adjust the font size as needed
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              Container(
+                height: MediaQuery.of(context).size.height * 0.5,
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        "FILTERS",
+                        style: GoogleFonts.nunito(
+                          textStyle: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Department',
+                            style: GoogleFonts.nunito(
+                              textStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: SingleChildScrollView(
+                              child: DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                value: departmentDropdownValue,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    departmentDropdownValue = newValue!;
+                                    GlobalObjects.globalDep =
+                                        departmentDropdownValue;
+                                  });
+                                  widget.onDepartmentChanged!(
+                                      newValue!); // Move this outside of setState
+                                },
+                                items: [
+                                  DropdownMenuItem<String>(
+                                    value: '',
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      child: Text(
+                                        'All',
+                                        style: GoogleFonts.nunito(
+                                          textStyle: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  ...widget.departmentNames
+                                      .map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Container(
+                                        margin: EdgeInsets.only(left: 5),
+                                        child: Text(
+                                          value,
+                                          style: GoogleFonts.nunito(
+                                            textStyle: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[
+                                              700], // Dark grey text color
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Branch',
+                            style: GoogleFonts.nunito(
+                              textStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors
+                                  .grey[200], // Light grey background color
+
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              value: branchDropdownValue,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  branchDropdownValue = newValue!;
+                                  GlobalObjects.globalBranch =
+                                      branchDropdownValue;
+                                });
+                                widget.onBranchChanged!(
+                                    newValue!); // Move this outside of setState
+                              },
+                              items: [
+                                DropdownMenuItem<String>(
+                                  value: '',
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 5),
+                                    child: Text(
+                                      'All',
+                                      style: GoogleFonts.nunito(
+                                        textStyle: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                ...widget.branchNames.map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      child: Text(
+                                        value,
+                                        style: GoogleFonts.nunito(
+                                          textStyle: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[
+                                            700], // Dark grey text color
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Company',
+                            style: GoogleFonts.nunito(
+                              textStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors
+                                  .grey[200], // Light grey background color
+
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              value: companyDropdownValue,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  companyDropdownValue = newValue!;
+                                  GlobalObjects.globalCompany =
+                                      companyDropdownValue;
+                                });
+                                widget.onCompanyChanged!(
+                                    newValue!); // Move this outside of setState
+                              },
+                              items: [
+                                DropdownMenuItem<String>(
+                                  value: '',
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 5),
+                                    child: Text(
+                                      'All',
+                                      style: GoogleFonts.nunito(
+                                        textStyle: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                ...widget.companyNames.map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      child: Text(
+                                        value,
+                                        style: GoogleFonts.nunito(
+                                          textStyle: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[
+                                            700], // Dark grey text color
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

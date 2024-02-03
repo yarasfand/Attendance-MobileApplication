@@ -96,27 +96,14 @@ class EmpProfilePageState extends State<EmpProfilePage> {
         text: 'Are you sure?',
         confirmBtnText: 'Logout',
         cancelBtnText: 'Cancel',
-        onConfirmBtnTap: () async {
-          if (employeeId > 0) {
-            await dbHelper.deleteAllEmployeeData();
 
+        onConfirmBtnTap: () async {
+            await dbHelper.deleteAllEmployeeData();
             // Delete profile data
             await dbHelper.deleteProfileData();
 
-            List<Map<String, dynamic>> remainingEmployees =
-            await dbHelper.getEmployees();
-            print("Remaining Employees: $remainingEmployees");
-
-            bool isDataDeleted = remainingEmployees.isEmpty;
-
-            if (!isDataDeleted) {
-              // Data not deleted
-              print("data not deleted");
-            }
-          }
-
           // Perform logout after confirmation
-          Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.of(context).pop();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -126,16 +113,9 @@ class EmpProfilePageState extends State<EmpProfilePage> {
               ),
             ),
           );
-          await EmployeeDatabaseHelper.instance.printProfileData();
         },
         onCancelBtnTap: () {
-          // User canceled logout
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const EmpMainPage(),
-            ),
-          );
+
         },
       );
 
@@ -279,169 +259,165 @@ class EmpProfilePageState extends State<EmpProfilePage> {
   Widget build(BuildContext context) {
           return Scaffold(
             backgroundColor: Colors.white,
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                    0, MediaQuery.of(context).size.height / 15, 0, 0),
-                child: Column(
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                WillPopScope(
+                  onWillPop: () async {
+                    return _onBackPressed(context)
+                        .then((value) => value ?? false);
+                  },
+                  child: const SizedBox(),
+                ),
+
+                Card(
+                  elevation: 4.0,
+                  margin: const EdgeInsets.all(32.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(
+                            top: 20.0), // Add margin from the top
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              key: _profileImageKey,
+                              radius: 70.0,
+                              backgroundImage: (GlobalObjects
+                                              .empProfilePic !=
+                                          null &&
+                                      GlobalObjects
+                                          .empProfilePic!.isNotEmpty)
+                                  ? MemoryImage(
+                                      base64Decode(
+                                          GlobalObjects.empProfilePic!),
+                                    ) as ImageProvider<Object>
+                                  : AssetImage('assets/icons/userrr.png'),
+                            ),
+                            const SizedBox(width: 20),
+                            Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  GlobalObjects.empName ?? "---",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      // Increase font size
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  softWrap: true,
+                                ),
+                                Text(
+                                  GlobalObjects.empMail ?? "---",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 16,
+                                      // Increase font size
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  "Join Date: ${DateFormat('dd MMM yy').format(GlobalObjects.empJoinDate ?? DateTime.now())}",
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Capsule structure for icons
+                      Container(
+                        margin: const EdgeInsets.only(
+                            top: 20.0, bottom: 20.0),
+                        // Add margin from the top and bottom
+                        child: Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors
+                                    .blue, // Change the color as needed
+                              ),
+                              child: Center(
+                                child: IconButton(
+                                  icon: const Icon(FontAwesomeIcons.phone,
+                                      color: Colors.white),
+                                  onPressed: () {
+                                    call(GlobalObjects.empPhone ?? "---");
+                                  },
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors
+                                    .grey, // Change the color as needed
+                              ),
+                              child: Center(
+                                child: IconButton(
+                                  icon: const Icon(
+                                      FontAwesomeIcons.envelope,
+                                      color: Colors.white),
+                                  onPressed: () {
+                                    sendEmail(
+                                        GlobalObjects.empMail ?? "---");
+                                  },
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors
+                                    .green, // Change the color as needed
+                              ),
+                              child: Center(
+                                child: IconButton(
+                                  icon: const Icon(
+                                      FontAwesomeIcons.message,
+                                      color: Colors.white),
+                                  onPressed: () {
+                                    sendSms(GlobalObjects.empPhone ?? "---");
+                                    // Add your call functionality here
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
                   children: [
-                    WillPopScope(
-                      onWillPop: () async {
-                        return _onBackPressed(context)
-                            .then((value) => value ?? false);
-                      },
-                      child: const SizedBox(),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Card(
-                      elevation: 4.0,
-                      margin: const EdgeInsets.all(32.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(
-                                top: 20.0), // Add margin from the top
-                            child: Column(
-                              children: [
-                                CircleAvatar(
-                                  key: _profileImageKey,
-                                  radius: 70.0,
-                                  backgroundImage: (GlobalObjects
-                                                  .empProfilePic !=
-                                              null &&
-                                          GlobalObjects
-                                              .empProfilePic!.isNotEmpty)
-                                      ? MemoryImage(
-                                          base64Decode(
-                                              GlobalObjects.empProfilePic!),
-                                        ) as ImageProvider<Object>
-                                      : AssetImage('assets/icons/userrr.png'),
-                                ),
-                                const SizedBox(width: 20),
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text(
-                                      GlobalObjects.empName ?? "---",
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                          // Increase font size
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      softWrap: true,
-                                    ),
-                                    Text(
-                                      GlobalObjects.empMail ?? "---",
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 16,
-                                          // Increase font size
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "Join Date: ${DateFormat('dd MMM yy').format(GlobalObjects.empJoinDate ?? DateTime.now())}",
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Capsule structure for icons
-                          Container(
-                            margin: const EdgeInsets.only(
-                                top: 20.0, bottom: 20.0),
-                            // Add margin from the top and bottom
-                            child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors
-                                        .blue, // Change the color as needed
-                                  ),
-                                  child: Center(
-                                    child: IconButton(
-                                      icon: const Icon(FontAwesomeIcons.phone,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        call(GlobalObjects.empPhone ?? "---");
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors
-                                        .grey, // Change the color as needed
-                                  ),
-                                  child: Center(
-                                    child: IconButton(
-                                      icon: const Icon(
-                                          FontAwesomeIcons.envelope,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        sendEmail(
-                                            GlobalObjects.empMail ?? "---");
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors
-                                        .green, // Change the color as needed
-                                  ),
-                                  child: Center(
-                                    child: IconButton(
-                                      icon: const Icon(
-                                          FontAwesomeIcons.message,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        sendSms(GlobalObjects.empPhone ?? "---");
-                                        // Add your call functionality here
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
                     _buildTileWidget(
                       title: 'Edit Profile',
                       icon: FontAwesomeIcons.pencil,
@@ -473,17 +449,16 @@ class EmpProfilePageState extends State<EmpProfilePage> {
                         }
                       },
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    SizedBox(height: 20,),
                     _buildTileWidget(
                       title: 'Logout',
                       icon: Icons.logout,
                       onTap: () => _logout(context),
                     ),
                   ],
-                ),
-              ),
+                )
+
+              ],
             ),
           );
   }
