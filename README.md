@@ -1,4 +1,4 @@
-# Flutter Live Location Tracking Mega Attendance App 🚀
+# 🚀 Flutter Live Location Tracking Mega Attendance App 
 
 <h3><strong>⌛ Real-time location tracking for automated attendance marking. 🌟</strong></h3>
 
@@ -53,9 +53,9 @@
   </li> 
 </ul>
 
-# TWO PORTALS 🚪🚪
+#  🚪🚪 TWO PORTALS
 
-### -> ADMIN SIDE
+### -> 👨‍💼 ADMIN SIDE
 
 
 <ul>
@@ -109,7 +109,7 @@
 </ul>
 
 
-### -> EMPLOYEE SIDE
+### -> 👨‍💼 EMPLOYEE SIDE
 
 <ul>
   <li><strong>Attendance Marking:</strong>
@@ -154,7 +154,7 @@
   </li>
 </ul>
 
-# CORE FEATURES
+# 🌟 CORE FEATURES
 
 <ul>
   <li><strong>Flutter Framework:</strong>
@@ -254,10 +254,10 @@
 
 
 
-# Explore and Collaborate:
+# 🤝 Explore and Collaborate:
 <p>I've poured my heart, soul, and a touch of wizardry into this Flutter spectacle. Now it's yours to explore! 🚀✨ <br> If you share the passion for efficient coding or have collaboration ideas, my virtual door is always open. Let's craft some tech poetry together. 💻🔗</p>
 
-# Get Started:
+# 🚩 Get Started:
 <ol>
   <li>Clone the repository</li>
   <li>Run flutter pub get to install dependencies</li>
